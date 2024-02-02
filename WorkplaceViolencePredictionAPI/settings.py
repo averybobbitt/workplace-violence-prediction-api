@@ -49,7 +49,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'ViolencePredictionAPI.urls'
+ROOT_URLCONF = 'WorkplaceViolencePredictionAPI.urls'
 
 TEMPLATES = [
     {
