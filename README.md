@@ -34,11 +34,11 @@ After running these commands to get your environment set up, you should be good 
 
 ## Group Members
 
-| Name           |  Role         | Contact                                                           |
-|----------------|---------------|-------------------------------------------------------------------|
-| Aiden Touhill  | Product Owner | [touhil76@students.rowan.edu](mailto:touhil76@students.rowan.edu) |
-| Carter Profico | Scrum Master  | [profic93@students.rowan.edu](mailto:profic93@students.rowan.edu) |
-| Avery Bobbitt  | Developer     | [bobbit82@rowan.edu](mailto:bobbit82@rowan.edu)                   |
-| Joe DiPietro   | Developer     | [dipiet77@students.rowan.edu](mailto:dipiet77@students.rowan.edu) |
-| Chris Duym     | Developer     | [duymch27@students.rowan.edu](mailto:duymch27@students.rowan.edu) |
-| Anthony Ung    | Developer     | [ungant67@students.rowan.edu](mailto:ungant67@students.rowan.edu) |
+| Name           | Role            | Contact                                                           |
+|----------------|-----------------|-------------------------------------------------------------------|
+| Aiden Touhill  | *Product Owner* | [touhil76@students.rowan.edu](mailto:touhil76@students.rowan.edu) |
+| Carter Profico | *Scrum Master*  | [profic93@students.rowan.edu](mailto:profic93@students.rowan.edu) |
+| Avery Bobbitt  | *Developer*     | [bobbit82@rowan.edu](mailto:bobbit82@rowan.edu)                   |
+| Joe DiPietro   | *Developer*     | [dipiet77@students.rowan.edu](mailto:dipiet77@students.rowan.edu) |
+| Chris Duym     | *Developer*     | [duymch27@students.rowan.edu](mailto:duymch27@students.rowan.edu) |
+| Anthony Ung    | *Developer*     | [ungant67@students.rowan.edu](mailto:ungant67@students.rowan.edu) |
