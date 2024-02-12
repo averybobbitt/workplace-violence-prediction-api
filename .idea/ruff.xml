@@ -2,6 +2,5 @@
 <project version="4">
   <component name="RuffConfigService">
     <option name="globalRuffExecutablePath" value="C:\Users\bobbit82\AppData\Local\Programs\Python\Python312\Scripts\ruff.exe" />
-    <option name="projectRuffExecutablePath" value="H:\Documents\workplace-violence-prediction-api\.venv\Scripts\ruff.exe" />
   </component>
 </project>

@@ -12,18 +12,22 @@ This repository contains the source code for our groups Software Engineering pro
 
 ## Development
 
-To set up the development environment for this application, you must do a couple things.
+To set up the development environment for this application, you must do a couple of things.
 
-**1. Clone this repo** 
+> [!TIP]
+> Run the application with the environment variable `DJANGO_DEBUG` set to enable debug mode. The variable can be set
+> to anything, as long as there is a value associated with it. Any non-null value will be parsed as truthy.
+
+**1. Clone this repo**
 > `git clone https://github.com/averybobbitt/workplace-violence-prediction-api.git`
 
-**2. Initialize Python virtualenv** 
+**2. Initialize Python virtualenv**
 > `python -m venv .venv`
 
-**3. Install requirements** 
+**3. Install requirements**
 > `pip install -r requirements.txt`
 
-**4. Apply migrations** 
+**4. Apply migrations**
 > `python manage.py migrate`
 
 **5. Set up database admin user**
@@ -33,8 +37,10 @@ After running these commands to get your environment set up, you should be good 
 
 ### Formatting
 
-> [!IMPORTANT] 
-> Included in the pip requirements for this project is the `black` package. `black` is an opinionated formatter for Python, and is used in this project to enforce consistent code styles. **Make sure you are formatting your code before committing to `master`!**
+> [!IMPORTANT]
+> Included in the pip requirements for this project is the `black` package. `black` is an opinionated formatter for
+> Python, and is used in this project to enforce consistent code styles. **Make sure you are formatting your code before
+committing to `master`!**
 
 ---
 
