@@ -34,11 +34,11 @@ After running these commands to get your environment set up, you should be good 
 
 ## Group Members
 
-| Name           |  Role         |
-|----------------|---------------|
-| Aiden Touhill  | Product Owner |
-| Carter Profico | Scrum Master  |
-| Avery Bobbitt  | Developer     |
-| Joe DiPietro   | Developer     |
-| Chris Duym     | Developer     |
-| Anthony Ung    | Developer     |
+| Name           |  Role         | Contact                                     |
+|----------------|---------------|---------------------------------------------|
+| Aiden Touhill  | Product Owner | [email](mailto:touhil76@students.rowan.edu) |
+| Carter Profico | Scrum Master  | [email](mailto:profic93@students.rowan.edu) |
+| Avery Bobbitt  | Developer     | [email](mailto:bobbit82@rowan.edu)          |
+| Joe DiPietro   | Developer     | [email](mailto:dipiet77@students.rowan.edu) |
+| Chris Duym     | Developer     | [email](mailto:duymch27@students.rowan.edu) |
+| Anthony Ung    | Developer     | [email](mailto:ungant67@students.rowan.edu) |
