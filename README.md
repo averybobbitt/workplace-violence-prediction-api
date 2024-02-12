@@ -23,6 +23,12 @@ To set up the development environment for this application, you must do a couple
 **3. Install requirements** 
 > `pip install -r requirements.txt`
 
+**4. Apply migrations** 
+> `python manage.py migrate`
+
+**5. Set up database admin user**
+> `python manage.py createsuperuser --username admin --email admin@example.com`
+
 After running these commands to get your environment set up, you should be good to go!
 
 ### Formatting
