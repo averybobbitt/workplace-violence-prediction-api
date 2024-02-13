@@ -1,6 +1,8 @@
 from django.contrib.auth.models import User, Group
 from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, permissions, authentication
+from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 
@@ -27,7 +29,6 @@ https://medium.com/@p0zn/django-apiview-vs-viewsets-which-one-to-choose-c8945e53
 """
 
 
-# ViewSet
 class UserViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
@@ -37,7 +38,6 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
 
-# ViewSet
 class GroupViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows groups to be viewed or edited.
@@ -45,6 +45,32 @@ class GroupViewSet(viewsets.ModelViewSet):
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+
+# ViewSet for users to get authentication tokens
+class UserTokenViewSet(viewsets.ViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def create(self, request):
+        username = request.query_params.get('username')
+        queryset = User.objects.get(username__iexact=username)
+        user = get_object_or_404(queryset)
+        token = Token.objects.create(user=user)
+        response = {"user": username, "token": token}
+
+        return JsonResponse(response)
+
+
+# Custom ViewSet
+class HelloWorldViewSet(viewsets.ViewSet):
+    # ViewSets use list() and create() rather than get() and post()
+    def list(self, request):
+        response = {
+            "message": "Hello, world!",
+            "value": 5
+        }
+
+        return JsonResponse(response)
 
 
 # Class-based view (not ViewSet!)
@@ -59,23 +85,9 @@ class HelloAdmin(APIView):
     permission_classes = [permissions.IsAdminUser]
 
     def get(self, request):
-        """
-        Return a list of all users.
-        """
         response = {
             "message": "Hello, admin!",
             "value": 5
         }
 
         return JsonResponse(response)
-
-
-# Function-based view
-@api_view(["GET"])
-def hello(request) -> JsonResponse:
-    response = {
-        "message": "Hello, world!",
-        "value": 5
-    }
-
-    return JsonResponse(response)
