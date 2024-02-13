@@ -27,6 +27,7 @@ https://medium.com/@p0zn/django-apiview-vs-viewsets-which-one-to-choose-c8945e53
 """
 
 
+# ViewSet
 class UserViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
@@ -36,6 +37,7 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
 
+# ViewSet
 class GroupViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows groups to be viewed or edited.
@@ -45,6 +47,7 @@ class GroupViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
 
+# Class-based view (not ViewSet!)
 class HelloAdmin(APIView):
     """
     View to list all users in the system.
@@ -67,6 +70,7 @@ class HelloAdmin(APIView):
         return JsonResponse(response)
 
 
+# Function-based view
 @api_view(["GET"])
 def hello(request) -> JsonResponse:
     response = {

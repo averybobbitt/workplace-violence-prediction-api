@@ -23,6 +23,8 @@ from WorkplaceViolencePredictionAPI.API import views
 router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
 router.register(r'groups', views.GroupViewSet)
+router.register(r'hello_admin', views.HelloAdmin)
+router.register(r'hello', views.hello.as_view())
 
 urlpatterns = [
     path('api/', include(router.urls)),
