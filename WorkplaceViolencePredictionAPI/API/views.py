@@ -1,5 +1,8 @@
 from django.contrib.auth.models import User, Group
-from rest_framework import viewsets, permissions
+from django.http import JsonResponse
+from rest_framework import viewsets, permissions, authentication
+from rest_framework.decorators import api_view
+from rest_framework.views import APIView
 
 from WorkplaceViolencePredictionAPI.API.serializers import UserSerializer, GroupSerializer
 
@@ -41,6 +44,34 @@ class GroupViewSet(viewsets.ModelViewSet):
     serializer_class = GroupSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-# @api_view(["GET"])
-# def get_hello(request): Response
-#     pass
+
+class HelloAdmin(APIView):
+    """
+    View to list all users in the system.
+
+    * Requires token authentication.
+    * Only admin users are able to access this view.
+    """
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAdminUser]
+
+    def get(self, request):
+        """
+        Return a list of all users.
+        """
+        response = {
+            "message": "Hello, admin!",
+            "value": 5
+        }
+
+        return JsonResponse(response)
+
+
+@api_view(["GET"])
+def hello(request) -> JsonResponse:
+    response = {
+        "message": "Hello, world!",
+        "value": 5
+    }
+
+    return JsonResponse(response)

@@ -25,6 +25,6 @@ router.register(r'users', views.UserViewSet)
 router.register(r'groups', views.GroupViewSet)
 
 urlpatterns = [
-    path('', include(router.urls)),  # TODO: make api routes accessible from /api/
+    path('api/', include(router.urls)),
     path('admin/', admin.site.urls),
 ]
