@@ -1,7 +1,5 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import viewsets, permissions
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
 
 from WorkplaceViolencePredictionAPI.API.serializers import UserSerializer, GroupSerializer
 
@@ -43,7 +41,6 @@ class GroupViewSet(viewsets.ModelViewSet):
     serializer_class = GroupSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-
-@api_view(["GET"])
-def get_hello(request): Response
-    pass
+# @api_view(["GET"])
+# def get_hello(request): Response
+#     pass
