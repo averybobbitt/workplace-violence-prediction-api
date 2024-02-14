@@ -38,15 +38,6 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
 
-class GroupViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows groups to be viewed or edited.
-    """
-    queryset = Group.objects.all()
-    serializer_class = GroupSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-
 # ViewSet for users to get authentication tokens
 class UserTokenViewSet(viewsets.ViewSet):
     permission_classes = [permissions.IsAuthenticated]
@@ -67,7 +58,7 @@ class HelloWorldViewSet(viewsets.ViewSet):
     def list(self, request):
         response = {
             "message": "Hello, world!",
-            "value": 5
+            "user": request.data.get("username")
         }
 
         return JsonResponse(response)
@@ -87,7 +78,7 @@ class HelloAdmin(APIView):
     def get(self, request):
         response = {
             "message": "Hello, admin!",
-            "value": 5
+            "user": request.data.get("username")
         }
 
         return JsonResponse(response)
