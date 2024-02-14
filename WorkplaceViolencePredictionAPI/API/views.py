@@ -65,7 +65,7 @@ class HelloWorldViewSet(viewsets.ViewSet):
 
 
 # Class-based view (not ViewSet!)
-class HelloAdmin(APIView):
+class HelloWorldAdmin(APIView):
     """
     View to list all users in the system.
 
