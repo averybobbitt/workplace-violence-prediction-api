@@ -24,11 +24,9 @@ router = routers.DefaultRouter()  # routers only work with ViewSets, not regular
 router.register(r'users', views.UserViewSet)
 # for custom ViewSets, we need to explicitly define the basename
 router.register(r'hello', views.HelloWorldViewSet, basename='hello')
-router.register(r'get_token', views.UserTokenViewSet, basename='token')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
     path('api/auth/', include('rest_framework.urls')),
-    path('api/hello_admin/', views.HelloAdmin.as_view(), name='hello-admin')
 ]
