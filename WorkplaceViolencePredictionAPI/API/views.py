@@ -1,12 +1,11 @@
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, permissions, authentication
 from rest_framework.authtoken.models import Token
-from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 
-from WorkplaceViolencePredictionAPI.API.serializers import UserSerializer, GroupSerializer
+from WorkplaceViolencePredictionAPI.API.serializers import UserSerializer
 
 """
 Django REST framework allows you to combine the logic for a set of related views in a single class, called a ViewSet.
@@ -20,7 +19,7 @@ class, that automatically determines the urlconf for you.
 In this project, we will mainly use ViewSets. The primary difference between ViewSet and ViewAPI is the intended use of
 the functionality. If the application is performing CRUD actions directly on the model (CREATE, READ, UPDATE, DELETE), 
 then ViewSets are better to use. Alternatively, if the application needs finer customization for the requests 
-functionality, we can use ViewAPI, as it's a more barebones class which inherits from a Django base class. For more
+functionality, we can use ViewAPI, as it's a more barebones class which inherits from a Django base View class. For more
 information, refer to the following links:
 
 https://www.reddit.com/r/django/comments/sm07s2/drf_when_to_use_viewsets_vs_generic_views_vs/
