@@ -37,46 +37,12 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
 
-# ViewSet for users to get authentication tokens
-class UserTokenViewSet(viewsets.ViewSet):
-    permission_classes = [permissions.IsAuthenticated]
-
-    def create(self, request):
-        username = request.query_params.get('username')
-        queryset = User.objects.get(username__iexact=username)
-        user = get_object_or_404(queryset)
-        token = Token.objects.create(user=user)
-        response = {"user": username, "token": token}
-
-        return JsonResponse(response)
-
-
 # Custom ViewSet
 class HelloWorldViewSet(viewsets.ViewSet):
     # ViewSets use list() and create() rather than get() and post()
     def list(self, request):
         response = {
             "message": "Hello, world!",
-            "user": request.data.get("username")
-        }
-
-        return JsonResponse(response)
-
-
-# Class-based view (not ViewSet!)
-class HelloWorldAdmin(APIView):
-    """
-    View to list all users in the system.
-
-    * Requires token authentication.
-    * Only admin users are able to access this view.
-    """
-    authentication_classes = [authentication.TokenAuthentication]
-    permission_classes = [permissions.IsAdminUser]
-
-    def get(self, request):
-        response = {
-            "message": "Hello, admin!",
             "user": request.data.get("username")
         }
 
