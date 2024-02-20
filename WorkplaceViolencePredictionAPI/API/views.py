@@ -1,9 +1,8 @@
 from django.contrib.auth.models import User
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
-from rest_framework import viewsets, permissions, authentication
+from rest_framework import viewsets, permissions, authentication, status
 from rest_framework.authtoken.models import Token
-from rest_framework.views import APIView
+from rest_framework.decorators import action
 
 from WorkplaceViolencePredictionAPI.API.serializers import UserSerializer
 
@@ -38,46 +37,32 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 # ViewSet for users to get authentication tokens
-class UserTokenViewSet(viewsets.ViewSet):
+class TokenViewSet(viewsets.ViewSet):
+    authentication_classes = [authentication.BasicAuthentication, authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
-    def create(self, request):
-        username = request.query_params.get('username')
-        queryset = User.objects.get(username__iexact=username)
-        user = get_object_or_404(queryset)
-        token = Token.objects.create(user=user)
-        response = {"user": username, "token": token}
-
-        return JsonResponse(response)
-
-
-# Custom ViewSet
-class HelloWorldViewSet(viewsets.ViewSet):
-    # ViewSets use list() and create() rather than get() and post()
     def list(self, request):
-        response = {
-            "message": "Hello, world!",
-            "user": request.data.get("username")
-        }
+        tokens = Token.objects.filter(user=request.user)
+        token_list = [{'key': token.key} for token in tokens]  # there should only be 1 at any given time
+        return JsonResponse(token_list)
 
-        return JsonResponse(response)
+    def create(self, request):
+        user = request.user
+        token, created = Token.objects.get_or_create(user=user)
+
+        if created:
+            return JsonResponse({'key': token.key}, status=status.HTTP_201_CREATED)
+        else:
+            return JsonResponse({'error': 'Token already exists'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-# Class-based view (not ViewSet!)
-class HelloWorldAdmin(APIView):
-    """
-    View to list all users in the system.
+class HelloViewSet(viewsets.ViewSet):
+    @action(detail=False, permission_classes=[permissions.AllowAny])
+    def world(self, request):
+        return JsonResponse({"message": "Hello, world!"})
 
-    * Requires token authentication.
-    * Only admin users are able to access this view.
-    """
-    authentication_classes = [authentication.TokenAuthentication]
-    permission_classes = [permissions.IsAdminUser]
-
-    def get(self, request):
-        response = {
-            "message": "Hello, admin!",
-            "user": request.data.get("username")
-        }
-
-        return JsonResponse(response)
+    @action(detail=False,
+            permission_classes=[permissions.IsAdminUser],
+            authentication_classes=[authentication.TokenAuthentication, authentication.BasicAuthentication])
+    def admin(self, request):
+        return JsonResponse({"message": "Hello, admin!"})
