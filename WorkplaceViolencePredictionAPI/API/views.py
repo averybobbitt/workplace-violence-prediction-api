@@ -43,8 +43,11 @@ class TokenViewSet(viewsets.ViewSet):
 
     def list(self, request):
         tokens = Token.objects.filter(user=request.user)
-        token_list = [{'key': token.key} for token in tokens]  # there should only be 1 at any given time
-        return JsonResponse(token_list)
+
+        if tokens.exists():
+            return JsonResponse({'key': tokens[0].key}, status=status.HTTP_200_OK)
+        else:
+            return JsonResponse({'error': 'Token does not exist'}, status=status.HTTP_400_BAD_REQUEST)
 
     def create(self, request):
         user = request.user
@@ -56,6 +59,7 @@ class TokenViewSet(viewsets.ViewSet):
             return JsonResponse({'error': 'Token already exists'}, status=status.HTTP_400_BAD_REQUEST)
 
 
+# Hello world ViewSet
 class HelloViewSet(viewsets.ViewSet):
     @action(detail=False, permission_classes=[permissions.AllowAny])
     def world(self, request):
