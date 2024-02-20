@@ -5,9 +5,10 @@ Connects to a database.
 import mysql.connector
 
 mydb = mysql.connector.connect(
-  host="elvis.rowan.edu",
-  user="ungant67",
-  password="1Brokentooth!"
+  host="73.248.135.215",
+  port="3306",
+  user="anthony",
+  password="ungant67"
 )
 
 
