@@ -24,6 +24,7 @@ from WorkplaceViolencePredictionAPI.API import views
 # for ViewSets not associated with a model, we need to explicitly define the basename
 router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
+
 router.register(r'hello', views.HelloViewSet, basename='hello')
 router.register(r'token', views.TokenViewSet, basename='token')
 
@@ -31,4 +32,4 @@ urlpatterns = [
     path('admin/', admin.site.urls),  # built-in admin portal for Django
     path('api/', include(router.urls)),  # router paths defined above
     path('api/auth/', include('rest_framework.urls')),  # login/out for browser view
-]
+

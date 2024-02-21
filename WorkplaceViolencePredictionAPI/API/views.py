@@ -18,7 +18,7 @@ class, that automatically determines the urlconf for you.
 In this project, we will mainly use ViewSets. The primary difference between ViewSet and ViewAPI is the intended use of
 the functionality. If the application is performing CRUD actions directly on the model (CREATE, READ, UPDATE, DELETE), 
 then ViewSets are better to use. Alternatively, if the application needs finer customization for the requests 
-functionality, we can use ViewAPI, as it's a more barebones class which inherits from a Django base class. For more
+functionality, we can use ViewAPI, as it's a more barebones class which inherits from a Django base View class. For more
 information, refer to the following links:
 
 https://www.reddit.com/r/django/comments/sm07s2/drf_when_to_use_viewsets_vs_generic_views_vs/
@@ -70,3 +70,4 @@ class HelloViewSet(viewsets.ViewSet):
             authentication_classes=[authentication.TokenAuthentication, authentication.BasicAuthentication])
     def admin(self, request):
         return JsonResponse({"message": "Hello, admin!"})
+
