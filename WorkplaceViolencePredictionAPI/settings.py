@@ -73,17 +73,13 @@ WSGI_APPLICATION = 'WorkplaceViolencePredictionAPI.wsgi.application'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
-    #'default': {
-    #    'ENGINE': 'django.db.backends.sqlite3',
-    #    'NAME': BASE_DIR / 'db.sqlite3',
-    #},
-    'default': {
+    'external': {
         "ENGINE": "django.db.backends.mysql",
         "NAME": "sweng",
-        "USER": "joe",
-        "PASSWORD": "dipiet77",
+        "USER": "avery",
+        "PASSWORD": "bobbit82",
         "HOST": "73.248.135.215",
-        "PORT": "3306",
+        "PORT": "3306"
     }
 }
 
