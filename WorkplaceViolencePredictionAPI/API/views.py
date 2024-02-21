@@ -2,9 +2,11 @@ import datetime
 
 from django.contrib.auth.models import User
 from django.http import JsonResponse
-from rest_framework import viewsets, permissions, authentication, status
+from django.shortcuts import get_object_or_404
+from rest_framework import viewsets, permissions, authentication
 from rest_framework.authtoken.models import Token
-from rest_framework.decorators import action
+from rest_framework.views import APIView
+from .models import HospitalData
 
 from WorkplaceViolencePredictionAPI.API.models import HospitalData
 from WorkplaceViolencePredictionAPI.API.serializers import UserSerializer
@@ -44,26 +46,17 @@ class HelloViewSet(viewsets.ViewSet):
 
 
 # ViewSet for users to get authentication tokens
-class TokenViewSet(viewsets.ViewSet):
-    authentication_classes = [authentication.BasicAuthentication, authentication.TokenAuthentication]
+class UserTokenViewSet(viewsets.ViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
-    def list(self, request):
-        tokens = Token.objects.filter(user=request.user)
-
-        if tokens.exists():
-            return JsonResponse({'key': tokens[0].key}, status=status.HTTP_200_OK)
-        else:
-            return JsonResponse({'error': 'Token does not exist'}, status=status.HTTP_400_BAD_REQUEST)
-
     def create(self, request):
-        user = request.user
-        token, created = Token.objects.get_or_create(user=user)
+        username = request.query_params.get('username')
+        queryset = User.objects.get(username__iexact=username)
+        user = get_object_or_404(queryset)
+        token = Token.objects.create(user=user)
+        response = {"user": username, "token": token}
 
-        if created:
-            return JsonResponse({'key': token.key}, status=status.HTTP_201_CREATED)
-        else:
-            return JsonResponse({'error': 'Token already exists'}, status=status.HTTP_400_BAD_REQUEST)
+        return JsonResponse(response)
 
 
 # Hospital data ViewSet
@@ -89,7 +82,7 @@ class JsonInputViewSet(viewsets.ViewSet):
 
         ]):
             return JsonResponse({})
-
+          
         data = {
             'createdtime': row.createdtime,
             'avgnurses': row.avgnurses,
@@ -97,5 +90,5 @@ class JsonInputViewSet(viewsets.ViewSet):
             'percentbedsfull': row.percentbedsfull,
             'timeofday': row.timeofday
         }
-
+        
         return JsonResponse(data)

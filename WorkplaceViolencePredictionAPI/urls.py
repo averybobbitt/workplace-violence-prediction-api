@@ -19,6 +19,7 @@ from django.urls import path, include
 from rest_framework import routers
 
 from WorkplaceViolencePredictionAPI.API import views
+from WorkplaceViolencePredictionAPI.API.views import JsonInputViewSet
 
 # routers only work with ViewSets, not regular Views
 # for ViewSets not associated with a model, we need to explicitly define the basename
