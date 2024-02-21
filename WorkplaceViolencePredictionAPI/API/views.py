@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, permissions, authentication
 from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView
-from .models import HospModel
+from .models import HospitalData
 
 from WorkplaceViolencePredictionAPI.API.serializers import UserSerializer
 
@@ -68,27 +68,31 @@ class HelloWorldViewSet(viewsets.ViewSet):
 
 class JsonInputViewSet(viewsets.ViewSet):
     def list(self, request):
-        row = HospModel.objects.latest('pid')
+        row = HospitalData.objects.latest('pid')
         if any([
             row is None,
-            row.timestamp is None,
-            row.intentory is None,
-            row.staffing is None,
-            row.patient is None
+            row.createdtime is None,
+            row.avgnurses is None,
+            row.avgpatients is None,
+            row.percentbedsfull is None,
+            row.timeofday is None
         ]):
             return JsonResponse({})
         if not all([
-            isinstance(row.timestamp, datetime),
-            isinstance(row.inventory, int),
-            isinstance(row.staffing, int),
-            isinstance(row.patients, int),
+            isinstance(row.createdtime, datetime.datetime),
+            isinstance(row.avgnurses, float),
+            isinstance(row.avgpatients, float),
+            isinstance(row.percentbedsfull, float),
+            isinstance(row.timeofday, datetime.time)
+
         ]):
             return JsonResponse({})
         data = {
-            'timestamp': row.timestamp,
-            'inventory': row.inventory,
-            'staffing': row.staffing,
-            'patients': row.patients
+            'createdtime': row.createdtime,
+            'avgnurses': row.avgnurses,
+            'avgpatients': row.avgpatients,
+            'percentbedsfull': row.percentbedsfull,
+            'timeofday': row.timeofday
             }
         return JsonResponse(data)
 
