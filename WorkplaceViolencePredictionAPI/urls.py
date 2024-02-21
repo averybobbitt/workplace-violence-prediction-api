@@ -21,13 +21,15 @@ from rest_framework import routers
 from WorkplaceViolencePredictionAPI.API import views
 from WorkplaceViolencePredictionAPI.API.views import JsonInputViewSet
 
-router = routers.DefaultRouter()  # routers only work with ViewSets, not regular Views
+# routers only work with ViewSets, not regular Views
+# for ViewSets not associated with a model, we need to explicitly define the basename
+router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
-# for custom ViewSets, we need to explicitly define the basename
-router.register(r'hello', views.HelloWorldViewSet, basename='hello')
-router.register(r'json-input', JsonInputViewSet, basename='json-input')
+router.register(r'hello', views.HelloViewSet, basename='hello')
+router.register(r'token', views.TokenViewSet, basename='token')
+
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api/', include(router.urls)),
-    path('api/auth/', include('rest_framework.urls')),
-]
+    path('admin/', admin.site.urls),  # built-in admin portal for Django
+    path('api/', include(router.urls)),  # router paths defined above
+    path('api/auth/', include('rest_framework.urls')),  # login/out for browser view
+
