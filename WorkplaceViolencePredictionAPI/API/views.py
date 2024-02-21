@@ -1,9 +1,12 @@
+import datetime
+
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from rest_framework import viewsets, permissions, authentication, status
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
 
+from WorkplaceViolencePredictionAPI.API.models import HospitalData
 from WorkplaceViolencePredictionAPI.API.serializers import UserSerializer
 
 """
@@ -27,13 +30,17 @@ https://medium.com/@p0zn/django-apiview-vs-viewsets-which-one-to-choose-c8945e53
 """
 
 
-class UserViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows users to be viewed or edited.
-    """
-    queryset = User.objects.all().order_by('-date_joined')
-    serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticated]
+# Hello world ViewSet
+class HelloViewSet(viewsets.ViewSet):
+    @action(detail=False, permission_classes=[permissions.AllowAny])
+    def world(self, request):
+        return JsonResponse({"message": "Hello, world!"})
+
+    @action(detail=False,
+            permission_classes=[permissions.IsAdminUser],
+            authentication_classes=[authentication.TokenAuthentication, authentication.BasicAuthentication])
+    def admin(self, request):
+        return JsonResponse({"message": "Hello, admin!"})
 
 
 # ViewSet for users to get authentication tokens
@@ -59,15 +66,36 @@ class TokenViewSet(viewsets.ViewSet):
             return JsonResponse({'error': 'Token already exists'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-# Hello world ViewSet
-class HelloViewSet(viewsets.ViewSet):
-    @action(detail=False, permission_classes=[permissions.AllowAny])
-    def world(self, request):
-        return JsonResponse({"message": "Hello, world!"})
+# Hospital data ViewSet
+class JsonInputViewSet(viewsets.ViewSet):
+    def list(self, request):
+        row = HospitalData.objects.latest('pid')
+        if any([
+            row is None,
+            row.createdtime is None,
+            row.avgnurses is None,
+            row.avgpatients is None,
+            row.percentbedsfull is None,
+            row.timeofday is None
+        ]):
+            return JsonResponse({})
 
-    @action(detail=False,
-            permission_classes=[permissions.IsAdminUser],
-            authentication_classes=[authentication.TokenAuthentication, authentication.BasicAuthentication])
-    def admin(self, request):
-        return JsonResponse({"message": "Hello, admin!"})
+        if not all([
+            isinstance(row.createdtime, datetime.datetime),
+            isinstance(row.avgnurses, float),
+            isinstance(row.avgpatients, float),
+            isinstance(row.percentbedsfull, float),
+            isinstance(row.timeofday, datetime.time)
 
+        ]):
+            return JsonResponse({})
+
+        data = {
+            'createdtime': row.createdtime,
+            'avgnurses': row.avgnurses,
+            'avgpatients': row.avgpatients,
+            'percentbedsfull': row.percentbedsfull,
+            'timeofday': row.timeofday
+        }
+
+        return JsonResponse(data)
