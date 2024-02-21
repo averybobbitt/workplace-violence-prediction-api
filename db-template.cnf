@@ -1,0 +1,7 @@
+# connection info for the database
+
+[client]
+host = 73.248.135.215
+database = sweng
+user = USER
+password = PASSWORD
