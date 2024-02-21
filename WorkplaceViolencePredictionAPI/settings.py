@@ -76,8 +76,8 @@ DATABASES = {
     'external': {
         "ENGINE": "django.db.backends.mysql",
         "NAME": "sweng",
-        "USER": "avery",
-        "PASSWORD": "bobbit82",
+        "USER": "joe",
+        "PASSWORD": "dipiet77",
         "HOST": "73.248.135.215",
         "PORT": "3306"
     }
