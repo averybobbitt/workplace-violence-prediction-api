@@ -1,9 +1,12 @@
+import datetime
+
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, permissions, authentication
 from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView
+from .models import HospModel
 
 from WorkplaceViolencePredictionAPI.API.serializers import UserSerializer
 
@@ -61,6 +64,34 @@ class HelloWorldViewSet(viewsets.ViewSet):
         }
 
         return JsonResponse(response)
+
+
+class JsonInputViewSet(viewsets.ViewSet):
+    def list(self, request):
+        row = HospModel.objects.latest('pid')
+        if any([
+            row is None,
+            row.timestamp is None,
+            row.intentory is None,
+            row.staffing is None,
+            row.patient is None
+        ]):
+            return JsonResponse({})
+        if not all([
+            isinstance(row.timestamp, datetime),
+            isinstance(row.inventory, int),
+            isinstance(row.staffing, int),
+            isinstance(row.patients, int),
+        ]):
+            return JsonResponse({})
+        data = {
+            'timestamp': row.timestamp,
+            'inventory': row.inventory,
+            'staffing': row.staffing,
+            'patients': row.patients
+            }
+        return JsonResponse(data)
+
 
 
 # Class-based view (not ViewSet!)

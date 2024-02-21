@@ -19,12 +19,13 @@ from django.urls import path, include
 from rest_framework import routers
 
 from WorkplaceViolencePredictionAPI.API import views
+from WorkplaceViolencePredictionAPI.API.views import JsonInputViewSet
 
 router = routers.DefaultRouter()  # routers only work with ViewSets, not regular Views
 router.register(r'users', views.UserViewSet)
 # for custom ViewSets, we need to explicitly define the basename
 router.register(r'hello', views.HelloWorldViewSet, basename='hello')
-
+router.register(r'json-input', JsonInputViewSet, basename='json-input')
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
