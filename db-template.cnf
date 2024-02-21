@@ -1,0 +1,7 @@
+# connection info for the database
+
+[client]
+database = sweng
+user = USER
+password = PASSWORD
+default-character-set = utf8
