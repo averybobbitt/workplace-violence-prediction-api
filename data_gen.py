@@ -53,28 +53,34 @@ def generate_sample_data(samples=2):
     nurses = generate_number_of_nurses(samples=samples)
     patients = generate_number_of_patients(samples=samples)
     time_of_day_array = []
+    current_time_array = []
     for i in range(samples):
         time_of_day_array.append(generate_time_of_day())
+        current_time_array.append(datetime.datetime.now())
 
     data = []
     for i in range(samples):
-        row = [nurses[i], patients[i], bedOccupancy[i], time_of_day_array[i]]
+        row = [current_time_array[i], nurses[i], patients[i], bedOccupancy[i], time_of_day_array[i]]
         data.append(row)
 
+    dataJSON = []
     for i in range(len(data)):
         row = data[i]
         dict = {
-            "avgNurses" : row[0],
-            "avgPatients" : row[1],
-            "percentBedsFull" : row[2],
-            "timeOfDay" : row[3]
+            "createdTime" : row[0],
+            "avgNurses" : row[1],
+            "avgPatients" : row[2],
+            "percentBedsFull" : row[3],
+            "timeOfDay" : row[4]
         }
+        dataJSON.append(dict)
 
-        out_file = open("./sampleData/row" + str(i) + ".json", "w")
-        json.dump(dict, out_file, default=str)
-        out_file.close()
+    file = open("sampleData.json", "w")
+    json.dump(dataJSON, file, default=str)
+    file.close()
+
 
 
 if __name__ == '__main__':
-    data = generate_sample_data(samples=100)
+    data = generate_sample_data()
     print(data)
