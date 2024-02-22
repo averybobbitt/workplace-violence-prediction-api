@@ -68,7 +68,7 @@ class HelloWorldViewSet(viewsets.ViewSet):
 
 class JsonInputViewSet(viewsets.ViewSet):
     def list(self, request):
-        row = HospitalData.objects.latest('pid')
+        row = HospitalData.objects.latest('id')
         if any([
             row is None,
             row.createdtime is None,
