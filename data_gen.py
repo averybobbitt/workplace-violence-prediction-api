@@ -56,7 +56,7 @@ def generate_sample_data(samples=2):
     current_time_array = []
     for i in range(samples):
         time_of_day_array.append(generate_time_of_day())
-        current_time_array.append(datetime.datetime.now())
+        current_time_array.append(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
     data = []
     for i in range(samples):
