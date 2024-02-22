@@ -1,7 +1,7 @@
 import random
 import numpy as np
-from numpy.random import Generator
 import datetime
+import json
 
 # Generates a single instance of gender data based on the gender distribution
 # of staff within hospitals. Gives a 25/75, M/F split.
@@ -18,31 +18,63 @@ def generate_gender_data():
 # Generates random percentage of beds occupied.
 # Default mean and standard deviation comes from CDC dataset
 # Returns ndarray or scalar based on number of samples
-def generate_inpatient_bed_occupancy_data(mean=0.721760392289664, stdDev=0.08738743450179379, samples=1):
-    inpatient_bed_occupancy = Generator.normal(mean, stdDev, samples)
+def generate_inpatient_bed_occupancy_data(mean=0.721760392289664, stdDev=0.08738743450179379, samples=2):
+    generator = np.random.default_rng()
+    inpatient_bed_occupancy = generator.normal(loc=mean, scale=stdDev, size=samples)
     return inpatient_bed_occupancy
 
-def generate_number_of_nurses(mean=5.153, stdDev=.5652, samples=1):
-    nurses = Generator.normal(mean, stdDev, samples)
+# Generates random number of nurses.
+# Mean and standard deviation calculated from ER data from Virtua Marlton
+# Returns ndarray or scalar based on number of samples
+def generate_number_of_nurses(mean=5.153, stdDev=.5652, samples=2):
+    generator = np.random.default_rng()
+    nurses = generator.normal(loc=mean, scale=stdDev, size=samples)
     return nurses
 
-def generate_number_of_patients(mean=66.9516, stdDev=6.953, samples=1):
-    patients = Generator.normal(mean, stdDev, samples)
+# Generate daily number of patients.
+# Mean and standard deviation calculated from ER data from Virtua Marlton
+# Returns ndarray or scalar based on number of samples
+def generate_number_of_patients(mean=66.9516, stdDev=6.953, samples=2):
+    generator = np.random.default_rng()
+    patients = generator.normal(loc=mean, scale=stdDev, size=samples)
     return patients
 
+# Generate random hour and minute
+# Returns a time object
 def generate_time_of_day():
     hour = random.randrange(24)
     minute = random.randrange(60)
     time_of_day = datetime.time(hour, minute)
     return time_of_day
 
+# Generates sample data then dumps it into a JSON
+def generate_sample_data(samples=2):
+    bedOccupancy = generate_inpatient_bed_occupancy_data(samples=samples)
+    nurses = generate_number_of_nurses(samples=samples)
+    patients = generate_number_of_patients(samples=samples)
+    time_of_day_array = []
+    for i in range(samples):
+        time_of_day_array.append(generate_time_of_day())
+
+    data = []
+    for i in range(samples):
+        row = [nurses[i], patients[i], bedOccupancy[i], time_of_day_array[i]]
+        data.append(row)
+
+    for i in range(len(data)):
+        row = data[i]
+        dict = {
+            "avgNurses" : row[0],
+            "avgPatients" : row[1],
+            "percentBedsFull" : row[2],
+            "timeOfDay" : row[3]
+        }
+
+        out_file = open("./sampleData/row" + str(i) + ".json", "w")
+        json.dump(dict, out_file, default=str)
+        out_file.close()
+
 
 if __name__ == '__main__':
-    print("Test data generation")
-    maleCount = 0
-    for i in range(10000):
-        gender = generate_gender_data()
-        if gender == 'M':
-            maleCount += 1
-    print("Total male: " + str(maleCount))
-    print("Total female: " + str(10000 - maleCount))
+    data = generate_sample_data(samples=100)
+    print(data)
