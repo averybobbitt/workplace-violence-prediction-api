@@ -44,7 +44,7 @@ class HelloViewSet(viewsets.ViewSet):
 
 
 # ViewSet for users to get authentication tokens
-class UserTokenViewSet(viewsets.ViewSet):
+class TokenViewSet(viewsets.ViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def create(self, request):
