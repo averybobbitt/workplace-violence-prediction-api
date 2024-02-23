@@ -5,11 +5,9 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, permissions, authentication
 from rest_framework.authtoken.models import Token
-from rest_framework.views import APIView
-from .models import HospitalData
+from rest_framework.decorators import action
 
 from WorkplaceViolencePredictionAPI.API.models import HospitalData
-from WorkplaceViolencePredictionAPI.API.serializers import UserSerializer
 
 """
 Django REST framework allows you to combine the logic for a set of related views in a single class, called a ViewSet.
