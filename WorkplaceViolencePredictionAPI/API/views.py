@@ -7,6 +7,7 @@ from rest_framework import viewsets, permissions, authentication
 from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView
 from .models import HospitalData
+from rest_framework.decorators import action
 
 from WorkplaceViolencePredictionAPI.API.models import HospitalData
 from WorkplaceViolencePredictionAPI.API.serializers import UserSerializer
