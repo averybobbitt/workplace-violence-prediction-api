@@ -6,11 +6,9 @@ from django.http import JsonResponse, HttpResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, permissions, authentication, status
 from rest_framework.authtoken.models import Token
-from rest_framework.views import APIView
-from .models import HospitalData
+from rest_framework.decorators import action
 
 from WorkplaceViolencePredictionAPI.API.models import HospitalData
-from WorkplaceViolencePredictionAPI.API.serializers import UserSerializer
 
 """
 Django REST framework allows you to combine the logic for a set of related views in a single class, called a ViewSet.
@@ -47,17 +45,26 @@ class HelloViewSet(viewsets.ViewSet):
 
 
 # ViewSet for users to get authentication tokens
-class UserTokenViewSet(viewsets.ViewSet):
+class TokenViewSet(viewsets.ViewSet):
+    authentication_classes = [authentication.BasicAuthentication, authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
-    def create(self, request):
-        username = request.query_params.get('username')
-        queryset = User.objects.get(username__iexact=username)
-        user = get_object_or_404(queryset)
-        token = Token.objects.create(user=user)
-        response = {"user": username, "token": token}
+    def list(self, request):
+        tokens = Token.objects.filter(user=request.user)
 
-        return JsonResponse(response)
+        if tokens.exists():
+            return JsonResponse({'key': tokens[0].key}, status=status.HTTP_200_OK)
+        else:
+            return JsonResponse({'error': 'Token does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+
+    def create(self, request):
+        user = request.user
+        token, created = Token.objects.get_or_create(user=user)
+
+        if created:
+            return JsonResponse({'key': token.key}, status=status.HTTP_201_CREATED)
+        else:
+            return JsonResponse({'error': 'Token already exists'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 # Hospital data ViewSet
@@ -90,6 +97,5 @@ class JsonInputViewSet(viewsets.ViewSet):
             'avgpatients': row.avgpatients,
             'percentbedsfull': row.percentbedsfull,
             'timeofday': row.timeofday.isoformat()
-        }
-        
+        }        
         return JsonResponse(data, status=status.HTTP_200_OK)
