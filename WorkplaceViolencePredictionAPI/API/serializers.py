@@ -25,3 +25,12 @@ class HospitalDataSerializer(serializers.ModelSerializer):
         fields = ['id', 'createdtime', 'avgnurses', 'avgpatients', 'percentbedsfull', 'timeofday']
 
     def validate(self, data):
+        if any([
+            data.id is None,
+            data.createdtime is None,
+            data.avgnurses is None,
+            data.avgpatients is None,
+            data.percentbedsfull is None,
+            data.timeofday is None
+        ]):
+            raise serializers.ValidationError("At least one field is null")
