@@ -19,6 +19,9 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         fields = ['url', 'username', 'email', 'groups']
 
 class HospitalDataSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = HospitalData
         fields = ['id', 'createdtime', 'avgnurses', 'avgpatients', 'percentbedsfull', 'timeofday']
+
+    def validate(self, data):

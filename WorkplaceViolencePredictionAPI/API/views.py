@@ -66,6 +66,7 @@ class TokenViewSet(viewsets.ViewSet):
 
 # Hospital data ViewSet
 class JsonInputViewSet(viewsets.ViewSet):
+
     def list(self, request):
         row = HospitalData.objects.latest('pid')
         if any([
