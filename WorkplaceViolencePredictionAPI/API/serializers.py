@@ -1,3 +1,5 @@
+import datetime
+
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
@@ -34,3 +36,14 @@ class HospitalDataSerializer(serializers.ModelSerializer):
             data.timeofday is None
         ]):
             raise serializers.ValidationError("At least one field is null")
+
+        if not all([
+            isinstance(data.createdtime, datetime.datetime),
+            isinstance(data.avgnurses, float),
+            isinstance(data.avgpatients, float),
+            isinstance(data.percentbedsfull, float),
+            isinstance(data.timeofday, datetime.time)
+        ]):
+            raise serializers.ValidationError("Some data is of the wrong type")
+
+        return data
