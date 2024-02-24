@@ -1,9 +1,10 @@
 import datetime
+import decimal
 
 from django.contrib.auth.models import User
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets, permissions, authentication
+from rest_framework import viewsets, permissions, authentication, status
 from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView
 from .models import HospitalData
@@ -71,24 +72,24 @@ class JsonInputViewSet(viewsets.ViewSet):
             row.percentbedsfull is None,
             row.timeofday is None
         ]):
-            return JsonResponse({})
+            return HttpResponse(status=status.HTTP_400_BAD_REQUEST)
 
         if not all([
             isinstance(row.createdtime, datetime.datetime),
-            isinstance(row.avgnurses, float),
-            isinstance(row.avgpatients, float),
-            isinstance(row.percentbedsfull, float),
+            isinstance(row.avgnurses, decimal.Decimal),
+            isinstance(row.avgpatients, decimal.Decimal),
+            isinstance(row.percentbedsfull, decimal.Decimal),
             isinstance(row.timeofday, datetime.time)
 
         ]):
-            return JsonResponse({})
-          
+            return HttpResponse(status=status.HTTP_400_BAD_REQUEST)
+
         data = {
-            'createdtime': row.createdtime,
+            'createdtime': row.createdtime.isoformat(),
             'avgnurses': row.avgnurses,
             'avgpatients': row.avgpatients,
             'percentbedsfull': row.percentbedsfull,
-            'timeofday': row.timeofday
+            'timeofday': row.timeofday.isoformat()
         }
         
-        return JsonResponse(data)
+        return JsonResponse(data, status=status.HTTP_200_OK)
