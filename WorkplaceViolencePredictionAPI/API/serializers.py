@@ -21,6 +21,12 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         fields = ['url', 'username', 'email', 'groups']
 
 class HospitalDataSerializer(serializers.ModelSerializer):
+    id = serializers.CharField(primary_key=True, max_length=36)
+    createdtime = serializers.DateTimeField(db_column='createdTime')
+    avgnurses = serializers.DecimalField(db_column='avgNurses', max_digits=10, decimal_places=0)
+    avgpatients = serializers.DecimalField(db_column='avgPatients', max_digits=10, decimal_places=0)
+    percentbedsfull = serializers.DecimalField(db_column='percentBedsFull', max_digits=10, decimal_places=0)
+    timeofday = serializers.TimeField(db_column='timeOfDay')
 
     class Meta:
         model = HospitalData
