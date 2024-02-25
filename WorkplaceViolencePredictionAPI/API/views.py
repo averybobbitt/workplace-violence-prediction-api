@@ -1,4 +1,5 @@
 import datetime
+import decimal
 
 from django.http import JsonResponse
 from rest_framework import viewsets, permissions, authentication, status
@@ -67,7 +68,7 @@ class TokenViewSet(viewsets.ViewSet):
 # Hospital data ViewSet
 class JsonInputViewSet(viewsets.ViewSet):
     def list(self, request):
-        row = HospitalData.objects.latest('pid')
+        row = HospitalData.objects.latest('id')
         if any([
             row is None,
             row.createdtime is None,
@@ -76,24 +77,23 @@ class JsonInputViewSet(viewsets.ViewSet):
             row.percentbedsfull is None,
             row.timeofday is None
         ]):
-            return JsonResponse({})
+            return JsonResponse({'error': 'At least one non-nullable field is empty'}, status=status.HTTP_400_BAD_REQUEST)
 
         if not all([
             isinstance(row.createdtime, datetime.datetime),
-            isinstance(row.avgnurses, float),
-            isinstance(row.avgpatients, float),
-            isinstance(row.percentbedsfull, float),
+            isinstance(row.avgnurses, decimal.Decimal),
+            isinstance(row.avgpatients, decimal.Decimal),
+            isinstance(row.percentbedsfull, decimal.Decimal),
             isinstance(row.timeofday, datetime.time)
 
         ]):
-            return JsonResponse({})
+            return JsonResponse({'error': 'At least one field is the incorrect type'}, status=status.HTTP_400_BAD_REQUEST)
 
         data = {
-            'createdtime': row.createdtime,
+            'createdtime': row.createdtime.isoformat(),
             'avgnurses': row.avgnurses,
             'avgpatients': row.avgpatients,
             'percentbedsfull': row.percentbedsfull,
-            'timeofday': row.timeofday
-        }
-
-        return JsonResponse(data)
+            'timeofday': row.timeofday.isoformat()
+        }        
+        return JsonResponse(data, status=status.HTTP_200_OK)
