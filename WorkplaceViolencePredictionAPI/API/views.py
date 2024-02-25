@@ -1,9 +1,7 @@
 import datetime
 import decimal
 
-from django.contrib.auth.models import User
-from django.http import JsonResponse, HttpResponse
-from django.shortcuts import get_object_or_404
+from django.http import JsonResponse
 from rest_framework import viewsets, permissions, authentication, status
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
@@ -79,7 +77,7 @@ class JsonInputViewSet(viewsets.ViewSet):
             row.percentbedsfull is None,
             row.timeofday is None
         ]):
-            return HttpResponse(status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse({'error': 'At least one non-nullable field is empty'}, status=status.HTTP_400_BAD_REQUEST)
 
         if not all([
             isinstance(row.createdtime, datetime.datetime),
@@ -89,7 +87,7 @@ class JsonInputViewSet(viewsets.ViewSet):
             isinstance(row.timeofday, datetime.time)
 
         ]):
-            return HttpResponse(status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse({'error': 'At least one field is the incorrect type'}, status=status.HTTP_400_BAD_REQUEST)
 
         data = {
             'createdtime': row.createdtime.isoformat(),
