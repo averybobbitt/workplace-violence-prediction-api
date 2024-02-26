@@ -97,3 +97,4 @@ class JsonInputViewSet(viewsets.ViewSet):
         }
 
         return JsonResponse(data)
+
