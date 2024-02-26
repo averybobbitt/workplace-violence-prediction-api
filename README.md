@@ -29,10 +29,10 @@ To set up the development environment for this application, you must do a couple
 
 **4. Set up database connection**
 
-_Powershell_
+_Windows (Powershell)_
 > `Copy-Item "db-template.cnf" -Destination "db.cnf"`
 
-_macOS / Unix_
+_macOS / Unix (Bash)_
 > `cp db-template.cnf db.cnf`
 
 Then edit `db.cnf` and replace the placeholder values with your credentials.
