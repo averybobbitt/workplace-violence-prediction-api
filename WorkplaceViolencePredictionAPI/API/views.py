@@ -3,8 +3,10 @@ import decimal
 
 from django.http import JsonResponse
 from rest_framework import viewsets, permissions, authentication, status
+from rest_framework.authentication import BasicAuthentication
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 
 from WorkplaceViolencePredictionAPI.API.models import HospitalData
 from . import serializers
@@ -71,6 +73,9 @@ class TokenViewSet(viewsets.ViewSet):
 class JsonInputViewSet(viewsets.ModelViewSet):
     serializer_class = HospitalDataSerializer
     queryset = HospitalData.objects.all()
+
+    authentication_classes = [BasicAuthentication]
+    permission_classes = [IsAuthenticated]
     def list(self, request):
         serializer = self.get_serializer(self.get_queryset().latest('id'))
         try:
