@@ -27,6 +27,11 @@ To set up the development environment for this application, you must do a couple
 **3. Install requirements**
 > `pip install -r requirements.txt`
 
+> [!WARNING]
+> If you are working in a shared database, you are finished at this point.
+> Only continue with steps 4 and 5 if you are setting up a local development database.
+> **DO NOT** run the final command on a database that is already set up.
+
 **4. Apply migrations**
 > `python manage.py migrate`
 
