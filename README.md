@@ -27,10 +27,25 @@ To set up the development environment for this application, you must do a couple
 **3. Install requirements**
 > `pip install -r requirements.txt`
 
-**4. Apply migrations**
+**4. Set up database connection**
+
+_Windows (Powershell)_
+> `Copy-Item "db-template.cnf" -Destination "db.cnf"`
+
+_macOS / Unix (Bash)_
+> `cp db-template.cnf db.cnf`
+
+Then edit `db.cnf` and replace the placeholder values with your credentials.
+
+> [!WARNING]
+> If you are working in a shared database, you are finished at this point.
+> Only continue with steps 5 and 6 if you are setting up a local development database.
+> **DO NOT** run the final command on a database that is already set up.
+
+**5. Apply migrations**
 > `python manage.py migrate`
 
-**5. Set up database admin user**
+**6. Set up database admin user**
 > `python manage.py createsuperuser --username admin --email admin@example.com`
 
 After running these commands to get your environment set up, you should be good to go!
