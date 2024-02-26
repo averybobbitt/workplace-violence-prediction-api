@@ -7,6 +7,8 @@ from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
 
 from WorkplaceViolencePredictionAPI.API.models import HospitalData
+from . import serializers
+from .serializers import HospitalDataSerializer
 
 """
 Django REST framework allows you to combine the logic for a set of related views in a single class, called a ViewSet.
@@ -66,34 +68,14 @@ class TokenViewSet(viewsets.ViewSet):
 
 
 # Hospital data ViewSet
-class JsonInputViewSet(viewsets.ViewSet):
+class JsonInputViewSet(viewsets.ModelViewSet):
+    serializer_class = HospitalDataSerializer
+    queryset = HospitalData.objects.all()
     def list(self, request):
-        row = HospitalData.objects.latest('id')
-        if any([
-            row is None,
-            row.createdtime is None,
-            row.avgnurses is None,
-            row.avgpatients is None,
-            row.percentbedsfull is None,
-            row.timeofday is None
-        ]):
-            return JsonResponse({'error': 'At least one non-nullable field is empty'}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = self.get_serializer(self.get_queryset().latest('id'))
+        try:
+            serializer.is_valid(raise_exception=True)
+        except serializers.ValidationError as e:
+            return JsonResponse({'error': e.detail}, status=status.HTTP_400_BAD_REQUEST)
 
-        if not all([
-            isinstance(row.createdtime, datetime.datetime),
-            isinstance(row.avgnurses, decimal.Decimal),
-            isinstance(row.avgpatients, decimal.Decimal),
-            isinstance(row.percentbedsfull, decimal.Decimal),
-            isinstance(row.timeofday, datetime.time)
-
-        ]):
-            return JsonResponse({'error': 'At least one field is the incorrect type'}, status=status.HTTP_400_BAD_REQUEST)
-
-        data = {
-            'createdtime': row.createdtime.isoformat(),
-            'avgnurses': row.avgnurses,
-            'avgpatients': row.avgpatients,
-            'percentbedsfull': row.percentbedsfull,
-            'timeofday': row.timeofday.isoformat()
-        }        
-        return JsonResponse(data, status=status.HTTP_200_OK)
+        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
