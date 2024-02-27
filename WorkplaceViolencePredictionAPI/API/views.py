@@ -1,6 +1,3 @@
-import datetime
-import decimal
-
 from django.http import JsonResponse
 from rest_framework import viewsets, permissions, authentication, status
 from rest_framework.authentication import BasicAuthentication
@@ -9,8 +6,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 
 from WorkplaceViolencePredictionAPI.API.models import HospitalData
-from . import serializers
-from .serializers import HospitalDataSerializer
+from serializers import HospitalDataSerializer
 
 """
 Django REST framework allows you to combine the logic for a set of related views in a single class, called a ViewSet.
@@ -76,11 +72,11 @@ class JsonInputViewSet(viewsets.ModelViewSet):
 
     authentication_classes = [BasicAuthentication]
     permission_classes = [IsAuthenticated]
-    def list(self, request):
+    def list(self, request, **kwargs):
         serializer = self.get_serializer(self.get_queryset().latest('id'))
         try:
             serializer.is_valid(raise_exception=True)
-        except serializers.ValidationError as e:
-            return JsonResponse({'error': e.detail}, status=status.HTTP_400_BAD_REQUEST)
+        except:
+            return JsonResponse({'error': 'at least one field is null or an incorrect type'}, status=status.HTTP_400_BAD_REQUEST)
 
         return JsonResponse(serializer.data, status=status.HTTP_200_OK)
