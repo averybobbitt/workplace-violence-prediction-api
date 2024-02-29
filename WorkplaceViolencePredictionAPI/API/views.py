@@ -1,12 +1,13 @@
-import datetime
-import decimal
-
 from django.http import JsonResponse
-from rest_framework import viewsets, permissions, authentication, status
+from rest_framework import viewsets, status
+from rest_framework.authentication import BasicAuthentication
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 
+from WorkplaceViolencePredictionAPI.API.authentication import BearerAuthentication
 from WorkplaceViolencePredictionAPI.API.models import HospitalData
+from WorkplaceViolencePredictionAPI.API.serializers import HospitalDataSerializer
 
 """
 Django REST framework allows you to combine the logic for a set of related views in a single class, called a ViewSet.
@@ -31,21 +32,21 @@ https://medium.com/@p0zn/django-apiview-vs-viewsets-which-one-to-choose-c8945e53
 
 # Hello world ViewSet
 class HelloViewSet(viewsets.ViewSet):
-    @action(detail=False, permission_classes=[permissions.AllowAny])
+    @action(detail=False, permission_classes=[AllowAny])
     def world(self, request):
         return JsonResponse({"message": "Hello, world!"})
 
     @action(detail=False,
-            permission_classes=[permissions.IsAdminUser],
-            authentication_classes=[authentication.TokenAuthentication, authentication.BasicAuthentication])
+            permission_classes=[IsAdminUser],
+            authentication_classes=[BasicAuthentication, BearerAuthentication])
     def admin(self, request):
         return JsonResponse({"message": "Hello, admin!"})
 
 
 # ViewSet for users to get authentication tokens
 class TokenViewSet(viewsets.ViewSet):
-    authentication_classes = [authentication.BasicAuthentication, authentication.TokenAuthentication]
-    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [BasicAuthentication, BearerAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def list(self, request):
         tokens = Token.objects.filter(user=request.user)
@@ -66,34 +67,14 @@ class TokenViewSet(viewsets.ViewSet):
 
 
 # Hospital data ViewSet
-class JsonInputViewSet(viewsets.ViewSet):
-    def list(self, request):
-        row = HospitalData.objects.latest('id')
-        if any([
-            row is None,
-            row.createdtime is None,
-            row.avgnurses is None,
-            row.avgpatients is None,
-            row.percentbedsfull is None,
-            row.timeofday is None
-        ]):
-            return JsonResponse({'error': 'At least one non-nullable field is empty'}, status=status.HTTP_400_BAD_REQUEST)
+class HospitalDataViewSet(viewsets.ModelViewSet):
+    queryset = HospitalData.objects.all()
+    serializer_class = HospitalDataSerializer
+    authentication_classes = [BearerAuthentication]
+    permission_classes = [IsAuthenticated]
 
-        if not all([
-            isinstance(row.createdtime, datetime.datetime),
-            isinstance(row.avgnurses, decimal.Decimal),
-            isinstance(row.avgpatients, decimal.Decimal),
-            isinstance(row.percentbedsfull, decimal.Decimal),
-            isinstance(row.timeofday, datetime.time)
-
-        ]):
-            return JsonResponse({'error': 'At least one field is the incorrect type'}, status=status.HTTP_400_BAD_REQUEST)
-
-        data = {
-            'createdtime': row.createdtime.isoformat(),
-            'avgnurses': row.avgnurses,
-            'avgpatients': row.avgpatients,
-            'percentbedsfull': row.percentbedsfull,
-            'timeofday': row.timeofday.isoformat()
-        }        
-        return JsonResponse(data, status=status.HTTP_200_OK)
+    @action(methods=['get'], detail=False)
+    def latest(self, request, **kwargs):
+        latest_entry = HospitalData.objects.latest()
+        serializer = HospitalDataSerializer(latest_entry, many=False)
+        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
