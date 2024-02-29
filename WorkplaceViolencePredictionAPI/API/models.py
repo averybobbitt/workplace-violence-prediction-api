@@ -9,14 +9,14 @@ from django.db import models
 
 
 class HospitalData(models.Model):
-    id = models.CharField(primary_key=True, max_length=36)
-    createdtime = models.DateTimeField(db_column='createdTime')
-    avgnurses = models.DecimalField(db_column='avgNurses', max_digits=10, decimal_places=0)
-    avgpatients = models.DecimalField(db_column='avgPatients', max_digits=10, decimal_places=0)
-    percentbedsfull = models.DecimalField(db_column='percentBedsFull', max_digits=10, decimal_places=0)
+    id = models.SmallAutoField(primary_key=True, editable=False)
+    createdtime = models.DateTimeField(db_column='createdTime', auto_now_add=True, editable=False)
+    avgnurses = models.DecimalField(db_column='avgNurses', max_digits=20, decimal_places=10)
+    avgpatients = models.DecimalField(db_column='avgPatients', max_digits=20, decimal_places=10)
+    percentbedsfull = models.DecimalField(db_column='percentBedsFull', max_digits=20, decimal_places=10)
     timeofday = models.TimeField(db_column='timeOfDay')
 
     class Meta:
         app_label = 'API'
-        managed = False
         db_table = 'hospital_data'
+        get_latest_by = ['id']
