@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User
-from rest_framework import serializers
+from rest_framework.serializers import ModelSerializer, HyperlinkedModelSerializer
 
 from WorkplaceViolencePredictionAPI.API.models import HospitalData
 
@@ -13,12 +13,13 @@ useful shortcut for creating serializers that deal with model instances and quer
 """
 
 
-class UserSerializer(serializers.HyperlinkedModelSerializer):
+class UserSerializer(HyperlinkedModelSerializer):
     class Meta:
         model = User
         fields = ['url', 'username', 'email', 'groups']
 
-class HospitalDataSerializer(serializers.ModelSerializer):
+
+class HospitalDataSerializer(ModelSerializer):
     class Meta:
         model = HospitalData
-        fields = ['id', 'createdtime', 'avgnurses', 'avgpatients', 'percentbedsfull', 'timeofday']
+        fields = '__all__'

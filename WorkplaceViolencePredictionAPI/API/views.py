@@ -67,19 +67,14 @@ class TokenViewSet(viewsets.ViewSet):
 
 
 # Hospital data ViewSet
-class JsonInputViewSet(viewsets.ModelViewSet):
-    serializer_class = HospitalDataSerializer
+class HospitalDataViewSet(viewsets.ModelViewSet):
     queryset = HospitalData.objects.all()
-
+    serializer_class = HospitalDataSerializer
     authentication_classes = [BearerAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def list(self, request, **kwargs):
-        serializer = self.get_serializer(self.get_queryset().latest('id'))
-        try:
-            serializer.is_valid(raise_exception=True)
-        except:
-            return JsonResponse({'error': 'at least one field is null or an incorrect type'},
-                                status=status.HTTP_400_BAD_REQUEST)
-
+    @action(methods=['get'], detail=False)
+    def latest(self, request, **kwargs):
+        latest_entry = HospitalData.objects.latest()
+        serializer = HospitalDataSerializer(latest_entry, many=False)
         return JsonResponse(serializer.data, status=status.HTTP_200_OK)
