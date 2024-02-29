@@ -80,3 +80,4 @@ class JsonInputViewSet(viewsets.ModelViewSet):
             return JsonResponse({'error': 'at least one field is null or an incorrect type'}, status=status.HTTP_400_BAD_REQUEST)
 
         return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+
