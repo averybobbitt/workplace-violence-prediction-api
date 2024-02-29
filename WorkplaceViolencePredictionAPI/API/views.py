@@ -1,12 +1,13 @@
 from django.http import JsonResponse
-from rest_framework import viewsets, permissions, authentication, status
-from rest_framework.authentication import BasicAuthentication
+from rest_framework import viewsets, status
+from rest_framework.authentication import BasicAuthentication, TokenAuthentication
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 
+from WorkplaceViolencePredictionAPI.API.authentication import BearerAuthentication
 from WorkplaceViolencePredictionAPI.API.models import HospitalData
-from serializers import HospitalDataSerializer
+from WorkplaceViolencePredictionAPI.API.serializers import HospitalDataSerializer
 
 """
 Django REST framework allows you to combine the logic for a set of related views in a single class, called a ViewSet.
@@ -31,21 +32,21 @@ https://medium.com/@p0zn/django-apiview-vs-viewsets-which-one-to-choose-c8945e53
 
 # Hello world ViewSet
 class HelloViewSet(viewsets.ViewSet):
-    @action(detail=False, permission_classes=[permissions.AllowAny])
+    @action(detail=False, permission_classes=[AllowAny])
     def world(self, request):
         return JsonResponse({"message": "Hello, world!"})
 
     @action(detail=False,
-            permission_classes=[permissions.IsAdminUser],
-            authentication_classes=[authentication.TokenAuthentication, authentication.BasicAuthentication])
+            permission_classes=[IsAdminUser],
+            authentication_classes=[BearerAuthentication, BasicAuthentication])
     def admin(self, request):
         return JsonResponse({"message": "Hello, admin!"})
 
 
 # ViewSet for users to get authentication tokens
 class TokenViewSet(viewsets.ViewSet):
-    authentication_classes = [authentication.BasicAuthentication, authentication.TokenAuthentication]
-    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [BasicAuthentication, TokenAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def list(self, request):
         tokens = Token.objects.filter(user=request.user)
@@ -72,11 +73,13 @@ class JsonInputViewSet(viewsets.ModelViewSet):
 
     authentication_classes = [BasicAuthentication]
     permission_classes = [IsAuthenticated]
+
     def list(self, request, **kwargs):
         serializer = self.get_serializer(self.get_queryset().latest('id'))
         try:
             serializer.is_valid(raise_exception=True)
         except:
-            return JsonResponse({'error': 'at least one field is null or an incorrect type'}, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse({'error': 'at least one field is null or an incorrect type'},
+                                status=status.HTTP_400_BAD_REQUEST)
 
         return JsonResponse(serializer.data, status=status.HTTP_200_OK)
