@@ -1,6 +1,6 @@
 from django.http import JsonResponse
 from rest_framework import viewsets, status
-from rest_framework.authentication import BasicAuthentication, TokenAuthentication
+from rest_framework.authentication import BasicAuthentication
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
@@ -38,14 +38,14 @@ class HelloViewSet(viewsets.ViewSet):
 
     @action(detail=False,
             permission_classes=[IsAdminUser],
-            authentication_classes=[BearerAuthentication, BasicAuthentication])
+            authentication_classes=[BasicAuthentication, BearerAuthentication])
     def admin(self, request):
         return JsonResponse({"message": "Hello, admin!"})
 
 
 # ViewSet for users to get authentication tokens
 class TokenViewSet(viewsets.ViewSet):
-    authentication_classes = [BasicAuthentication, TokenAuthentication]
+    authentication_classes = [BasicAuthentication, BearerAuthentication]
     permission_classes = [IsAuthenticated]
 
     def list(self, request):
@@ -71,7 +71,7 @@ class JsonInputViewSet(viewsets.ModelViewSet):
     serializer_class = HospitalDataSerializer
     queryset = HospitalData.objects.all()
 
-    authentication_classes = [BasicAuthentication]
+    authentication_classes = [BearerAuthentication]
     permission_classes = [IsAuthenticated]
 
     def list(self, request, **kwargs):
