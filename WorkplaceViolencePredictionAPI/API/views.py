@@ -1,3 +1,4 @@
+from django.contrib.sites import requests
 from django.http import JsonResponse
 from rest_framework import viewsets, status
 from rest_framework.authentication import BasicAuthentication
@@ -78,3 +79,30 @@ class HospitalDataViewSet(viewsets.ModelViewSet):
         latest_entry = HospitalData.objects.latest()
         serializer = HospitalDataSerializer(latest_entry, many=False)
         return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+
+# views.py
+class JSONViewSet(viewsets.ModelViewSet):
+    # permissions/authentication classes
+    authentication_classes = [BearerAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    # queryset/serializer definition
+    queryset = HospitalData.objects.all()
+    serializer = HospitalDataSerializer()
+
+    # list() and create() are predefined in ModelViewSet
+    # create() will call is_valid() and save()
+
+class MassImportJSONViewSet(viewsets.ViewSet):
+    def create(self, request):
+        # permissions/authentication classes
+        authentication_classes = [BearerAuthentication]
+        permission_classes = [IsAuthenticated]
+
+        # this is the request body, should be the contents of the json file from carters script
+        data = request.data
+
+        for entry in data:
+            # here, entry represents one dict containing individual JSON documents.
+            # we can use the python library "requests" to make http requests
+            requests.post('''<url to JSONViewSet>''', entry)
