@@ -25,8 +25,7 @@ from WorkplaceViolencePredictionAPI.API import views
 router = routers.DefaultRouter()
 router.register(r'hello', views.HelloViewSet, basename='hello')
 router.register(r'token', views.TokenViewSet, basename='token')
-router.register(r'latest', views.JsonInputViewSet, basename='latest')
-router.register(r'json', views.JSONViewSet, basename='json')
+router.register(r'data', views.HospitalDataViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),  # built-in admin portal for Django
