@@ -18,7 +18,7 @@ def generate_gender_data():
 # Generates random percentage of beds occupied.
 # Default mean and standard deviation comes from CDC dataset
 # Returns ndarray or scalar based on number of samples
-def generate_inpatient_bed_occupancy_data(mean=0.721760392289664, stdDev=0.08738743450179379, samples=2):
+def generate_inpatient_bed_occupancy_data(mean=0.72176, stdDev=0.08739, samples=2):
     generator = np.random.default_rng()
     inpatient_bed_occupancy = generator.normal(loc=mean, scale=stdDev, size=samples)
     return inpatient_bed_occupancy
@@ -54,13 +54,21 @@ def generate_sample_data(samples=2):
     patients = generate_number_of_patients(samples=samples)
     time_of_day_array = []
     current_time_array = []
+    WPV_array = []
     for i in range(samples):
         time_of_day_array.append(generate_time_of_day())
         current_time_array.append(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+        wpv = 0
+        randNum1 = random.uniform(.75, 1.5)
+        randNum2 = random.uniform(.75, 1.5)
+        randNum3 = random.uniform(.75, 1.5)
+        if nurses[i] <= (5.153 - randNum1 * .5652) and bedOccupancy[i] >= (0.72176 + randNum2 * 0.08739) and patients[i] >= (66.9516 + randNum3 * 6.953):
+            wpv = 1
+        WPV_array.append(wpv)
 
     data = []
     for i in range(samples):
-        row = [current_time_array[i], nurses[i], patients[i], bedOccupancy[i], time_of_day_array[i]]
+        row = [current_time_array[i], nurses[i], patients[i], bedOccupancy[i], time_of_day_array[i], WPV_array[i]]
         data.append(row)
 
     dataJSON = []
@@ -71,16 +79,21 @@ def generate_sample_data(samples=2):
             "avgNurses" : row[1],
             "avgPatients" : row[2],
             "percentBedsFull" : row[3],
-            "timeOfDay" : row[4]
+            "timeOfDay" : row[4],
+            "workplaceViolence" : row[5]
         }
         dataJSON.append(dict)
 
-    file = open("sampleData.json", "w")
-    json.dump(dataJSON, file, default=str)
-    file.close()
+    jsonData = json.dumps(dataJSON, default=str)
+    return jsonData
 
 
 
 if __name__ == '__main__':
-    data = generate_sample_data()
-    print(data)
+    data = generate_sample_data(samples=100000)
+    WPVNum = 0
+    for i in range(len(data)):
+        if data[i][5] == 1:
+            WPVNum += 1
+
+    print(WPVNum)
