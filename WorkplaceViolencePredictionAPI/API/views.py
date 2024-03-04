@@ -81,6 +81,11 @@ class HospitalDataViewSet(viewsets.ModelViewSet):
         return JsonResponse(serializer.data, status=status.HTTP_200_OK)
 
     def create(self, request, **kwargs):
+        """
+        This https request is an example for if a hospital uses their own api route to gather their own data
+        and puts it into a database. If a hospital already has a database with live information to use,
+        this function is obsolete.
+        """
         new_entry = requests.get("https://api.bobbitt.dev/new")
 
         try:
