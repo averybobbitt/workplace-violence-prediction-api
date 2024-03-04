@@ -94,9 +94,6 @@ def generate_sample_data(samples=1):
         dataJSON.append(dict)
 
     return dataJSON
-    #file = open("sampleData.json", "w")
-    #json.dump(dataJSON, file, default=str)
-    #file.close()
 
 
 def filldatabase(json_file_path, database_config):
