@@ -1,3 +1,4 @@
+import requests
 from django.http import JsonResponse
 from rest_framework import viewsets, status
 from rest_framework.authentication import BasicAuthentication
@@ -78,3 +79,14 @@ class HospitalDataViewSet(viewsets.ModelViewSet):
         latest_entry = HospitalData.objects.latest()
         serializer = HospitalDataSerializer(latest_entry, many=False)
         return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+
+    def create(self, request, **kwargs):
+        new_entry = requests.get("https://api.bobbitt.dev/new")
+
+        try:
+            serializer = self.get_serializer(data=new_entry, many=False)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
+        except:
+            return JsonResponse({'error': 'JSON not valid'}, status=status.HTTP_400_BAD_REQUEST)

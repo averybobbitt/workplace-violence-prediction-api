@@ -1,4 +1,6 @@
 import random
+from decimal import Decimal
+
 import numpy as np
 import datetime
 import json
@@ -56,7 +58,7 @@ def generate_time_of_day():
 
 
 # Generates sample data then dumps it into a JSON
-def generate_sample_data(samples=10000):
+def generate_sample_data(samples=1):
     bedOccupancy = generate_inpatient_bed_occupancy_data(samples=samples)
     nurses = generate_number_of_nurses(samples=samples)
     patients = generate_number_of_patients(samples=samples)
@@ -83,21 +85,22 @@ def generate_sample_data(samples=10000):
     for i in range(len(data)):
         row = data[i]
         dict = {
-            "createdTime" : row[0],
-            "avgNurses" : row[1],
-            "avgPatients" : row[2],
-            "percentBedsFull" : row[3],
-            "timeOfDay" : row[4],
-            "workplaceViolence" : row[5]
+            "createdtime": datetime.datetime.strptime(row[0], "%Y-%m-%d %H:%M:%S"),
+            "avgnurses": Decimal(row[1]).quantize(Decimal('0.0000000001')),
+            "avgpatients": Decimal(row[2]).quantize(Decimal('0.0000000001')),
+            "percentbedsfull": Decimal(row[3]).quantize(Decimal('0.0000000001')),
+            "timeofday": row[4]
         }
         dataJSON.append(dict)
 
-    jsonData = json.dumps(dataJSON, default=str)
-    return jsonData
+    return dataJSON
+    #file = open("sampleData.json", "w")
+    #json.dump(dataJSON, file, default=str)
+    #file.close()
 
 
 def filldatabase(json_file_path, database_config):
-    generate_sample_data()
+    generate_sample_data(10000)
     with open(json_file_path, 'r') as file:
         json_data = json.load(file)
 
