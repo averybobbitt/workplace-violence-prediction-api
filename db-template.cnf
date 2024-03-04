@@ -3,5 +3,5 @@
 [client]
 host = 73.248.135.215
 database = sweng
-user = joe
-password = dipiet77
+user = USER
+password = PASSWORD

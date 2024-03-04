@@ -53,7 +53,7 @@ def generate_number_of_patients(mean=66.9516, stdDev=6.953, samples=2):
 def generate_time_of_day():
     hour = random.randrange(24)
     minute = random.randrange(60)
-    time_of_day = datetime.time(hour, minute)#.strftime("%H:%M:%S")
+    time_of_day = datetime.time(hour, minute)
     return time_of_day
 
 
