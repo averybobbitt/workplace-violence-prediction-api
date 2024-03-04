@@ -83,14 +83,14 @@ class HospitalDataViewSet(viewsets.ModelViewSet):
     def create(self, request, **kwargs):
         """
         This https request is an example for if a hospital uses their own api route to gather their own data
-        and want to put it into a database. If a hospital already has a database with live information to use,
-        this function is obsolete.
+        in a dictionary and want to put it into a database. If a hospital already has a database with
+        live information to use, this function is obsolete.
         """
-        new_entry = requests.get("https://api.bobbitt.dev/new")
+        new_entry = requests.get("https://api.bobbitt.dev/new").json()
 
         try:
             serializer = self.get_serializer(data=new_entry, many=False)
-            serializer.is_valid(raise_exception=True)
+            serializer.is_valid(raise_exception=False)
             serializer.save()
             return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
         except:
