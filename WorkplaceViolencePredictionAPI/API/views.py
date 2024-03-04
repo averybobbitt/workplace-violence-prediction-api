@@ -1,3 +1,4 @@
+import requests
 from django.http import JsonResponse
 from rest_framework import viewsets, status
 from rest_framework.authentication import BasicAuthentication
@@ -5,7 +6,6 @@ from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 
-import data_gen
 from WorkplaceViolencePredictionAPI.API.authentication import BearerAuthentication
 from WorkplaceViolencePredictionAPI.API.models import HospitalData
 from WorkplaceViolencePredictionAPI.API.serializers import HospitalDataSerializer
@@ -81,13 +81,12 @@ class HospitalDataViewSet(viewsets.ModelViewSet):
         return JsonResponse(serializer.data, status=status.HTTP_200_OK)
 
     def create(self, request, **kwargs):
-        new_entry = data_gen.generate_sample_data(samples=1)[0]
-        print(new_entry)
+        new_entry = requests.get("https://api.bobbitt.dev/new")
+
         try:
             serializer = self.get_serializer(data=new_entry, many=False)
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
         except:
-            return JsonResponse({'error':'JSON file not valid'}, status=status.HTTP_400_BAD_REQUEST)
-
+            return JsonResponse({'error': 'JSON not valid'}, status=status.HTTP_400_BAD_REQUEST)
