@@ -83,7 +83,7 @@ class HospitalDataViewSet(viewsets.ModelViewSet):
     def create(self, request, **kwargs):
         """
         This https request is an example for if a hospital uses their own api route to gather their own data
-        and puts it into a database. If a hospital already has a database with live information to use,
+        and want to put it into a database. If a hospital already has a database with live information to use,
         this function is obsolete.
         """
         new_entry = requests.get("https://api.bobbitt.dev/new")
