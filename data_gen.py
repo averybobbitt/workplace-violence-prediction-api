@@ -2,6 +2,9 @@ import random
 import numpy as np
 import datetime
 import json
+import requests
+import mysql.connector
+
 
 # Generates a single instance of gender data based on the gender distribution
 # of staff within hospitals. Gives a 25/75, M/F split.
@@ -15,6 +18,7 @@ def generate_gender_data():
         gender = 'F'
     return gender
 
+
 # Generates random percentage of beds occupied.
 # Default mean and standard deviation comes from CDC dataset
 # Returns ndarray or scalar based on number of samples
@@ -22,6 +26,7 @@ def generate_inpatient_bed_occupancy_data(mean=0.72176, stdDev=0.08739, samples=
     generator = np.random.default_rng()
     inpatient_bed_occupancy = generator.normal(loc=mean, scale=stdDev, size=samples)
     return inpatient_bed_occupancy
+
 
 # Generates random number of nurses.
 # Mean and standard deviation calculated from ER data from Virtua Marlton
@@ -31,6 +36,7 @@ def generate_number_of_nurses(mean=5.153, stdDev=.5652, samples=2):
     nurses = generator.normal(loc=mean, scale=stdDev, size=samples)
     return nurses
 
+
 # Generate daily number of patients.
 # Mean and standard deviation calculated from ER data from Virtua Marlton
 # Returns ndarray or scalar based on number of samples
@@ -38,6 +44,7 @@ def generate_number_of_patients(mean=66.9516, stdDev=6.953, samples=2):
     generator = np.random.default_rng()
     patients = generator.normal(loc=mean, scale=stdDev, size=samples)
     return patients
+
 
 # Generate random hour and minute
 # Returns a time object
@@ -47,8 +54,9 @@ def generate_time_of_day():
     time_of_day = datetime.time(hour, minute)
     return time_of_day
 
+
 # Generates sample data then dumps it into a JSON
-def generate_sample_data(samples=2):
+def generate_sample_data(samples=10000):
     bedOccupancy = generate_inpatient_bed_occupancy_data(samples=samples)
     nurses = generate_number_of_nurses(samples=samples)
     patients = generate_number_of_patients(samples=samples)
@@ -88,7 +96,38 @@ def generate_sample_data(samples=2):
     return jsonData
 
 
+def filldatabase(json_file_path, database_config):
+    generate_sample_data()
+    with open(json_file_path, 'r') as file:
+        json_data = json.load(file)
 
+    connection = mysql.connector.connect(**database_config)
+    cursor = connection.cursor()
+
+    try:
+        for json_object in json_data:
+            cursor.execute("""
+                    INSERT INTO hospital_data
+                    (createdTime, avgNurses, avgPatients, percentBedsFull, timeOfDay) 
+                    VALUES (%s, %s, %s, %s, %s)
+                """, (
+                json_object["createdTime"],
+                json_object["avgNurses"],
+                json_object["avgPatients"],
+                json_object["percentBedsFull"],
+                json_object["timeOfDay"]
+            ))
+
+            connection.commit()
+        print("Finished inserting data")
+    except Exception as e:
+            print(f"Error: {e}")
+
+    finally:
+        cursor.close()
+        connection.close()
+
+        
 if __name__ == '__main__':
     data = generate_sample_data(samples=100000)
     WPVNum = 0
