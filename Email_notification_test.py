@@ -4,9 +4,21 @@ import logging
 import os
 from django.conf import settings
 
-recipients = ["touhil76@students.rowan.edu", "ungant67@students.rowan.edu",
-              "dipiet77@students.rowan.edu", "duymch27@students.rowan.edu",
-              "bobbit82@rowan.edu", "profic93@students.rowan.edu"]
+#ungant67@students.rowan.edu
+#dipiet77@students.rowan.edu
+#duymch27@students.rowan.edu
+#bobbit82@rowan.edu
+#profic93@students.rowan.edu
+
+bcc_recipients = []
+
+#Now the emails are pulled from a separate text file that can be altered as needed
+with open('workplace-violence-prediction-api/emails.txt', 'r') as file:
+    for line in file:
+        recipient = line.strip()
+        bcc_recipients.append(recipient)
+
+#print(recipients)
 
 # Manually configure Django settings
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', '')
@@ -18,18 +30,18 @@ settings.configure(
     EMAIL_PORT=587,
     EMAIL_USE_TLS=True,
     EMAIL_HOST_USER="wpvprediction@gmail.com",
-    EMAIL_HOST_PASSWORD="xqjeosxckzmzyvwf"
+    EMAIL_HOST_PASSWORD="gujwjdvulejbeygg"
 )
 
 #Department and risk can be filled in with more specific information later.
 #This is only a test to make sure the message works.
 
 message = (
-    "Warning: Risk level high in department ______!",
-    "This message is to inform you of high risk levels in department _____, likely due to ____. "
+    "Warning: Risk levels in the hospital!",
+    "This message is to inform you of high risk levels within the hospital. "
     "Please be cautious of heightened stress levels as we work to resolve the issue.",
     "workplaceviolencePrediction@gmail.com",
-    recipients,
+    ["workplaceviolencePrediction@gmail.com"],
 )
 
 #Simple test of email sending function. Later on, I will setup a mass_email
