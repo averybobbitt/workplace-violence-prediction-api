@@ -3,6 +3,7 @@ import random
 from datetime import time
 
 import numpy
+import requests
 
 
 # Generates a single instance of gender data based on the gender distribution
@@ -92,3 +93,13 @@ def generate_sample() -> dict:
 # Generates sample data then dumps it into a JSON
 def generate_bulk_samples(samples=10000) -> list[dict]:
     return [generate_sample() for _ in range(samples)]
+
+
+if __name__ == "__main__":
+    endpoint = "http://localhost:8000/api/data/"
+    token = "4c5b35f9f82fd394d135fe6b40a33c3ec756e384"
+    headers = {'Authorization': f"Bearer {token}"}
+
+    for _ in range(10000):
+        r = requests.post(endpoint, headers=headers)
+        print(r.text)
