@@ -82,7 +82,8 @@ def generate_sample() -> dict:
         "avgnurses": f'{nurses:.10f}',
         "avgpatients": f'{patients:.10f}',
         "percentbedsfull": f'{bed_occupancy:.10f}',
-        "timeofday": time_of_day.isoformat()
+        "timeofday": time_of_day.isoformat(),
+        "wpvrisk": wpv
     }
 
     return sample
