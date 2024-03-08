@@ -15,7 +15,7 @@ class HospitalData(models.Model):
     avgpatients = models.DecimalField(db_column='avgPatients', max_digits=20, decimal_places=10)
     percentbedsfull = models.DecimalField(db_column='percentBedsFull', max_digits=20, decimal_places=10)
     timeofday = models.TimeField(db_column='timeOfDay')
-    wpvrisk = models.BooleanField(db_column='wpvRisk', null=True, blank=True)
+    wpvrisk = models.BooleanField(db_column='wpvRisk', default=None)
 
     class Meta:
         app_label = 'API'
