@@ -87,11 +87,11 @@ class HospitalDataViewSet(viewsets.ModelViewSet):
         live information to use, this function is obsolete.
         """
         new_entry = requests.get("https://api.bobbitt.dev/new").json()
+        serializer = self.get_serializer(data=new_entry, many=False)
 
         try:
-            serializer = self.get_serializer(data=new_entry, many=False)
             serializer.is_valid(raise_exception=False)
             serializer.save()
             return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
         except:
-            return JsonResponse({'error': 'JSON not valid'}, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
