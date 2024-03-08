@@ -1,9 +1,11 @@
+from django.db.models import QuerySet
+from pandas import DataFrame
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 
 
 # Creates and trains a random forest model
-def create_model(data):
+def create_model(data: DataFrame):
     x = data.drop(['Current Time', 'Workplace Violence'], axis=1)
     y = data['Workplace Violence']
     # 70 % training dataset and 30 % test datasets
@@ -15,11 +17,15 @@ def create_model(data):
     return rf
 
 
-def predict(model, X_test):
-    y_pred = model.predict(X_test)
+def predict(model, x_test):
+    y_pred = model.predict(x_test)
     return y_pred
 
 
-def predict_prob(model, X_test):
-    y_pred = model.predict_proba(X_test)
+def predict_prob(model, x_test):
+    y_pred = model.predict_proba(x_test)
     return y_pred
+
+
+def queryset_to_dataframe(queryset: QuerySet) -> DataFrame:
+    return DataFrame.from_records(queryset)
