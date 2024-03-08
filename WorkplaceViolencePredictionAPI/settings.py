@@ -34,7 +34,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'rest_framework.authtoken'
+    'rest_framework.authtoken',
+    'WorkplaceViolencePredictionAPI.API'
 ]
 
 MIDDLEWARE = [
@@ -73,8 +74,10 @@ WSGI_APPLICATION = 'WorkplaceViolencePredictionAPI.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        "ENGINE": "django.db.backends.mysql",
+        "OPTIONS": {
+            "read_default_file": os.path.join(BASE_DIR, "db.cnf"),
+        }
     }
 }
 

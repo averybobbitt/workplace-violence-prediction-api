@@ -1,11 +1,14 @@
-from django.contrib.auth.models import User
+import requests
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
-from rest_framework import viewsets, permissions, authentication
+from rest_framework import viewsets, status
+from rest_framework.authentication import BasicAuthentication
 from rest_framework.authtoken.models import Token
-from rest_framework.views import APIView
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 
-from WorkplaceViolencePredictionAPI.API.serializers import UserSerializer
+from WorkplaceViolencePredictionAPI.API.authentication import BearerAuthentication
+from WorkplaceViolencePredictionAPI.API.models import HospitalData
+from WorkplaceViolencePredictionAPI.API.serializers import HospitalDataSerializer
 
 """
 Django REST framework allows you to combine the logic for a set of related views in a single class, called a ViewSet.
@@ -28,56 +31,67 @@ https://medium.com/@p0zn/django-apiview-vs-viewsets-which-one-to-choose-c8945e53
 """
 
 
-class UserViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows users to be viewed or edited.
-    """
-    queryset = User.objects.all().order_by('-date_joined')
-    serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticated]
+# Hello world ViewSet
+class HelloViewSet(viewsets.ViewSet):
+    @action(detail=False, permission_classes=[AllowAny])
+    def world(self, request):
+        return JsonResponse({"message": "Hello, world!"})
+
+    @action(detail=False,
+            permission_classes=[IsAdminUser],
+            authentication_classes=[BasicAuthentication, BearerAuthentication])
+    def admin(self, request):
+        return JsonResponse({"message": "Hello, admin!"})
 
 
 # ViewSet for users to get authentication tokens
-class UserTokenViewSet(viewsets.ViewSet):
-    permission_classes = [permissions.IsAuthenticated]
+class TokenViewSet(viewsets.ViewSet):
+    authentication_classes = [BasicAuthentication, BearerAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def list(self, request):
+        tokens = Token.objects.filter(user=request.user)
+
+        if tokens.exists():
+            return JsonResponse({'key': tokens[0].key}, status=status.HTTP_200_OK)
+        else:
+            return JsonResponse({'error': 'Token does not exist'}, status=status.HTTP_400_BAD_REQUEST)
 
     def create(self, request):
-        username = request.query_params.get('username')
-        queryset = User.objects.get(username__iexact=username)
-        user = get_object_or_404(queryset)
-        token = Token.objects.create(user=user)
-        response = {"user": username, "token": token}
+        user = request.user
+        token, created = Token.objects.get_or_create(user=user)
 
-        return JsonResponse(response)
-
-
-# Custom ViewSet
-class HelloWorldViewSet(viewsets.ViewSet):
-    # ViewSets use list() and create() rather than get() and post()
-    def list(self, request):
-        response = {
-            "message": "Hello, world!",
-            "user": request.data.get("username")
-        }
-
-        return JsonResponse(response)
+        if created:
+            return JsonResponse({'key': token.key}, status=status.HTTP_201_CREATED)
+        else:
+            return JsonResponse({'error': 'Token already exists'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-# Class-based view (not ViewSet!)
-class HelloWorldAdmin(APIView):
-    """
-    View to list all users in the system.
+# Hospital data ViewSet
+class HospitalDataViewSet(viewsets.ModelViewSet):
+    queryset = HospitalData.objects.all()
+    serializer_class = HospitalDataSerializer
+    authentication_classes = [BearerAuthentication]
+    permission_classes = [IsAuthenticated]
 
-    * Requires token authentication.
-    * Only admin users are able to access this view.
-    """
-    authentication_classes = [authentication.TokenAuthentication]
-    permission_classes = [permissions.IsAdminUser]
+    @action(methods=['get'], detail=False)
+    def latest(self, request, **kwargs):
+        latest_entry = HospitalData.objects.latest()
+        serializer = HospitalDataSerializer(latest_entry, many=False)
+        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
 
-    def get(self, request):
-        response = {
-            "message": "Hello, admin!",
-            "user": request.data.get("username")
-        }
+    def create(self, request, **kwargs):
+        """
+        This https request is an example for if a hospital uses their own api route to gather their own data
+        in a dictionary and want to put it into a database. If a hospital already has a database with
+        live information to use, this function is obsolete.
+        """
+        new_entry = requests.get("https://api.bobbitt.dev/new").json()
 
-        return JsonResponse(response)
+        try:
+            serializer = self.get_serializer(data=new_entry, many=False)
+            serializer.is_valid(raise_exception=False)
+            serializer.save()
+            return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
+        except:
+            return JsonResponse({'error': 'JSON not valid'}, status=status.HTTP_400_BAD_REQUEST)
