@@ -24,5 +24,5 @@ def initialize_ml_model(**kwargs):
         queryset = HospitalData.objects.all().values()
         # convert QuerySet to DataFrame
         df = queryset_to_dataframe(queryset)
-        print(df)
+        # print(df)
         # forest = create_model(df)
