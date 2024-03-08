@@ -21,12 +21,8 @@ def initialize_ml_model(**kwargs):
         from WorkplaceViolencePredictionAPI.API.models import HospitalData
 
         # get all current entries
-        print("Getting all current HospitalData...")
         queryset = HospitalData.objects.all().values()
+        # convert QuerySet to DataFrame
         df = queryset_to_dataframe(queryset)
         print(df)
-        print("Converting entries to compatible dataframe...")
-
-        print("Training ML model...")
         # forest = create_model(df)
-        print("Finished initializing ML model")
