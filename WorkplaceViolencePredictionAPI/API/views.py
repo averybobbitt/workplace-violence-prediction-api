@@ -95,3 +95,10 @@ class HospitalDataViewSet(viewsets.ModelViewSet):
             return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
         except:
             return JsonResponse({'error': 'JSON not valid'}, status=status.HTTP_400_BAD_REQUEST)
+
+#class PredictionModelViewSet(viewsets.ModelViewSet):
+#    authentication_classes = [BearerAuthentication]
+#    permission_classes = [IsAuthenticated]
+
+#    def predict(self, request):
+        

@@ -4,6 +4,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix, precision_score, recall_score, ConfusionMatrixDisplay
 from sklearn.model_selection import train_test_split, cross_val_score
 
+
 # Creates and trains a random forest model
 def create_random_forest_model(data):
     X = data.drop(['Current Time', 'Workplace Violence'], axis=1)
@@ -16,9 +17,11 @@ def create_random_forest_model(data):
     rf.fit(X_train, y_train)
     return rf
 
+
 def make_prediction(model, X_test):
     y_pred = model.predict(X_test)
     return y_pred
+
 
 def make_prob_prediction(model, X_test):
     y_pred = model.predict_proba(X_test)
