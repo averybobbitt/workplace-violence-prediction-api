@@ -4,6 +4,7 @@ from rest_framework import viewsets, status
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
+from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 
 from WorkplaceViolencePredictionAPI.API.authentication import BearerAuthentication
@@ -37,8 +38,7 @@ class HelloViewSet(viewsets.ViewSet):
     def world(self, request):
         return JsonResponse({"message": "Hello, world!"})
 
-    @action(detail=False,
-            permission_classes=[IsAdminUser],
+    @action(detail=False, permission_classes=[IsAdminUser],
             authentication_classes=[BasicAuthentication, BearerAuthentication])
     def admin(self, request):
         return JsonResponse({"message": "Hello, admin!"})
@@ -53,18 +53,18 @@ class TokenViewSet(viewsets.ViewSet):
         tokens = Token.objects.filter(user=request.user)
 
         if tokens.exists():
-            return JsonResponse({'key': tokens[0].key}, status=status.HTTP_200_OK)
+            return JsonResponse({"key": tokens[0].key}, status=status.HTTP_200_OK)
         else:
-            return JsonResponse({'error': 'Token does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse({"error": "Token does not exist"}, status=status.HTTP_400_BAD_REQUEST)
 
     def create(self, request):
         user = request.user
         token, created = Token.objects.get_or_create(user=user)
 
         if created:
-            return JsonResponse({'key': token.key}, status=status.HTTP_201_CREATED)
+            return JsonResponse({"key": token.key}, status=status.HTTP_201_CREATED)
         else:
-            return JsonResponse({'error': 'Token already exists'}, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse({"error": "Token already exists"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 # Hospital data ViewSet
@@ -74,7 +74,7 @@ class HospitalDataViewSet(viewsets.ModelViewSet):
     authentication_classes = [BearerAuthentication]
     permission_classes = [IsAuthenticated]
 
-    @action(methods=['get'], detail=False)
+    @action(methods=["GET"], detail=False)
     def latest(self, request, **kwargs):
         latest_entry = HospitalData.objects.latest()
         serializer = HospitalDataSerializer(latest_entry, many=False)
@@ -86,19 +86,33 @@ class HospitalDataViewSet(viewsets.ModelViewSet):
         in a dictionary and want to put it into a database. If a hospital already has a database with
         live information to use, this function is obsolete.
         """
-        new_entry = requests.get("https://api.bobbitt.dev/new").json()
 
-        try:
+        # walrus operator ( := ) evaluates the expression then assigns the value to the variable
+        # (see https://stackoverflow.com/questions/50297704)
+        if num_samples := request.headers.get("Samples"):
+            # check if num_samples header is an integer greater than 1
+            try:
+                num_samples = int(num_samples)
+                if num_samples < 1:
+                    return JsonResponse({"error": "Value must be greater than 0"}, status=status.HTTP_400_BAD_REQUEST)
+            except ValueError:
+                return JsonResponse({"error": "Value must be an integer"}, status=status.HTTP_400_BAD_REQUEST)
+
+            # if value is good, get N samples
+            new_entries = requests.get(f"https://api.bobbitt.dev/bulk?samples={num_samples}").json()
+            serializer = self.get_serializer(data=new_entries, many=True)
+            data_size = len(new_entries)
+        else:
+            # otherwise, get only 1 sample
+            new_entry = requests.get("https://api.bobbitt.dev/new").json()
             serializer = self.get_serializer(data=new_entry, many=False)
-            serializer.is_valid(raise_exception=False)
+            data_size = 1
+
+        # save new entry/entries to database
+        try:
+            serializer.is_valid(raise_exception=True)
             serializer.save()
-            return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
-        except:
-            return JsonResponse({'error': 'JSON not valid'}, status=status.HTTP_400_BAD_REQUEST)
-
-#class PredictionModelViewSet(viewsets.ModelViewSet):
-#    authentication_classes = [BearerAuthentication]
-#    permission_classes = [IsAuthenticated]
-
-#    def predict(self, request):
-        
+            return JsonResponse({"message": f"Successfully added {data_size} entr(y|ies)"},
+                                status=status.HTTP_201_CREATED)
+        except ValidationError:
+            return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
