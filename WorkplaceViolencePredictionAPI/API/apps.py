@@ -4,7 +4,7 @@ from django.apps import AppConfig
 from django.db.backends.signals import connection_created
 from django.dispatch import receiver
 
-from WorkplaceViolencePredictionAPI.API.helpers import queryset_to_dataframe
+from WorkplaceViolencePredictionAPI.API.helpers import queryset_to_dataframe, create_model
 
 
 class ApiConfig(AppConfig):
@@ -16,7 +16,7 @@ class ApiConfig(AppConfig):
 @receiver(connection_created)
 def initialize_ml_model(**kwargs):
     # only run this code if the server is being run (i.e. don't run this if running makemigrations or something)
-    if os.environ.get('RUN_MAIN'):
+    if os.environ.get("RUN_MAIN"):
         # local import to prevent "Apps aren't loaded yet" error
         from WorkplaceViolencePredictionAPI.API.models import HospitalData
 
@@ -24,5 +24,6 @@ def initialize_ml_model(**kwargs):
         queryset = HospitalData.objects.all().values()
         # convert QuerySet to DataFrame
         df = queryset_to_dataframe(queryset)
-        # print(df)
-        # forest = create_model(df)
+        print(df)
+        forest = create_model(df)
+        print(forest)

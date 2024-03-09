@@ -10,10 +10,10 @@ import numpy
 # Returns a string of either M or F
 def generate_gender_data() -> str:
     num = random.random()
-    if num >= .75:
-        gender = 'M'
+    if num >= 0.75:
+        gender = "M"
     else:
-        gender = 'F'
+        gender = "F"
     return gender
 
 
@@ -33,7 +33,7 @@ def generate_inpatient_bed_occupancy_data() -> float:
 # Returns ndarray or scalar based on number of samples
 def generate_number_of_nurses() -> float:
     mean = 5.153
-    std_dev = .5652
+    std_dev = 0.5652
     generator = numpy.random.default_rng()
     nurses = generator.normal(loc=mean, scale=std_dev)
     return nurses
@@ -68,21 +68,23 @@ def generate_sample() -> dict:
     time_of_day = generate_time_of_day()
 
     # check for wpv risk
-    randNum1 = random.uniform(.75, 1.5)
-    randNum2 = random.uniform(.75, 1.5)
-    randNum3 = random.uniform(.75, 1.5)
-    wpv = (nurses <= (5.153 - randNum1 * .5652) and
-           bed_occupancy >= (0.72176 + randNum2 * 0.08739) and
-           patients >= (66.9516 + randNum3 * 6.953))
+    randNum1 = random.uniform(0.75, 1.5)
+    randNum2 = random.uniform(0.75, 1.5)
+    randNum3 = random.uniform(0.75, 1.5)
+    wpv = (
+            nurses <= (5.153 - randNum1 * 0.5652)
+            and bed_occupancy >= (0.72176 + randNum2 * 0.08739)
+            and patients >= (66.9516 + randNum3 * 6.953)
+    )
 
     # construct sample dict
     sample = {
         # pad generated values with f-string formatting
-        "avgnurses": f'{nurses:.10f}',
-        "avgpatients": f'{patients:.10f}',
-        "percentbedsfull": f'{bed_occupancy:.10f}',
-        "timeofday": time_of_day.isoformat(),
-        "wpvrisk": wpv
+        "avgNurses": f"{nurses:.10f}",
+        "avgPatients": f"{patients:.10f}",
+        "percentBedsFull": f"{bed_occupancy:.10f}",
+        "timeOfDay": time_of_day.isoformat(),
+        "wpvRisk": wpv
     }
 
     return sample
