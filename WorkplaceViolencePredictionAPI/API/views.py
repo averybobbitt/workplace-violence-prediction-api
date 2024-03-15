@@ -1,3 +1,6 @@
+import json
+
+import numpy
 import requests
 from django.http import JsonResponse
 from rest_framework import viewsets, status
@@ -7,6 +10,8 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 
+from WorkplaceViolencePredictionAPI.API import apps
+from WorkplaceViolencePredictionAPI.API import helpers
 from WorkplaceViolencePredictionAPI.API.authentication import BearerAuthentication
 from WorkplaceViolencePredictionAPI.API.models import HospitalData
 from WorkplaceViolencePredictionAPI.API.serializers import HospitalDataSerializer
@@ -102,12 +107,13 @@ class HospitalDataViewSet(viewsets.ModelViewSet):
             new_entries = requests.get(f"https://api.bobbitt.dev/bulk?samples={num_samples}").json()
             serializer = self.get_serializer(data=new_entries, many=True)
             data_size = len(new_entries)
+            print(new_entries)
         else:
             # otherwise, get only 1 sample
             new_entry = requests.get("https://api.bobbitt.dev/new").json()
             serializer = self.get_serializer(data=new_entry, many=False)
             data_size = 1
-
+            print(new_entry)
         # save new entry/entries to database
         try:
             serializer.is_valid(raise_exception=True)
@@ -116,3 +122,17 @@ class HospitalDataViewSet(viewsets.ModelViewSet):
                                 status=status.HTTP_201_CREATED)
         except ValidationError:
             return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class PredictionModelViewSet(viewsets.ViewSet):
+    authentication_classes = [BearerAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def list(self, request):
+        queryset = HospitalData.objects.latest()
+        avgNurses = float(queryset.avgNurses)
+        avgPatients = float(queryset.avgPatients)
+        percentBedsFull = float(queryset.percentBedsFull)
+        timeOfDay = queryset.timeOfDay.microsecond
+        data_array = numpy.array([[avgNurses, avgPatients, percentBedsFull, timeOfDay]])
+        prediction = apps.get_forest().predict(data_array)
+        return JsonResponse({"WPV Risk": str(prediction[0])}, status=status.HTTP_200_OK)

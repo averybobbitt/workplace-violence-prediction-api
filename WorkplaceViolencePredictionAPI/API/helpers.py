@@ -48,5 +48,4 @@ def queryset_to_dataframe(queryset: QuerySet) -> DataFrame:
             'timeOfDay': time_ms,
             'wpvRisk': q["wpvRisk"]
         })
-
     return DataFrame.from_records(formatted_data)
