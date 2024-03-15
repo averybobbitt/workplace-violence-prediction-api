@@ -132,7 +132,7 @@ class PredictionModelViewSet(viewsets.ViewSet):
         avgNurses = float(queryset.avgNurses)
         avgPatients = float(queryset.avgPatients)
         percentBedsFull = float(queryset.percentBedsFull)
-        timeOfDay = queryset.timeOfDay.microsecond
+        timeOfDay = (queryset.timeOfDay.hour * 3600 + queryset.timeOfDay.minute * 60 + queryset.timeOfDay.second) * 1000 + queryset.timeOfDay.microsecond / 1000
         data_array = numpy.array([[avgNurses, avgPatients, percentBedsFull, timeOfDay]])
         prediction = apps.get_forest().predict(data_array)
         return JsonResponse({"WPV Risk": str(prediction[0])}, status=status.HTTP_200_OK)

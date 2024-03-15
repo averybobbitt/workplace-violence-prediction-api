@@ -37,7 +37,7 @@ def queryset_to_dataframe(queryset: QuerySet) -> DataFrame:
 
     for q in queryset:
         time_dt: time = q["timeOfDay"]
-        time_ms: float = time_dt.microsecond / 1000
+        time_ms: float = (time_dt.hour * 3600 + time_dt.minute * 60 + time_dt.second) * 1000 + time_dt.microsecond / 1000
 
         formatted_data.append({
             'id': q["id"],
