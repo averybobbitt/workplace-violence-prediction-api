@@ -1,6 +1,7 @@
 import json
 
 import numpy
+import pandas as pd
 import requests
 from django.http import JsonResponse
 from rest_framework import viewsets, status
@@ -128,11 +129,16 @@ class PredictionModelViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
     def list(self, request):
-        queryset = HospitalData.objects.latest()
+        if row := request.headers.get("id"):
+            queryset = HospitalData.objects.get(id=row)
+        else:
+            queryset = HospitalData.objects.latest()
         avgNurses = float(queryset.avgNurses)
         avgPatients = float(queryset.avgPatients)
         percentBedsFull = float(queryset.percentBedsFull)
         timeOfDay = (queryset.timeOfDay.hour * 3600 + queryset.timeOfDay.minute * 60 + queryset.timeOfDay.second) * 1000 + queryset.timeOfDay.microsecond / 1000
-        data_array = numpy.array([[avgNurses, avgPatients, percentBedsFull, timeOfDay]])
-        prediction = apps.get_forest().predict(data_array)
-        return JsonResponse({"WPV Risk": str(prediction[0])}, status=status.HTTP_200_OK)
+        data_df = pd.DataFrame(numpy.array([[avgNurses, avgPatients, percentBedsFull, timeOfDay]]), columns=['avgNurses', 'avgPatients', 'percentBedsFull', 'timeOfDay'])
+        prediction = helpers.predict(apps.get_forest(), data_df)[0]
+        probabilities = helpers.predict_prob(apps.get_forest(), data_df)[0][1]
+        return JsonResponse({f"Row {queryset.id} is WPV risk": str(prediction),
+                                    "Probability of WPV": str(probabilities*100)+"%"}, status=status.HTTP_200_OK)
