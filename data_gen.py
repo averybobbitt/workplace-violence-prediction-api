@@ -86,7 +86,6 @@ def generate_sample() -> dict:
         "timeOfDay": time_of_day.isoformat(),
         "wpvRisk": wpv
     }
-
     return sample
 
 

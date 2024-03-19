@@ -1,3 +1,4 @@
+import threading
 from datetime import time
 
 from pandas import DataFrame
@@ -8,9 +9,20 @@ from WorkplaceViolencePredictionAPI.API.models import HospitalData
 
 
 class Forest:
-    def __init__(self):
-        # get all current entries
-        self.queryset = HospitalData.objects.all().values()
+    _instance = None
+    _lock = threading.Lock()  # ensuring singleton is thread-safe
+
+    def __new__(cls):
+        if not cls._instance:
+            with cls._lock:
+                if not cls._instance:
+                    cls._instance = super().__new__(cls)
+        return cls._instance
+
+    def __init__(self, queryset=None):
+        if queryset is None:
+            queryset = HospitalData.objects.all().values()
+        self.queryset = queryset
         self.dataframe = self.queryset_to_dataframe()
         self.model = self.create_model()
 
