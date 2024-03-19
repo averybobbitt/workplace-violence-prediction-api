@@ -14,4 +14,4 @@ class ApiConfig(AppConfig):
             from WorkplaceViolencePredictionAPI.API.Forest import Forest
 
             # create trained model
-            forest = Forest()
+            Forest()
