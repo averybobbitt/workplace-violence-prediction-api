@@ -13,6 +13,7 @@ class ApiConfig(AppConfig):
 # signal function to initialize ML model when the server successfully connects to the database
 @receiver(connection_created)
 def initialize_ml_model(**kwargs):
+    global forest
     # only run this code if the server is being run (i.e. don't run this if running makemigrations or something)
     if os.environ.get("RUN_MAIN"):
         # local import to prevent "Apps aren't loaded yet" error
