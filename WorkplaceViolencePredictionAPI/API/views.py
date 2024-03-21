@@ -125,7 +125,6 @@ class HospitalDataViewSet(viewsets.ModelViewSet):
 class PredictionModelViewSet(viewsets.ViewSet):
     authentication_classes = [BearerAuthentication]
     permission_classes = [IsAuthenticated]
-    forest = Forest()  # singleton instance
 
     def list(self, request):
         if row := request.headers.get("id"):
@@ -135,11 +134,11 @@ class PredictionModelViewSet(viewsets.ViewSet):
         avgNurses = float(queryset.avgNurses)
         avgPatients = float(queryset.avgPatients)
         percentBedsFull = float(queryset.percentBedsFull)
-        timeOfDay = (
-                            queryset.timeOfDay.hour * 3600 + queryset.timeOfDay.minute * 60 + queryset.timeOfDay.second) * 1000 + queryset.timeOfDay.microsecond / 1000
+        timeOfDay = ((queryset.timeOfDay.hour * 3600 + queryset.timeOfDay.minute * 60 + queryset.timeOfDay.second)
+                     * 1000 + queryset.timeOfDay.microsecond / 1000)
         data_df = pd.DataFrame(numpy.array([[avgNurses, avgPatients, percentBedsFull, timeOfDay]]),
                                columns=['avgNurses', 'avgPatients', 'percentBedsFull', 'timeOfDay'])
-        prediction = self.forest.predict(data_df)[0]
-        probabilities = self.forest.predict_prob(data_df)[0][1]
+        prediction = Forest().predict(data_df)[0]
+        probabilities = Forest().predict_prob(data_df)[0][1]
         return JsonResponse({f"Row {queryset.id} is WPV risk": str(prediction),
                              "Probability of WPV": str(probabilities * 100) + "%"}, status=status.HTTP_200_OK)
