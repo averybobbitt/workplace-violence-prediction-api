@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     "WorkplaceViolencePredictionAPI.API",
+    "background_task"
 ]
 
 MIDDLEWARE = [
