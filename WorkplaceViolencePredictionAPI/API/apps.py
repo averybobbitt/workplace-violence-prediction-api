@@ -24,6 +24,5 @@ def initialize_ml_model(**kwargs):
         # convert QuerySet to DataFrame
         df = queryset_to_dataframe(queryset)
         forest = create_model(df)
-
 def get_forest():
     return forest
