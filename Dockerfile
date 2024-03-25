@@ -1,3 +1,4 @@
+# To do: Find an image that already has a webserver
 # This will change later. (ASGI or WSGI server)
 FROM python:3.12
 
@@ -14,6 +15,3 @@ RUN pip install -r requirements.txt
 
 # Copy the project code into the container
 COPY . /app/
-
-# To do: Find an image that already has a webserver
-CMD ["python", "manage.py", "runserver"]
