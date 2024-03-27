@@ -27,6 +27,7 @@ router.register(r"hello", views.HelloViewSet, basename="hello")
 router.register(r"token", views.TokenViewSet, basename="token")
 router.register(r"data", views.HospitalDataViewSet)
 router.register(r"model", views.PredictionModelViewSet, basename="model")
+router.register(r"email", views.EmailViewSet, basename="email")
 
 urlpatterns = [
     path("admin/", admin.site.urls),  # built-in admin portal for Django

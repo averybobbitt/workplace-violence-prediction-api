@@ -14,6 +14,7 @@ from WorkplaceViolencePredictionAPI.API.authentication import BearerAuthenticati
 from WorkplaceViolencePredictionAPI.API.models import HospitalData
 from WorkplaceViolencePredictionAPI.API.serializers import HospitalDataSerializer
 
+
 """
 Django REST framework allows you to combine the logic for a set of related views in a single class, called a ViewSet.
 In other frameworks you may also find conceptually similar implementations named something like 'Resources' or
@@ -143,3 +144,19 @@ class PredictionModelViewSet(viewsets.ViewSet):
         probabilities = self.forest.predict_prob(data_df)[0][1]
         return JsonResponse({f"Row {queryset.id} is WPV risk": str(prediction),
                              "Probability of WPV": str(probabilities * 100) + "%"}, status=status.HTTP_200_OK)
+
+
+class EmailViewSet(viewsets.ViewSet):
+
+    authentication_classes = [BasicAuthentication, BearerAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request, **kwargs):
+
+        from WorkplaceViolencePredictionAPI.API.Email_notification_test import execute
+
+        try:
+            execute()
+            return JsonResponse({'message': 'Emails sent successfully'}, status=200)
+        except FileNotFoundError as e:
+            return JsonResponse({'error': 'File not found: ' + str(e)}, status=500)
