@@ -1,8 +1,8 @@
-import asyncio
+from celery import Celery
 
-async def every_thirty():
-    i = 0
-    while i<10:
-        await asyncio.sleep(30)
-        print("hi")
-        i += 1
+app = Celery('hello', broker='amqp://guest@localhost//')
+
+
+@app.task
+def hello():
+    return 'hello world'
