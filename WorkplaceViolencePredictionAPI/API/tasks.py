@@ -1,8 +1,8 @@
-from celery import Celery
-
-app = Celery('hello', broker='amqp://guest@localhost//')
+from celery import shared_task
 
 
-@app.task
-def hello():
-    return 'hello world'
+@shared_task
+def my_task(arg1, arg2):
+    # Task logic here
+    result = arg1 + arg2
+    return result
