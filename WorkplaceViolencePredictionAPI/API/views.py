@@ -3,6 +3,7 @@ from datetime import datetime
 import numpy
 import pandas as pd
 import requests
+from django.db.models import ExpressionWrapper, F, Func
 from django.http import JsonResponse
 from rest_framework import viewsets, status
 from rest_framework.authentication import BasicAuthentication
@@ -158,17 +159,23 @@ class IncidentLogViewSet(viewsets.ModelViewSet):
                 (incidentDate := request.headers.get("incidentDate")) and \
                 (affectedPeople := request.headers.get("affectedPeople")) and \
                 (incidentDescription := request.headers.get("incidentDescription")):
+            #incidentDate_seconds = datetime.strptime(incidentDate, "%Y-%m-%d %H:%M:%S").timestamp()
+            #print(incidentDate_seconds)
+            incDate_obj = datetime.strptime(incidentDate, "%Y-%m-%d %H:%M:%S")
+            closest_hdata = (HospitalData.objects.annotate(time_difference=Func(F("createdTime") - incDate_obj, function="ABS"))
+                             .order_by("time_difference").first().id)
             new_log = {
                 "incidentType": incidentType,
-                "incidentDate": datetime.strptime(incidentDate, "%Y-%m-%d %H:%M:%S"),
+                "incidentDate": incDate_obj,
                 "affectedPeople": affectedPeople,
-                "incidentDescription": incidentDescription
+                "incidentDescription": incidentDescription,
+                "hData": closest_hdata
             }
             serializer = self.serializer_class(data=new_log, many=False)
             try:
                 serializer.is_valid(raise_exception=True)
                 serializer.save()
-                return JsonResponse({"status": f"incident {serializer.data.get("id")} logged"},
+                return JsonResponse({"Status": f"Incident {serializer.data.get("id")} logged"},
                                     status=status.HTTP_201_CREATED)
             except ValidationError:
                 return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -178,6 +185,7 @@ class IncidentLogViewSet(viewsets.ModelViewSet):
     def delete(self, request, **kwargs):
         if row := request.headers.get("id"):
             IncidentLog.objects.get(id=row).delete()
-            return JsonResponse({"success": f"incident {row} deleted"}, status=status.HTTP_204_NO_CONTENT)
+            return JsonResponse({"Success": f"Incident {row} deleted"}, status=status.HTTP_204_NO_CONTENT)
         else:
-            return JsonResponse({"Error": "Missing required headers"}, status=status.HTTP_400_BAD_REQUEST)
+            IncidentLog.objects.get(id=row).delete()
+            return JsonResponse({"Error": "Missing required id header"}, status=status.HTTP_400_BAD_REQUEST)
