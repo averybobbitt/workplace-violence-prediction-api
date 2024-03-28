@@ -6,10 +6,3 @@ services:
     command: python manage.py runserver 0.0.0.0:8000
     ports:
       - "8000:8000"
-
-  broker:
-    image: redis
-    container_name: redis
-    ports:
-      - "6379:6379"
-
