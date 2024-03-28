@@ -159,8 +159,6 @@ class IncidentLogViewSet(viewsets.ModelViewSet):
                 (incidentDate := request.headers.get("incidentDate")) and \
                 (affectedPeople := request.headers.get("affectedPeople")) and \
                 (incidentDescription := request.headers.get("incidentDescription")):
-            #incidentDate_seconds = datetime.strptime(incidentDate, "%Y-%m-%d %H:%M:%S").timestamp()
-            #print(incidentDate_seconds)
             incDate_obj = datetime.strptime(incidentDate, "%Y-%m-%d %H:%M:%S")
             closest_hdata = (HospitalData.objects.annotate(time_difference=Func(F("createdTime") - incDate_obj, function="ABS"))
                              .order_by("time_difference").first().id)
