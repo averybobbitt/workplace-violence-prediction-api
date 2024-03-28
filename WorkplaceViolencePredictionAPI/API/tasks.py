@@ -1,8 +1,7 @@
-import asyncio
+from celery import Celery
 
-async def every_thirty():
-    i = 0
-    while i<10:
-        await asyncio.sleep(30)
-        print("hi")
-        i += 1
+app = Celery('tasks', broker='redis://localhost')
+
+@app.task
+def add(x, y):
+    return x + y
