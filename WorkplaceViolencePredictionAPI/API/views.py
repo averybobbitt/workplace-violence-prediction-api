@@ -1,9 +1,7 @@
-import asyncio
-
 import numpy
 import pandas as pd
 import requests
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse
 from rest_framework import viewsets, status
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.authtoken.models import Token
@@ -15,7 +13,6 @@ from WorkplaceViolencePredictionAPI.API.Forest import Forest
 from WorkplaceViolencePredictionAPI.API.authentication import BearerAuthentication
 from WorkplaceViolencePredictionAPI.API.models import HospitalData
 from WorkplaceViolencePredictionAPI.API.serializers import HospitalDataSerializer
-from WorkplaceViolencePredictionAPI.API.tasks import every_thirty
 
 """
 Django REST framework allows you to combine the logic for a set of related views in a single class, called a ViewSet.
@@ -145,12 +142,3 @@ class PredictionModelViewSet(viewsets.ViewSet):
         probabilities = Forest().predict_prob(data_df)[0][1]
         return JsonResponse({f"Row {queryset.id} is WPV risk": str(prediction),
                              "Probability of WPV": str(probabilities * 100) + "%"}, status=status.HTTP_200_OK)
-
-
-class TestProjectViewSet(viewsets.ViewSet):
-    authentication_classes = [BearerAuthentication]
-    permission_classes = [IsAuthenticated]
-
-    def list(self, request):
-        asyncio.create_task(every_thirty())
-        return JsonResponse({"hey"}, status=status.HTTP_200_OK)
