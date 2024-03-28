@@ -25,7 +25,7 @@ from WorkplaceViolencePredictionAPI.API import views
 router = routers.DefaultRouter()
 router.register(r"hello", views.HelloViewSet, basename="hello")
 router.register(r"token", views.TokenViewSet, basename="token")
-router.register(r"data", views.HospitalDataViewSet)
+router.register(r"data", views.TrainingDataViewSet)
 router.register(r"model", views.PredictionModelViewSet, basename="model")
 router.register(r"log", views.IncidentLogViewSet)
 
