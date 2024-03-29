@@ -22,6 +22,7 @@ class HospitalData(models.Model):
         db_table = "hospital_data"
         get_latest_by = ["id"]
 
+
 class TrainingData(models.Model):
     id = models.SmallAutoField(primary_key=True, editable=False)
     createdTime = models.DateTimeField(db_column="createdTime", auto_now_add=True, editable=False)
