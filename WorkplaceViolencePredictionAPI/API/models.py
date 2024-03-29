@@ -19,7 +19,7 @@ class HospitalData(models.Model):
 
     class Meta:
         app_label = "API"
-        db_table = "training_data"
+        db_table = "hospital_data"
         get_latest_by = ["id"]
 
 class TrainingData(models.Model):

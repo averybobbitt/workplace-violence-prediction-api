@@ -6,6 +6,6 @@ from WorkplaceViolencePredictionAPI.scheduler import tasks
 def start():
     scheduler = BackgroundScheduler()
 
-    scheduler.add_job(tasks.hello_world, 'interval', seconds=10)
+    scheduler.add_job(tasks.get_data, 'interval', seconds=10)
 
     scheduler.start()
