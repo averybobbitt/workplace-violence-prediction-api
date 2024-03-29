@@ -5,7 +5,7 @@ from pandas import DataFrame
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 
-from WorkplaceViolencePredictionAPI.API.models import HospitalData
+from WorkplaceViolencePredictionAPI.API.models import TrainingData
 
 
 class Forest:
@@ -21,7 +21,7 @@ class Forest:
 
     def __init__(self, queryset=None):
         if queryset is None:
-            queryset = HospitalData.objects.all().values()
+            queryset = TrainingData.objects.all().values()
         self.queryset = queryset
         self.dataframe = self.queryset_to_dataframe()
         self.model = self.create_model()
