@@ -14,9 +14,8 @@ from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 
 from WorkplaceViolencePredictionAPI.API.Forest import Forest
 from WorkplaceViolencePredictionAPI.API.authentication import BearerAuthentication
-from WorkplaceViolencePredictionAPI.API.models import IncidentLog, TrainingData
-from WorkplaceViolencePredictionAPI.API.serializers import IncidentDataSerializer, \
-    TrainingDataSerializer
+from WorkplaceViolencePredictionAPI.API.models import HospitalData, TrainingData, IncidentLog
+from WorkplaceViolencePredictionAPI.API.serializers import HospitalDataSerializer, TrainingDataSerializer, IncidentDataSerializer
 
 """
 Django REST framework allows you to combine the logic for a set of related views in a single class, called a ViewSet.
@@ -75,6 +74,56 @@ class TokenViewSet(viewsets.ViewSet):
 
 
 # Hospital data ViewSet
+class HospitalDataViewSet(viewsets.ModelViewSet):
+    queryset = HospitalData.objects.all()
+    serializer_class = HospitalDataSerializer
+    authentication_classes = [BearerAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    @action(methods=["GET"], detail=False)
+    def latest(self, request, **kwargs):
+        latest_entry = HospitalData.objects.latest()
+        serializer = HospitalDataSerializer(latest_entry, many=False)
+        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+
+    def create(self, request, **kwargs):
+        """
+        This https request is an example for if a hospital uses their own api route to gather their own data
+        in a dictionary and want to put it into a database. If a hospital already has a database with
+        live information to use, this function is obsolete.
+        """
+
+        # walrus operator ( := ) evaluates the expression then assigns the value to the variable
+        # (see https://stackoverflow.com/questions/50297704)
+        if num_samples := request.headers.get("Samples"):
+            # check if num_samples header is an integer greater than 1
+            try:
+                num_samples = int(num_samples)
+                if num_samples < 1:
+                    return JsonResponse({"error": "Value must be greater than 0"}, status=status.HTTP_400_BAD_REQUEST)
+            except ValueError:
+                return JsonResponse({"error": "Value must be an integer"}, status=status.HTTP_400_BAD_REQUEST)
+
+            # if value is good, get N samples
+            new_entries = requests.get(f"https://api.bobbitt.dev/bulk?samples={num_samples}").json()
+            serializer = self.get_serializer(data=new_entries, many=True)
+            data_size = len(new_entries)
+            print(new_entries)
+        else:
+            # otherwise, get only 1 sample
+            new_entry = requests.get("https://api.bobbitt.dev/new").json()
+            serializer = self.get_serializer(data=new_entry, many=False)
+            data_size = 1
+            print(new_entry)
+        # save new entry/entries to database
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return JsonResponse({"message": f"Successfully added {data_size} entr(y|ies)"},
+                                status=status.HTTP_201_CREATED)
+        except ValidationError:
+            return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 class TrainingDataViewSet(viewsets.ModelViewSet):
     queryset = TrainingData.objects.all()
     serializer_class = TrainingDataSerializer
@@ -125,11 +174,9 @@ class TrainingDataViewSet(viewsets.ModelViewSet):
         except ValidationError:
             return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
 class PredictionModelViewSet(viewsets.ViewSet):
     authentication_classes = [BearerAuthentication]
     permission_classes = [IsAuthenticated]
-    forest = Forest()  # singleton instance
 
     def list(self, request):
         if row := request.headers.get("id"):
@@ -139,12 +186,12 @@ class PredictionModelViewSet(viewsets.ViewSet):
         avgNurses = float(queryset.avgNurses)
         avgPatients = float(queryset.avgPatients)
         percentBedsFull = float(queryset.percentBedsFull)
-        timeOfDay = (
-                            queryset.timeOfDay.hour * 3600 + queryset.timeOfDay.minute * 60 + queryset.timeOfDay.second) * 1000 + queryset.timeOfDay.microsecond / 1000
+        timeOfDay = ((queryset.timeOfDay.hour * 3600 + queryset.timeOfDay.minute * 60 + queryset.timeOfDay.second)
+                     * 1000 + queryset.timeOfDay.microsecond / 1000)
         data_df = pd.DataFrame(numpy.array([[avgNurses, avgPatients, percentBedsFull, timeOfDay]]),
                                columns=['avgNurses', 'avgPatients', 'percentBedsFull', 'timeOfDay'])
-        prediction = self.forest.predict(data_df)[0]
-        probabilities = self.forest.predict_prob(data_df)[0][1]
+        prediction = Forest().predict(data_df)[0]
+        probabilities = Forest().predict_prob(data_df)[0][1]
         return JsonResponse({f"Row {queryset.id} is WPV risk": str(prediction),
                              "Probability of WPV": str(probabilities * 100) + "%"}, status=status.HTTP_200_OK)
 
