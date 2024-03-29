@@ -22,7 +22,7 @@ class HospitalData(models.Model):
         db_table = "hospital_data"
         get_latest_by = ["id"]
         
- class TrainingData(models.Model):
+class TrainingData(models.Model):
     id = models.SmallAutoField(primary_key=True, editable=False)
     createdTime = models.DateTimeField(db_column="createdTime", auto_now_add=True, editable=False)
     avgNurses = models.DecimalField(db_column="avgNurses", max_digits=20, decimal_places=10)
