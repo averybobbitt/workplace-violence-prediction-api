@@ -35,3 +35,15 @@ class TrainingData(models.Model):
         app_label = "API"
         db_table = "training_data"
         get_latest_by = ["id"]
+
+
+class RiskData(models.Model):
+    id = models.SmallAutoField(primary_key=True)
+    created_time = models.DateTimeField()
+    wpvrisk = models.IntegerField(db_column='wpvRisk')  # Field name made lowercase.
+    wpvprobability = models.DecimalField(db_column='wpvProbability', max_digits=3, decimal_places=0)  # Field name made lowercase.
+
+    class Meta:
+        app_label = "API"
+        db_table = 'risk_data'
+        get_latest_by = ["id"]

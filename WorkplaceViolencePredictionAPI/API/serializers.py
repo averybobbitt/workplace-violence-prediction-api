@@ -24,6 +24,7 @@ class HospitalDataSerializer(serializers.ModelSerializer):
         model = HospitalData
         fields = "__all__"
 
+
 class TrainingDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = TrainingData
