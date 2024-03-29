@@ -11,8 +11,8 @@ from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 
 from WorkplaceViolencePredictionAPI.API.Forest import Forest
 from WorkplaceViolencePredictionAPI.API.authentication import BearerAuthentication
-from WorkplaceViolencePredictionAPI.API.models import HospitalData
-from WorkplaceViolencePredictionAPI.API.serializers import HospitalDataSerializer
+from WorkplaceViolencePredictionAPI.API.models import HospitalData, TrainingData
+from WorkplaceViolencePredictionAPI.API.serializers import HospitalDataSerializer, TrainingDataSerializer
 
 """
 Django REST framework allows you to combine the logic for a set of related views in a single class, called a ViewSet.
@@ -121,6 +121,55 @@ class HospitalDataViewSet(viewsets.ModelViewSet):
         except ValidationError:
             return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class TrainingDataViewSet(viewsets.ModelViewSet):
+    queryset = TrainingData.objects.all()
+    serializer_class = TrainingDataSerializer
+    authentication_classes = [BearerAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    @action(methods=["GET"], detail=False)
+    def latest(self, request, **kwargs):
+        latest_entry = TrainingData.objects.latest()
+        serializer = TrainingDataSerializer(latest_entry, many=False)
+        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+
+    def create(self, request, **kwargs):
+        """
+        This https request is an example for if a hospital uses their own api route to gather their own data
+        in a dictionary and want to put it into a database. If a hospital already has a database with
+        live information to use, this function is obsolete.
+        """
+
+        # walrus operator ( := ) evaluates the expression then assigns the value to the variable
+        # (see https://stackoverflow.com/questions/50297704)
+        if num_samples := request.headers.get("Samples"):
+            # check if num_samples header is an integer greater than 1
+            try:
+                num_samples = int(num_samples)
+                if num_samples < 1:
+                    return JsonResponse({"error": "Value must be greater than 0"}, status=status.HTTP_400_BAD_REQUEST)
+            except ValueError:
+                return JsonResponse({"error": "Value must be an integer"}, status=status.HTTP_400_BAD_REQUEST)
+
+            # if value is good, get N samples
+            new_entries = requests.get(f"https://api.bobbitt.dev/bulk?samples={num_samples}").json()
+            serializer = self.get_serializer(data=new_entries, many=True)
+            data_size = len(new_entries)
+            print(new_entries)
+        else:
+            # otherwise, get only 1 sample
+            new_entry = requests.get("https://api.bobbitt.dev/new").json()
+            serializer = self.get_serializer(data=new_entry, many=False)
+            data_size = 1
+            print(new_entry)
+        # save new entry/entries to database
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return JsonResponse({"message": f"Successfully added {data_size} entr(y|ies)"},
+                                status=status.HTTP_201_CREATED)
+        except ValidationError:
+            return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class PredictionModelViewSet(viewsets.ViewSet):
     authentication_classes = [BearerAuthentication]

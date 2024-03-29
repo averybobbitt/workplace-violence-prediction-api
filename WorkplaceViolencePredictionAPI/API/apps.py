@@ -12,6 +12,10 @@ class ApiConfig(AppConfig):
         if os.environ.get("RUN_MAIN"):
             # local import to prevent "Apps aren't loaded yet" error
             from WorkplaceViolencePredictionAPI.API.Forest import Forest
+            from WorkplaceViolencePredictionAPI.scheduler import updater
 
             # create trained model
             Forest()
+
+            # start background tasks
+            updater.start()
