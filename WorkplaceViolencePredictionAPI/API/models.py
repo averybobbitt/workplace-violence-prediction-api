@@ -20,8 +20,7 @@ class HospitalData(models.Model):
         app_label = "API"
         db_table = "hospital_data"
         get_latest_by = ["id"]
-
-
+        
 class TrainingData(models.Model):
     id = models.SmallAutoField(primary_key=True, editable=False)
     createdTime = models.DateTimeField(db_column="createdTime", auto_now_add=True, editable=False)
@@ -36,7 +35,6 @@ class TrainingData(models.Model):
         db_table = "training_data"
         get_latest_by = ["id"]
 
-
 class RiskData(models.Model):
     id = models.SmallAutoField(primary_key=True)
     created_time = models.DateTimeField()
@@ -47,3 +45,15 @@ class RiskData(models.Model):
         app_label = "API"
         db_table = 'risk_data'
         get_latest_by = ["id"]
+
+class IncidentLog(models.Model):
+    id = models.SmallAutoField(primary_key=True, editable=False)
+    incidentType = models.CharField(db_column="incidentType", max_length=255)
+    incidentDate = models.DateTimeField(db_column="incidentDate")
+    affectedPeople = models.CharField(db_column="affectedPeople", max_length=255)
+    incidentDescription = models.CharField(db_column="incidentDescription", max_length=255)
+    hData = models.ForeignKey(TrainingData, null=True, on_delete=models.CASCADE)
+
+    class Meta:
+        app_label = "API"
+        db_table = "incident_log"
