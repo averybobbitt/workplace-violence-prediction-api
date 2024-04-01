@@ -1,3 +1,5 @@
+import json
+
 import numpy
 import pandas as pd
 import requests
@@ -10,14 +12,16 @@ from WorkplaceViolencePredictionAPI.API.serializers import HospitalDataSerialize
 
 def get_data():
     # request new data from dummy API
-    new_entry = requests.get("https://api.bobbitt.dev/new").json()
+    entry = requests.get("https://api.bobbitt.dev/new").json()
+
+
     # serialize the new input
-    serializer = HospitalDataSerializer(data=new_entry, many=False)
+    serializer = HospitalDataSerializer(data=entry, many=False)
 
     try:
         # validate the input
         serializer.is_valid(raise_exception=True)
-        # save to the data base
+        # save to the database
         serializer.save()
     except ValidationError:
         # catch exception from invalid input
