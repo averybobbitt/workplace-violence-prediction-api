@@ -130,59 +130,15 @@ class TrainingDataViewSet(viewsets.ModelViewSet):
     authentication_classes = [BearerAuthentication]
     permission_classes = [IsAuthenticated]
 
-    @action(methods=["GET"], detail=False)
-    def latest(self, request, **kwargs):
-        latest_entry = TrainingData.objects.latest()
-        serializer = TrainingDataSerializer(latest_entry, many=False)
-        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
-
-    def create(self, request, **kwargs):
-        """
-        This https request is an example for if a hospital uses their own api route to gather their own data
-        in a dictionary and want to put it into a database. If a hospital already has a database with
-        live information to use, this function is obsolete.
-        """
-
-        # walrus operator ( := ) evaluates the expression then assigns the value to the variable
-        # (see https://stackoverflow.com/questions/50297704)
-        if num_samples := request.headers.get("Samples"):
-            # check if num_samples header is an integer greater than 1
-            try:
-                num_samples = int(num_samples)
-                if num_samples < 1:
-                    return JsonResponse({"error": "Value must be greater than 0"}, status=status.HTTP_400_BAD_REQUEST)
-            except ValueError:
-                return JsonResponse({"error": "Value must be an integer"}, status=status.HTTP_400_BAD_REQUEST)
-
-            # if value is good, get N samples
-            new_entries = requests.get(f"https://api.bobbitt.dev/bulk?samples={num_samples}").json()
-            serializer = self.get_serializer(data=new_entries, many=True)
-            data_size = len(new_entries)
-            print(new_entries)
-        else:
-            # otherwise, get only 1 sample
-            new_entry = requests.get("https://api.bobbitt.dev/new").json()
-            serializer = self.get_serializer(data=new_entry, many=False)
-            data_size = 1
-            print(new_entry)
-        # save new entry/entries to database
-        try:
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return JsonResponse({"message": f"Successfully added {data_size} entr(y|ies)"},
-                                status=status.HTTP_201_CREATED)
-        except ValidationError:
-            return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 class PredictionModelViewSet(viewsets.ViewSet):
     authentication_classes = [BearerAuthentication]
     permission_classes = [IsAuthenticated]
 
     def list(self, request):
         if row := request.headers.get("id"):
-            queryset = TrainingData.objects.get(id=row)
+            queryset = HospitalData.objects.get(id=row)
         else:
-            queryset = TrainingData.objects.latest()
+            queryset = HospitalData.objects.latest()
         avgNurses = float(queryset.avgNurses)
         avgPatients = float(queryset.avgPatients)
         percentBedsFull = float(queryset.percentBedsFull)
@@ -208,7 +164,7 @@ class IncidentLogViewSet(viewsets.ModelViewSet):
         for header in req_headers:
             if headers.get(header) is None:
                 return JsonResponse({"error": f"Missing header {header}"}, status=status.HTTP_400_BAD_REQUEST)
-        closest_hdata = (TrainingData.objects.annotate(time_difference=Func(F("createdTime") - datetime.strptime(headers.get("incidentDate"), "%Y-%m-%d %H:%M:%S"), function="ABS"))
+        closest_hdata = (HospitalData.objects.annotate(time_difference=Func(F("createdTime") - datetime.strptime(headers.get("incidentDate"), "%Y-%m-%d %H:%M:%S"), function="ABS"))
                          .order_by("time_difference").first().id)
         new_log = {
             "incidentType": headers.get("incidentType"),
