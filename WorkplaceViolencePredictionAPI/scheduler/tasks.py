@@ -30,7 +30,7 @@ def get_data():
 
 def predict():
     # get the latest data from hospital data
-    queryset = HospitalData.objects.latest()
+    queryset = HospitalData.objects.get(id="24447")
     avgNurses = float(queryset.avgNurses)
     avgPatients = float(queryset.avgPatients)
     percentBedsFull = float(queryset.percentBedsFull)
@@ -41,13 +41,16 @@ def predict():
                            columns=['avgNurses', 'avgPatients', 'percentBedsFull', 'timeOfDay'])
     # make a prediction based on the dataframe
     prediction = Forest().predict(data_df)[0]
+    print(prediction)
     # make a prediction for the probability
     probabilities = Forest().predict_prob(data_df)[0][1]
-
-    if probabilities == False:
+    print(probabilities)
+    if prediction == False:
         predictionInt = 0
     else:
         predictionInt = 1
+
+    print(predictionInt)
 
     riskdatainput = {
         "hData": queryset.id,
