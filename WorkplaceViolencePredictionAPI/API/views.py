@@ -14,8 +14,9 @@ from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 
 from WorkplaceViolencePredictionAPI.API.Forest import Forest
 from WorkplaceViolencePredictionAPI.API.authentication import BearerAuthentication
-from WorkplaceViolencePredictionAPI.API.models import HospitalData, TrainingData, IncidentLog
-from WorkplaceViolencePredictionAPI.API.serializers import HospitalDataSerializer, TrainingDataSerializer, IncidentDataSerializer
+from WorkplaceViolencePredictionAPI.API.models import HospitalData, TrainingData, IncidentLog, RiskData
+from WorkplaceViolencePredictionAPI.API.serializers import HospitalDataSerializer, TrainingDataSerializer, \
+    IncidentDataSerializer, RiskDataSerializer
 
 """
 Django REST framework allows you to combine the logic for a set of related views in a single class, called a ViewSet.
@@ -130,11 +131,13 @@ class TrainingDataViewSet(viewsets.ModelViewSet):
     authentication_classes = [BearerAuthentication]
     permission_classes = [IsAuthenticated]
 
-class PredictionModelViewSet(viewsets.ViewSet):
+class PredictionModelViewSet(viewsets.ModelViewSet):
     authentication_classes = [BearerAuthentication]
     permission_classes = [IsAuthenticated]
+    queryset = RiskData.objects.all()
+    serializer_class = RiskDataSerializer
 
-    def list(self, request):
+    def create(self, request):
         if row := request.headers.get("id"):
             queryset = HospitalData.objects.get(id=row)
         else:
@@ -148,8 +151,21 @@ class PredictionModelViewSet(viewsets.ViewSet):
                                columns=['avgNurses', 'avgPatients', 'percentBedsFull', 'timeOfDay'])
         prediction = Forest().predict(data_df)[0]
         probabilities = Forest().predict_prob(data_df)[0][1]
-        return JsonResponse({f"Row {queryset.id} is WPV risk": str(prediction),
-                             "Probability of WPV": str(probabilities * 100) + "%"}, status=status.HTTP_200_OK)
+        print(queryset.id)
+        new_entry = {
+            "hData": queryset.id,
+            "wpvRisk": prediction,
+            "wpvProbability": probabilities*100
+        }
+        serializer = self.get_serializer(data=new_entry, many=False)
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return JsonResponse({f"Row {queryset.id} is WPV risk": str(prediction),
+                                 "Probability of WPV": str(probabilities * 100) + "%"}, status=status.HTTP_200_OK)
+        except ValidationError:
+            return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 class IncidentLogViewSet(viewsets.ModelViewSet):
@@ -190,3 +206,4 @@ class IncidentLogViewSet(viewsets.ModelViewSet):
         else:
             IncidentLog.objects.get(id=row).delete()
             return JsonResponse({"Error": "Missing required id header"}, status=status.HTTP_400_BAD_REQUEST)
+
