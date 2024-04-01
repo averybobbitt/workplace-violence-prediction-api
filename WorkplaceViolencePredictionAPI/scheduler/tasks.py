@@ -30,7 +30,7 @@ def get_data():
 
 def predict():
     # get the latest data from hospital data
-    queryset = HospitalData.objects.get(id="24447")
+    queryset = HospitalData.objects.latest()
     avgNurses = float(queryset.avgNurses)
     avgPatients = float(queryset.avgPatients)
     percentBedsFull = float(queryset.percentBedsFull)
@@ -41,30 +41,29 @@ def predict():
                            columns=['avgNurses', 'avgPatients', 'percentBedsFull', 'timeOfDay'])
     # make a prediction based on the dataframe
     prediction = Forest().predict(data_df)[0]
-    print(prediction)
     # make a prediction for the probability
     probabilities = Forest().predict_prob(data_df)[0][1]
-    print(probabilities)
+    #prediction is in t/f format but we have to convert to 0/1 for database
     if prediction == False:
         predictionInt = 0
     else:
         predictionInt = 1
-
-    print(predictionInt)
-
+    # create the input json for risk data table
     riskdatainput = {
         "hData": queryset.id,
         "wpvRisk": predictionInt,
         "wpvProbability": probabilities
     }
-
+    # create a serializer for the json input
     serializer = RiskDataSerializer(data=riskdatainput, many=False)
 
+    # if the serializer is valid, save the data to risk data
     try:
         serializer.is_valid(raise_exception=True)
         serializer.save()
     except ValidationError:
         print("invalid input")
 
+    # display the risk results
     print({f"Row {queryset.id} is WPV risk": str(prediction),
            "Probability of WPV": str(probabilities * 100) + "%"})
