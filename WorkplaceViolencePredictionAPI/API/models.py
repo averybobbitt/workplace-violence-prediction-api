@@ -35,17 +35,19 @@ class TrainingData(models.Model):
         db_table = "training_data"
         get_latest_by = ["id"]
 
+        
 class RiskData(models.Model):
-    id = models.SmallAutoField(primary_key=True)
-    created_time = models.DateTimeField()
-    wpvrisk = models.IntegerField(db_column='wpvRisk')  # Field name made lowercase.
-    wpvprobability = models.DecimalField(db_column='wpvProbability', max_digits=3, decimal_places=0)  # Field name made lowercase.
+    id = models.SmallAutoField(primary_key=True, editable=False)
+    hData = models.ForeignKey(HospitalData, null=True, on_delete=models.CASCADE)
+    wpvRisk = models.BooleanField(db_column="wpvRisk")
+    wpvProbability = models.DecimalField(db_column="wpvProbability", max_digits=3, decimal_places=2)
 
     class Meta:
         app_label = "API"
-        db_table = 'risk_data'
+        db_table = "risk_data"
         get_latest_by = ["id"]
 
+        
 class IncidentLog(models.Model):
     id = models.SmallAutoField(primary_key=True, editable=False)
     incidentType = models.CharField(db_column="incidentType", max_length=255)
@@ -57,3 +59,4 @@ class IncidentLog(models.Model):
     class Meta:
         app_label = "API"
         db_table = "incident_log"
+        get_latest_by = ["id"]
