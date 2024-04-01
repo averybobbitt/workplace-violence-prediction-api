@@ -20,8 +20,7 @@ class HospitalData(models.Model):
         app_label = "API"
         db_table = "hospital_data"
         get_latest_by = ["id"]
-
-
+        
 class TrainingData(models.Model):
     id = models.SmallAutoField(primary_key=True, editable=False)
     createdTime = models.DateTimeField(db_column="createdTime", auto_now_add=True, editable=False)
@@ -36,12 +35,11 @@ class TrainingData(models.Model):
         db_table = "training_data"
         get_latest_by = ["id"]
 
-
 class RiskData(models.Model):
     id = models.SmallAutoField(primary_key=True)
-    hdata = models.ForeignKey(HospitalData, models.DO_NOTHING, db_column='hData_id')  # Field name made lowercase.
-    wpvrisk = models.SmallIntegerField(db_column='wpvRisk')  # Field name made lowercase.
-    wpvprobability = models.DecimalField(db_column='wpvProbability', max_digits=3, decimal_places=2)  # Field name made lowercase.
+    created_time = models.DateTimeField()
+    wpvrisk = models.IntegerField(db_column='wpvRisk')  # Field name made lowercase.
+    wpvprobability = models.DecimalField(db_column='wpvProbability', max_digits=3, decimal_places=0)  # Field name made lowercase.
 
     class Meta:
         app_label = "API"
@@ -49,14 +47,13 @@ class RiskData(models.Model):
         get_latest_by = ["id"]
 
 class IncidentLog(models.Model):
-    id = models.SmallAutoField(primary_key=True)
-    incidenttype = models.CharField(db_column='incidentType', max_length=255)  # Field name made lowercase.
-    incidentdate = models.DateTimeField(db_column='incidentDate')  # Field name made lowercase.
-    affectedpeople = models.CharField(db_column='affectedPeople', max_length=255, blank=True, null=True)  # Field name made lowercase.
-    incidentdescription = models.CharField(db_column='incidentDescription', max_length=255)  # Field name made lowercase.
-    hdata = models.ForeignKey('TrainingData', models.DO_NOTHING, db_column='hData_id')  # Field name made lowercase.
+    id = models.SmallAutoField(primary_key=True, editable=False)
+    incidentType = models.CharField(db_column="incidentType", max_length=255)
+    incidentDate = models.DateTimeField(db_column="incidentDate")
+    affectedPeople = models.CharField(db_column="affectedPeople", max_length=255)
+    incidentDescription = models.CharField(db_column="incidentDescription", max_length=255)
+    hData = models.ForeignKey(TrainingData, null=True, on_delete=models.CASCADE)
 
     class Meta:
         app_label = "API"
-        db_table = 'incident_log'
-        get_latest_by = ["id"]
+        db_table = "incident_log"

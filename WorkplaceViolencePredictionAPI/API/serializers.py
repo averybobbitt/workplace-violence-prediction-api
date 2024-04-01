@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
-from WorkplaceViolencePredictionAPI.API.models import HospitalData, TrainingData, RiskData
+from WorkplaceViolencePredictionAPI.API.models import HospitalData, TrainingData, RiskData, IncidentLog
 
 """
 Serializers allow complex data such as querysets and model instances to be converted to native Python datatypes that can
@@ -23,16 +23,21 @@ class HospitalDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = HospitalData
         fields = "__all__"
-
+        
+        
+ class TrainingDataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TrainingData
+        fields = "__all__"
+        
 
 class RiskDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = RiskData
         fields = "__all__"
-
-
-class TrainingDataSerializer(serializers.ModelSerializer):
+        
+        
+class IncidentDataSerializer(serializers.ModelSerializer):
     class Meta:
-        model = TrainingData
+        model = IncidentLog
         fields = "__all__"
-

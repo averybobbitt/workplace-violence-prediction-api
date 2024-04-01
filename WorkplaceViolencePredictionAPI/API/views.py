@@ -1,6 +1,9 @@
+from datetime import datetime
+
 import numpy
 import pandas as pd
 import requests
+from django.db.models import ExpressionWrapper, F, Func
 from django.http import JsonResponse
 from rest_framework import viewsets, status
 from rest_framework.authentication import BasicAuthentication
@@ -11,8 +14,8 @@ from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 
 from WorkplaceViolencePredictionAPI.API.Forest import Forest
 from WorkplaceViolencePredictionAPI.API.authentication import BearerAuthentication
-from WorkplaceViolencePredictionAPI.API.models import HospitalData, TrainingData
-from WorkplaceViolencePredictionAPI.API.serializers import HospitalDataSerializer, TrainingDataSerializer
+from WorkplaceViolencePredictionAPI.API.models import HospitalData, TrainingData, IncidentLog
+from WorkplaceViolencePredictionAPI.API.serializers import HospitalDataSerializer, TrainingDataSerializer, IncidentDataSerializer
 
 """
 Django REST framework allows you to combine the logic for a set of related views in a single class, called a ViewSet.
@@ -121,6 +124,7 @@ class HospitalDataViewSet(viewsets.ModelViewSet):
         except ValidationError:
             return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class TrainingDataViewSet(viewsets.ModelViewSet):
     queryset = TrainingData.objects.all()
     serializer_class = TrainingDataSerializer
@@ -171,15 +175,16 @@ class TrainingDataViewSet(viewsets.ModelViewSet):
         except ValidationError:
             return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class PredictionModelViewSet(viewsets.ViewSet):
     authentication_classes = [BearerAuthentication]
     permission_classes = [IsAuthenticated]
 
     def list(self, request):
         if row := request.headers.get("id"):
-            queryset = HospitalData.objects.get(id=row)
+            queryset = TrainingData.objects.get(id=row)
         else:
-            queryset = HospitalData.objects.latest()
+            queryset = TrainingData.objects.latest()
         avgNurses = float(queryset.avgNurses)
         avgPatients = float(queryset.avgPatients)
         percentBedsFull = float(queryset.percentBedsFull)
@@ -191,3 +196,43 @@ class PredictionModelViewSet(viewsets.ViewSet):
         probabilities = Forest().predict_prob(data_df)[0][1]
         return JsonResponse({f"Row {queryset.id} is WPV risk": str(prediction),
                              "Probability of WPV": str(probabilities * 100) + "%"}, status=status.HTTP_200_OK)
+
+
+class IncidentLogViewSet(viewsets.ModelViewSet):
+    authentication_classes = [BearerAuthentication]
+    permission_classes = [IsAuthenticated]
+    queryset = IncidentLog.objects.all()
+    serializer_class = IncidentDataSerializer
+
+    def create(self, request, **kwargs):
+        headers = request.headers
+        req_headers = ["incidentType", "incidentDate", "affectedPeople", "incidentDescription"]
+        for header in req_headers:
+            if headers.get(header) is None:
+                return JsonResponse({"error": f"Missing header {header}"}, status=status.HTTP_400_BAD_REQUEST)
+        closest_hdata = (TrainingData.objects.annotate(time_difference=Func(F("createdTime") - datetime.strptime(headers.get("incidentDate"), "%Y-%m-%d %H:%M:%S"), function="ABS"))
+                         .order_by("time_difference").first().id)
+        new_log = {
+            "incidentType": headers.get("incidentType"),
+            "incidentDate": headers.get("incidentDate"),
+            "affectedPeople": headers.get("affectedPeople"),
+            "incidentDescription": headers.get("incidentDescription"),
+            "hData": closest_hdata
+        }
+        serializer = self.serializer_class(data=new_log, many=False)
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return JsonResponse({"Status": f"Incident {serializer.data.get("id")} logged"},
+                                status=status.HTTP_201_CREATED)
+        except ValidationError:
+            return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+    def delete(self, request, **kwargs):
+        if row := request.headers.get("id"):
+            IncidentLog.objects.get(id=row).delete()
+            return JsonResponse({"Success": f"Incident {row} deleted"}, status=status.HTTP_204_NO_CONTENT)
+        else:
+            IncidentLog.objects.get(id=row).delete()
+            return JsonResponse({"Error": "Missing required id header"}, status=status.HTTP_400_BAD_REQUEST)
