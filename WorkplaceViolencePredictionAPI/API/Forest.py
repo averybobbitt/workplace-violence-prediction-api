@@ -5,7 +5,7 @@ from pandas import DataFrame
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 
-from WorkplaceViolencePredictionAPI.API.models import HospitalData, TrainingData
+from WorkplaceViolencePredictionAPI.API.models import TrainingData
 
 
 class Forest:

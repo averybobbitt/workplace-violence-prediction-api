@@ -121,6 +121,7 @@ class HospitalDataViewSet(viewsets.ModelViewSet):
         except ValidationError:
             return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class TrainingDataViewSet(viewsets.ModelViewSet):
     queryset = TrainingData.objects.all()
     serializer_class = TrainingDataSerializer
@@ -170,6 +171,7 @@ class TrainingDataViewSet(viewsets.ModelViewSet):
                                 status=status.HTTP_201_CREATED)
         except ValidationError:
             return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class PredictionModelViewSet(viewsets.ViewSet):
     authentication_classes = [BearerAuthentication]
