@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 
 from WorkplaceViolencePredictionAPI.API.Forest import Forest
 from WorkplaceViolencePredictionAPI.API.models import HospitalData
-from WorkplaceViolencePredictionAPI.API.serializers import HospitalDataSerializer
+from WorkplaceViolencePredictionAPI.API.serializers import HospitalDataSerializer, RiskDataSerializer
 
 
 def hello_world():
@@ -44,6 +44,25 @@ def predict():
     prediction = Forest().predict(data_df)[0]
     # make a prediction for the probability
     probabilities = Forest().predict_prob(data_df)[0][1]
+
+    if probabilities == False:
+        predictionInt = 0
+    else:
+        predictionInt = 1
+
+    riskdatainput = {
+        "hdata": queryset.id,
+        "wpvrisk": predictionInt,
+        "wpvprobability": probabilities
+    }
+
+    serializer = RiskDataSerializer(data=riskdatainput, many=False)
+
+    try:
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+    except ValidationError:
+        print("invalid input")
 
     print({f"Row {queryset.id} is WPV risk": str(prediction),
                              "Probability of WPV": str(probabilities * 100) + "%"})

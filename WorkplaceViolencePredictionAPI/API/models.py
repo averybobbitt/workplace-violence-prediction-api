@@ -44,7 +44,7 @@ class RiskData(models.Model):
     wpvprobability = models.DecimalField(db_column='wpvProbability', max_digits=3, decimal_places=2)  # Field name made lowercase.
 
     class Meta:
-        managed = False
+        app_label = "API"
         db_table = 'risk_data'
         get_latest_by = ["id"]
 
@@ -57,6 +57,6 @@ class IncidentLog(models.Model):
     hdata = models.ForeignKey('TrainingData', models.DO_NOTHING, db_column='hData_id')  # Field name made lowercase.
 
     class Meta:
-        managed = False
+        app_label = "API"
         db_table = 'incident_log'
         get_latest_by = ["id"]
