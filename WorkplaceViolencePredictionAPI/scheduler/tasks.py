@@ -1,6 +1,7 @@
 import numpy
 import pandas as pd
 import requests
+from django.conf import settings
 from django.core.exceptions import ValidationError
 
 from WorkplaceViolencePredictionAPI.API.Forest import Forest
@@ -10,14 +11,14 @@ from WorkplaceViolencePredictionAPI.API.serializers import HospitalDataSerialize
 
 def get_data():
     # request new data from dummy API
-    new_entry = requests.get("http://localhost:8001/new").json()
+    new_entry = requests.get(settings.DATA_SOURCES_NEW).json()
     # serialize the new input
     serializer = HospitalDataSerializer(data=new_entry, many=False)
 
     try:
         # validate the input
         serializer.is_valid(raise_exception=True)
-        # save to the data base
+        # save to the database
         serializer.save()
     except ValidationError:
         # catch exception from invalid input
