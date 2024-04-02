@@ -106,13 +106,13 @@ class HospitalDataViewSet(viewsets.ModelViewSet):
                 return JsonResponse({"error": "Value must be an integer"}, status=status.HTTP_400_BAD_REQUEST)
 
             # if value is good, get N samples
-            new_entries = requests.get(f"https://api.bobbitt.dev/bulk?samples={num_samples}").json()
+            new_entries = requests.get(f"http://localhost:8001/bulk?samples={num_samples}").json()
             serializer = self.get_serializer(data=new_entries, many=True)
             data_size = len(new_entries)
             print(new_entries)
         else:
             # otherwise, get only 1 sample
-            new_entry = requests.get("https://api.bobbitt.dev/new").json()
+            new_entry = requests.get("http://localhost:8001/new").json()
             serializer = self.get_serializer(data=new_entry, many=False)
             data_size = 1
             print(new_entry)

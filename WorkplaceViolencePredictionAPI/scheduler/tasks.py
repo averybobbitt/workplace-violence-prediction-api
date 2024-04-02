@@ -10,7 +10,7 @@ from WorkplaceViolencePredictionAPI.API.serializers import HospitalDataSerialize
 
 def get_data():
     # request new data from dummy API
-    new_entry = requests.get("https://api.bobbitt.dev/new").json()
+    new_entry = requests.get("http://localhost:8001/new").json()
     # serialize the new input
     serializer = HospitalDataSerializer(data=new_entry, many=False)
 
