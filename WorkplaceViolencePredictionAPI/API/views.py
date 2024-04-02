@@ -158,7 +158,7 @@ class PredictionModelViewSet(viewsets.ModelViewSet):
         new_entry = {
             "hData": queryset.id,
             "wpvRisk": prediction,
-            "wpvProbability": probabilities * 100
+            "wpvProbability": probabilities
         }
         serializer = self.get_serializer(data=new_entry, many=False)
         try:
