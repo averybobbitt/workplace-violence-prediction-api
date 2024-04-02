@@ -23,20 +23,20 @@ class HospitalDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = HospitalData
         fields = "__all__"
-        
+
         
 class TrainingDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = TrainingData
         fields = "__all__"
-        
+
 
 class RiskDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = RiskData
         fields = "__all__"
-        
-        
+
+
 class IncidentDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = IncidentLog
