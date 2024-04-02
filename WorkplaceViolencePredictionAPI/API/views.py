@@ -3,8 +3,13 @@ from datetime import datetime
 import numpy
 import pandas as pd
 import requests
+
 from django.db.models import ExpressionWrapper, F, Func
 from django.http import JsonResponse
+
+from django.http import HttpResponse
+from django.template import loader
+
 from rest_framework import viewsets, status
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.authtoken.models import Token
@@ -209,3 +214,7 @@ class IncidentLogViewSet(viewsets.ModelViewSet):
             IncidentLog.objects.get(id=row).delete()
             return JsonResponse({"Error": "Missing required id header"}, status=status.HTTP_400_BAD_REQUEST)
 
+# Home Viewset
+def Home(request):
+    template = loader.get_template('Home.html')
+    return HttpResponse(template.render())
