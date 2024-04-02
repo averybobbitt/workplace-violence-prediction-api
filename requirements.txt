@@ -1,0 +1,10 @@
+Django~=5.0.3
+djangorestframework~=3.14.0
+mysqlclient~=2.2.4
+numpy~=1.26.4
+pandas~=2.2.1
+scikit-learn~=1.4.1
+requests~=2.31.0
+APScheduler~=3.10.4
+toml~=0.10.2
+daphne~=4.1.0
