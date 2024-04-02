@@ -12,6 +12,20 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 import os
 from pathlib import Path
 
+import toml
+
+# Define global variables
+with open("config.toml", "r") as f:
+    config = toml.load(f)
+
+DATA_SOURCES = config.get("data_sources")
+
+if DATA_SOURCES is None:
+    raise Exception("No data source configuration defined in config.toml")
+
+DATA_SOURCES_BULK = DATA_SOURCES.get("bulk_samples")
+DATA_SOURCES_NEW = DATA_SOURCES.get("new_sample")
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -72,12 +86,18 @@ WSGI_APPLICATION = "WorkplaceViolencePredictionAPI.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+db_config = config.get('database')
+if db_config is None:
+    raise Exception("No database configuration defined in config.toml")
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "OPTIONS": {
-            "read_default_file": os.path.join(BASE_DIR, "db.cnf"),
-        },
+        "NAME": db_config.get("database"),
+        "USER": db_config.get("user"),
+        "PASSWORD": db_config.get("password"),
+        "HOST": db_config.get("host"),
+        "PORT": "3306",
     }
 }
 

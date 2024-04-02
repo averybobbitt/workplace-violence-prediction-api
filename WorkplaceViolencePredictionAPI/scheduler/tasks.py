@@ -3,6 +3,7 @@ import json
 import numpy
 import pandas as pd
 import requests
+from django.conf import settings
 from django.core.exceptions import ValidationError
 
 from WorkplaceViolencePredictionAPI.API.Forest import Forest
@@ -12,8 +13,7 @@ from WorkplaceViolencePredictionAPI.API.serializers import HospitalDataSerialize
 
 def get_data():
     # request new data from dummy API
-    entry = requests.get("https://api.bobbitt.dev/new").json()
-
+    entry = requests.get(settings.DATA_SOURCES_NEW).json()
 
     # serialize the new input
     serializer = HospitalDataSerializer(data=entry, many=False)
