@@ -37,7 +37,7 @@ SECRET_KEY = os.urandom(24).hex()
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DJANGO_DEBUG", False)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
 # Application definition
 
@@ -82,6 +82,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "WorkplaceViolencePredictionAPI.wsgi.application"
+ASGI_APPLICATION = "WorkplaceViolencePredictionAPI.asgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases

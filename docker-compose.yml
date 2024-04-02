@@ -3,7 +3,7 @@ services:
     image: wpv-api
     container_name: wpv-api
     build: .
-    command: python manage.py runserver 0.0.0.0:8000
+    command: daphne WorkplaceViolencePredictionAPI.asgi:application
     ports:
       - "8000:8000"
 

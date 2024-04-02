@@ -1,12 +1,9 @@
-# To do: Find an image that already has a webserver
-# This will change later. (ASGI or WSGI server)
 FROM python:3.12
 
-ENV DJANGO_DEBUG 1
-# The OS sets
+# Set environment variables
 ENV PYTHONUNBUFFERED 1
 
-# Set the working directory
+# Set working directory
 WORKDIR /app
 
 # Install dependencies
