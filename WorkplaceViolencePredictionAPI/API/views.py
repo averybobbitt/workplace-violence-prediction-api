@@ -3,7 +3,8 @@ from datetime import datetime
 import numpy
 import pandas as pd
 import requests
-from django.db.models import ExpressionWrapper, F, Func
+from django.conf import settings
+from django.db.models import F, Func
 from django.http import JsonResponse
 from rest_framework import viewsets, status
 from rest_framework.authentication import BasicAuthentication
@@ -106,13 +107,13 @@ class HospitalDataViewSet(viewsets.ModelViewSet):
                 return JsonResponse({"error": "Value must be an integer"}, status=status.HTTP_400_BAD_REQUEST)
 
             # if value is good, get N samples
-            new_entries = requests.get(f"https://api.bobbitt.dev/bulk?samples={num_samples}").json()
+            new_entries = requests.get(f"{settings.DATA_SOURCES_BULK}{num_samples}").json()
             serializer = self.get_serializer(data=new_entries, many=True)
             data_size = len(new_entries)
             print(new_entries)
         else:
             # otherwise, get only 1 sample
-            new_entry = requests.get("https://api.bobbitt.dev/new").json()
+            new_entry = requests.get(settings.DATA_SOURCES_NEW).json()
             serializer = self.get_serializer(data=new_entry, many=False)
             data_size = 1
             print(new_entry)
@@ -169,7 +170,6 @@ class PredictionModelViewSet(viewsets.ModelViewSet):
             return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-
 class IncidentLogViewSet(viewsets.ModelViewSet):
     authentication_classes = [BearerAuthentication]
     permission_classes = [IsAuthenticated]
@@ -182,7 +182,9 @@ class IncidentLogViewSet(viewsets.ModelViewSet):
         for header in req_headers:
             if headers.get(header) is None:
                 return JsonResponse({"error": f"Missing header {header}"}, status=status.HTTP_400_BAD_REQUEST)
-        closest_hdata = (HospitalData.objects.annotate(time_difference=Func(F("createdTime") - datetime.strptime(headers.get("incidentDate"), "%Y-%m-%d %H:%M:%S"), function="ABS"))
+        closest_hdata = (HospitalData.objects.annotate(
+            time_difference=Func(F("createdTime") - datetime.strptime(headers.get("incidentDate"), "%Y-%m-%d %H:%M:%S"),
+                                 function="ABS"))
                          .order_by("time_difference").first().id)
         new_log = {
             "incidentType": headers.get("incidentType"),
@@ -200,7 +202,6 @@ class IncidentLogViewSet(viewsets.ModelViewSet):
         except ValidationError:
             return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
     def delete(self, request, **kwargs):
         if row := request.headers.get("id"):
             IncidentLog.objects.get(id=row).delete()
@@ -208,4 +209,3 @@ class IncidentLogViewSet(viewsets.ModelViewSet):
         else:
             IncidentLog.objects.get(id=row).delete()
             return JsonResponse({"Error": "Missing required id header"}, status=status.HTTP_400_BAD_REQUEST)
-
