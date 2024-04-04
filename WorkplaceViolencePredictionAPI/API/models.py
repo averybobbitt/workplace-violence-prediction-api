@@ -55,7 +55,7 @@ class IncidentLog(models.Model):
     incidentDate = models.DateTimeField(db_column="incidentDate")
     affectedPeople = models.CharField(db_column="affectedPeople", max_length=255)
     incidentDescription = models.CharField(db_column="incidentDescription", max_length=255)
-    hData = models.ForeignKey(TrainingData, null=True, on_delete=models.CASCADE)
+    hData = models.ForeignKey(HospitalData, null=True, on_delete=models.CASCADE)
 
     class Meta:
         app_label = "API"

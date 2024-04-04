@@ -1,4 +1,5 @@
 import json
+from datetime import timedelta, datetime
 
 import numpy
 import pandas as pd
@@ -7,8 +8,9 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 
 from WorkplaceViolencePredictionAPI.API.Forest import Forest
-from WorkplaceViolencePredictionAPI.API.models import HospitalData
-from WorkplaceViolencePredictionAPI.API.serializers import HospitalDataSerializer, RiskDataSerializer
+from WorkplaceViolencePredictionAPI.API.models import HospitalData, IncidentLog
+from WorkplaceViolencePredictionAPI.API.serializers import HospitalDataSerializer, RiskDataSerializer, \
+    IncidentDataSerializer
 
 
 def get_data():
@@ -67,3 +69,14 @@ def predict():
     # display the risk results
     print({f"Row {queryset.id} is WPV risk": str(prediction),
            "Probability of WPV": str(probabilities * 100) + "%"})
+
+def check_old_logs():
+    try:
+        queryset = IncidentLog.objects.first()
+        six_months_old = datetime.now() - timedelta(days=30*6)
+        while queryset.incidentDate.replace(tzinfo=None) < six_months_old:
+            IncidentLog.objects.get(id=queryset.id).delete()
+            print(f"Old incident log row {queryset.id} deleted")
+            queryset = IncidentLog.objects.first()
+    except:
+        print("No old incident entries in table")
