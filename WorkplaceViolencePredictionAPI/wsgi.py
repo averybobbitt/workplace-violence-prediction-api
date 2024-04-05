@@ -12,5 +12,6 @@ import os
 from django.core.wsgi import get_wsgi_application
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "WorkplaceViolencePredictionAPI.settings")
+os.environ.setdefault("WEB_SERVER_TYPE", "wsgi")
 
 application = get_wsgi_application()
