@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 
 import numpy
@@ -39,16 +40,20 @@ https://stackoverflow.com/questions/41379654/difference-between-apiview-class-an
 https://medium.com/@p0zn/django-apiview-vs-viewsets-which-one-to-choose-c8945e538af4
 """
 
+logger = logging.getLogger("wpv")
+
 
 # Hello world ViewSet
 class HelloViewSet(viewsets.ViewSet):
     @action(detail=False, permission_classes=[AllowAny])
     def world(self, request):
+        logger.debug("Hello world!")
         return JsonResponse({"message": "Hello, world!"})
 
     @action(detail=False, permission_classes=[IsAdminUser],
             authentication_classes=[BasicAuthentication, BearerAuthentication])
     def admin(self, request):
+        logger.debug("Hello admin!")
         return JsonResponse({"message": "Hello, admin!"})
 
 

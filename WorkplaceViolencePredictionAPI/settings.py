@@ -100,6 +100,11 @@ LOGGING = {
             "level": "DEBUG",
             "propagate": True,
         },
+        "wpv": {
+            "handlers": ["file"],
+            "level": "DEBUG",
+            "propagate": True,
+        },
     },
 }
 

@@ -1,6 +1,9 @@
+import logging
 import os
 
 from django.apps import AppConfig
+
+logger = logging.getLogger("wpv")
 
 
 class ApiConfig(AppConfig):
@@ -15,7 +18,10 @@ class ApiConfig(AppConfig):
             from WorkplaceViolencePredictionAPI.scheduler import updater
 
             # create trained model
+            logger.info("Creating Forest model...")
             Forest()
+            logger.info("Forest model complete!")
 
             # start background tasks
+            logger.info("Starting scheduler...")
             updater.start()
