@@ -89,22 +89,19 @@ LOGGING = {
     "disable_existing_loggers": False,
     "handlers": {
         "file": {
-            "level": "DEBUG",
             "class": "logging.FileHandler",
-            "filename": "/logs/debug.log",
+            "filename": "/logs/log.log",
         },
+        "console": {
+            "class": "logging.StreamHandler",
+        }
     },
     "loggers": {
         "django": {
-            "handlers": ["file"],
-            "level": "DEBUG",
+            "handlers": ["console"],
+            "level": "INFO",
             "propagate": True,
-        },
-        "wpv": {
-            "handlers": ["file"],
-            "level": "DEBUG",
-            "propagate": True,
-        },
+        }
     },
 }
 

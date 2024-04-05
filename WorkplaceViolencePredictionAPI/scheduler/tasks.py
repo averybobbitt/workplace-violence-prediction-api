@@ -25,7 +25,6 @@ def get_data():
         serializer.is_valid(raise_exception=True)
         # save to the database
         serializer.save()
-        logger.info(f"Saved new data to database: {serializer.data}")
     except ValidationError as e:
         # catch exception from invalid input
         logger.error(e)
@@ -46,11 +45,9 @@ def predict():
 
     # make a prediction based on the dataframe
     prediction = Forest().predict(data_df)[0]
-    logger.info("Making T/F prediction...")
 
     # make a prediction for the probability
     probabilities = Forest().predict_prob(data_df)[0][1]
-    logger.info("Making probability prediction...")
 
     # prediction is in t/f format, but we have to convert to 0/1 for database
     predictionInt = 1 if prediction else 0
@@ -68,7 +65,6 @@ def predict():
     try:
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        logger.info(f"Saved risk data to database: {serializer.data}")
     except ValidationError as e:
         # catch exception from invalid input
         logger.error(e)
