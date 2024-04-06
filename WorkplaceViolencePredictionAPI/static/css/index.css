@@ -1,0 +1,39 @@
+body {
+    height: 100vh;
+}
+
+.header {
+    height: 12%;
+    width: 31.5%;
+    font-size: 200%;
+    margin: auto;
+    text-align: center;
+}
+
+.dial {    
+    height: 55%;
+}
+
+.button_container {
+    display: flex;
+    height: 25%;
+    grid-template-columns: auto auto;
+    grid-template-rows: 1fr;
+    justify-content: space-evenly;
+    align-content: center;
+}
+
+.m_button {
+    font-size: 150%;
+    width: 25%;
+    text-align: center;
+    align-items: center;
+}
+
+.but {
+    height: 50%;
+    width: 50%;
+    font-size: 125%;
+    text-align: center;
+    vertical-align: center;
+}
