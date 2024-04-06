@@ -64,6 +64,8 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "WorkplaceViolencePredictionAPI.urls"
 
+# It is important to note APP_DIRS is set to true here, this makes the template loader
+# search for a "templates" subdir in all app directories for apps defined in INSTALLED_APPS
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -162,7 +164,7 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
-
+# Similarly to TEMPLATES above, Django will search for a "static" subdir in all app directories
 STATIC_URL = "static/"
 
 # Default primary key field type
