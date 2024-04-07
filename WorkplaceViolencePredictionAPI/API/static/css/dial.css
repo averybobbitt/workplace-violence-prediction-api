@@ -1,75 +1,61 @@
-.but, .header, .m_button {
-    text-align: center
-}
+body {
+    height: 100vh;
 
-*, ::after, ::before {
-    box-sizing: border-box
 }
 
 :root {
     --rotation: 0deg
 }
 
-.container {
-    font-family: Arial;
-    height: 16rem;
-    left: 50%;
-    overflow: hidden;
+.gauge {
+    --gauge-center-fill: white;
+    --gauge-meter-fill: red;
+    --gauge-size: 300px;
+
+    max-width: var(--gauge-size);
+}
+
+.gauge_body {
+    width: 100%;
+    height: 0;
+    padding-bottom: 50%;
+    background: #b4c0be;
     position: relative;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: 32rem
+    border-top-left-radius: 100% 200%;
+    border-top-right-radius: 100% 200%;
+    overflow: hidden;
 }
 
-.loader, .loader::before {
-    height: 32rem;
-    width: 32rem
-}
-
-.loader {
-    background: 0 0;
-    border: 30px solid #d7eca6;
-    border-radius: 50%;
-    transition: transform .2s;
-    transform: rotate(var(--rotation));
-    position: relative
-}
-
-.loader::before {
-    content: '';
-    border: 30px solid #8cc800;
-    border-left-color: transparent;
-    border-radius: 50%;
-    border-top-color: transparent;
-    left: -30px;
-    top: -30px;
-    transform: rotate(45deg);
+.gauge_fill {
     position: absolute;
-    z-index: 2
+    top: 100%;
+    left: 0;
+    width: inherit;
+    height: 100%;
+    background: var(--gauge-meter-fill);
+    transform-origin: center top;
+    transition: transform 0.2s ease-out;
 }
 
-.loader__title {
-    color: #8cc800;
-    font-size: 5rem;
+.gauge_cover {
+    width: 75%;
+    height: 150%;
+    background: var(--gauge-center-fill);
+    border-radius: 50%;
+    position: absolute;
+    top: 25%;
     left: 50%;
-    top: 45%;
-    position: absolute;
-    transform: translateX(-50%)
-}
+    transform: translateX(-50%);
 
-body {
-    height: 100vh
-}
+    /* Text */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-bottom: 25%;
+    box-sizing: border-box;
 
-.header {
-    height: 12%;
-    width: 31.5%;
-    font-size: 200%;
-    margin: auto
-}
-
-.dial {
-    height: 55%
+    /* Font */
+    font-size: 32px;
 }
 
 .button_container {
@@ -92,4 +78,8 @@ body {
     width: 50%;
     font-size: 125%;
     vertical-align: center
+}
+
+.but, .header, .m_button {
+    text-align: center
 }
