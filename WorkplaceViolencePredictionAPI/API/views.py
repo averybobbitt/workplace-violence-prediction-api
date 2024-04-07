@@ -220,3 +220,4 @@ class IncidentLogViewSet(viewsets.ModelViewSet):
 def Home(request):
     template = loader.get_template('Home.html')
     return HttpResponse(template.render())
+
