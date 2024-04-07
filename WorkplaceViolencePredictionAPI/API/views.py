@@ -214,7 +214,7 @@ class IncidentLogViewSet(viewsets.ModelViewSet):
             return JsonResponse({"Error": "Missing required id header"}, status=status.HTTP_400_BAD_REQUEST)
 
 
-# Home Viewset
+# Home view
 def home(request):
     template = loader.get_template('home.html')
     return HttpResponse(template.render())
