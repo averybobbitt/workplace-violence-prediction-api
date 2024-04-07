@@ -1,12 +1,15 @@
-*, *::after, *::before {
-    box-sizing: border-box;
+.but, .header, .m_button {
+    text-align: center
 }
+
+*, ::after, ::before {
+    box-sizing: border-box
+}
+
 :root {
-    --rotation: 0deg;
+    --rotation: 0deg
 }
-body {
-    height: 100vh;
-}
+
 .container {
     font-family: Arial;
     height: 16rem;
@@ -15,38 +18,78 @@ body {
     position: relative;
     top: 50%;
     transform: translate(-50%, -50%);
-    width: 32rem;
+    width: 32rem
 }
+
+.loader, .loader::before {
+    height: 32rem;
+    width: 32rem
+}
+
 .loader {
-    background: transparent;
+    background: 0 0;
     border: 30px solid #d7eca6;
     border-radius: 50%;
-    height: 32rem;
-    transition: transform 0.2s ease;
+    transition: transform .2s;
     transform: rotate(var(--rotation));
-    position: relative;
-    width: 32rem;
+    position: relative
 }
+
 .loader::before {
     content: '';
     border: 30px solid #8cc800;
     border-left-color: transparent;
     border-radius: 50%;
     border-top-color: transparent;
-    height: 32rem;
     left: -30px;
     top: -30px;
     transform: rotate(45deg);
     position: absolute;
-    width: 32rem;
-    z-index: 2;
+    z-index: 2
 }
+
 .loader__title {
     color: #8cc800;
     font-size: 5rem;
     left: 50%;
     top: 45%;
     position: absolute;
-    transform: translateX(-50%);
+    transform: translateX(-50%)
+}
 
+body {
+    height: 100vh
+}
+
+.header {
+    height: 12%;
+    width: 31.5%;
+    font-size: 200%;
+    margin: auto
+}
+
+.dial {
+    height: 55%
+}
+
+.button_container {
+    display: flex;
+    height: 25%;
+    grid-template-columns:auto auto;
+    grid-template-rows:1fr;
+    justify-content: space-evenly;
+    align-content: center
+}
+
+.m_button {
+    font-size: 150%;
+    width: 25%;
+    align-items: center
+}
+
+.but {
+    height: 50%;
+    width: 50%;
+    font-size: 125%;
+    vertical-align: center
 }
