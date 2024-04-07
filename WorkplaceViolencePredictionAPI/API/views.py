@@ -219,3 +219,8 @@ def home(request):
     template = loader.get_template('home.html')
     return HttpResponse(template.render())
 
+
+# Dial view
+def dial(request):
+    template = loader.get_template('dial.html')
+    return HttpResponse(template.render())
