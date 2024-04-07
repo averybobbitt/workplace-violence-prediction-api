@@ -31,8 +31,8 @@ router.register(r"log", views.IncidentLogViewSet)
 router.register(r"train", views.TrainingDataViewSet)
 
 urlpatterns = [
+    path("", views.home),
     path("admin/", admin.site.urls),  # built-in admin portal for Django
     path("api/", include(router.urls)),  # router paths defined above
     path("api/auth/", include("rest_framework.urls")),  # login/out for browser view
-    path("Home/", views.Home)
 ]

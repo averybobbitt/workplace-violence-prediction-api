@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+
+    <!-- Load JavaScript using Django staticfiles -->
+    {% load static %}
+    <script src="{% static 'js/home.js' %}"></script>
+</head>
+<body>
+<h1>Welcome to the Workplace Violence Prevention API</h1>
+<p>Welcome to our first Django project!</p>
+
+<p>Is JavaScript loaded?: <span id="jsLoaded">NO</span></p>
+</body>
+</html>
