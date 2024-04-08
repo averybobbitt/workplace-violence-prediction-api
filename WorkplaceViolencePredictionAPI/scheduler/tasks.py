@@ -1,5 +1,4 @@
-import json
-from datetime import timedelta, datetime
+import logging
 
 import numpy
 import pandas as pd
@@ -8,9 +7,10 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 
 from WorkplaceViolencePredictionAPI.API.Forest import Forest
-from WorkplaceViolencePredictionAPI.API.models import HospitalData, IncidentLog
-from WorkplaceViolencePredictionAPI.API.serializers import HospitalDataSerializer, RiskDataSerializer, \
-    IncidentDataSerializer
+from WorkplaceViolencePredictionAPI.API.models import HospitalData
+from WorkplaceViolencePredictionAPI.API.serializers import HospitalDataSerializer, RiskDataSerializer
+
+logger = logging.getLogger("wpv")
 
 
 def get_data():
@@ -25,9 +25,9 @@ def get_data():
         serializer.is_valid(raise_exception=True)
         # save to the database
         serializer.save()
-    except ValidationError:
+    except ValidationError as e:
         # catch exception from invalid input
-        print("invalid input")
+        logger.error(e)
 
 
 def predict():
@@ -38,18 +38,20 @@ def predict():
     percentBedsFull = float(queryset.percentBedsFull)
     timeOfDay = ((queryset.timeOfDay.hour * 3600 + queryset.timeOfDay.minute * 60 + queryset.timeOfDay.second)
                  * 1000 + queryset.timeOfDay.microsecond / 1000)
+
     # store data points in a pandas dataframe
     data_df = pd.DataFrame(numpy.array([[avgNurses, avgPatients, percentBedsFull, timeOfDay]]),
                            columns=['avgNurses', 'avgPatients', 'percentBedsFull', 'timeOfDay'])
+
     # make a prediction based on the dataframe
     prediction = Forest().predict(data_df)[0]
+
     # make a prediction for the probability
     probabilities = Forest().predict_prob(data_df)[0][1]
-    #prediction is in t/f format but we have to convert to 0/1 for database
-    if prediction == False:
-        predictionInt = 0
-    else:
-        predictionInt = 1
+
+    # prediction is in t/f format, but we have to convert to 0/1 for database
+    predictionInt = 1 if prediction else 0
+
     # create the input json for risk data table
     riskdatainput = {
         "hData": queryset.id,
@@ -63,20 +65,10 @@ def predict():
     try:
         serializer.is_valid(raise_exception=True)
         serializer.save()
-    except ValidationError:
-        print("invalid input")
+    except ValidationError as e:
+        # catch exception from invalid input
+        logger.error(e)
 
     # display the risk results
-    print({f"Row {queryset.id} is WPV risk": str(prediction),
-           "Probability of WPV": str(probabilities * 100) + "%"})
-
-def check_old_logs():
-    try:
-        queryset = IncidentLog.objects.first()
-        six_months_old = datetime.now() - timedelta(days=30*6)
-        while queryset.incidentDate.replace(tzinfo=None) < six_months_old:
-            IncidentLog.objects.get(id=queryset.id).delete()
-            print(f"Old incident log row {queryset.id} deleted")
-            queryset = IncidentLog.objects.first()
-    except:
-        print("No old incident entries in table")
+    logger.info({f"Row {queryset.id} is WPV risk": str(prediction),
+                 "Probability of WPV": str(probabilities * 100) + "%"})

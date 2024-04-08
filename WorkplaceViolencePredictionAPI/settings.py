@@ -40,7 +40,6 @@ DEBUG = os.environ.get("DJANGO_DEBUG", False)
 ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
 # Application definition
-
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -80,6 +79,30 @@ TEMPLATES = [
         },
     },
 ]
+
+if not os.path.exists("/logs"):
+    os.mkdir("/logs")
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "file": {
+            "class": "logging.FileHandler",
+            "filename": "/logs/log.log",
+        },
+        "console": {
+            "class": "logging.StreamHandler",
+        }
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": True,
+        }
+    },
+}
 
 WSGI_APPLICATION = "WorkplaceViolencePredictionAPI.wsgi.application"
 ASGI_APPLICATION = "WorkplaceViolencePredictionAPI.asgi.application"

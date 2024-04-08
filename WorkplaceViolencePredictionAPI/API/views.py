@@ -1,11 +1,15 @@
+import logging
 from datetime import datetime
 
 import numpy
 import pandas as pd
 import requests
+
+from django.db.models import ExpressionWrapper, F, Func
 from django.conf import settings
-from django.db.models import F, Func
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
+from django.template import loader
+
 from rest_framework import viewsets, status
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.authtoken.models import Token
@@ -39,16 +43,20 @@ https://stackoverflow.com/questions/41379654/difference-between-apiview-class-an
 https://medium.com/@p0zn/django-apiview-vs-viewsets-which-one-to-choose-c8945e538af4
 """
 
+logger = logging.getLogger("wpv")
+
 
 # Hello world ViewSet
 class HelloViewSet(viewsets.ViewSet):
     @action(detail=False, permission_classes=[AllowAny])
     def world(self, request):
+        logger.debug("Hello world!")
         return JsonResponse({"message": "Hello, world!"})
 
     @action(detail=False, permission_classes=[IsAdminUser],
             authentication_classes=[BasicAuthentication, BearerAuthentication])
     def admin(self, request):
+        logger.debug("Hello admin!")
         return JsonResponse({"message": "Hello, admin!"})
 
 
@@ -110,13 +118,11 @@ class HospitalDataViewSet(viewsets.ModelViewSet):
             new_entries = requests.get(f"{settings.DATA_SOURCES_BULK}{num_samples}").json()
             serializer = self.get_serializer(data=new_entries, many=True)
             data_size = len(new_entries)
-            print(new_entries)
         else:
             # otherwise, get only 1 sample
             new_entry = requests.get(settings.DATA_SOURCES_NEW).json()
             serializer = self.get_serializer(data=new_entry, many=False)
             data_size = 1
-            print(new_entry)
         # save new entry/entries to database
         try:
             serializer.is_valid(raise_exception=True)
@@ -154,7 +160,6 @@ class PredictionModelViewSet(viewsets.ModelViewSet):
                                columns=['avgNurses', 'avgPatients', 'percentBedsFull', 'timeOfDay'])
         prediction = Forest().predict(data_df)[0]
         probabilities = Forest().predict_prob(data_df)[0][1]
-        print(queryset.id)
         new_entry = {
             "hData": queryset.id,
             "wpvRisk": prediction,
@@ -209,3 +214,9 @@ class IncidentLogViewSet(viewsets.ModelViewSet):
         else:
             IncidentLog.objects.get(id=row).delete()
             return JsonResponse({"Error": "Missing required id header"}, status=status.HTTP_400_BAD_REQUEST)
+
+          
+# Home Viewset
+def Home(request):
+    template = loader.get_template('Home.html')
+    return HttpResponse(template.render())

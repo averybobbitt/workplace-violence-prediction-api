@@ -5,7 +5,10 @@
 #   * Make sure each ForeignKey and OneToOneField has `on_delete` set to the desired behavior
 #   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
 # Feel free to rename the models, but don't rename db_table values or field names.
+import incident_types
+
 from django.db import models
+
 
 
 class HospitalData(models.Model):
@@ -56,7 +59,6 @@ class IncidentLog(models.Model):
     affectedPeople = models.CharField(db_column="affectedPeople", max_length=255)
     incidentDescription = models.CharField(db_column="incidentDescription", max_length=255)
     hData = models.ForeignKey(HospitalData, null=True, on_delete=models.CASCADE)
-
     class Meta:
         app_label = "API"
         db_table = "incident_log"
