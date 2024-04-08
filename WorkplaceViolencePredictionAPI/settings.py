@@ -26,6 +26,8 @@ if DATA_SOURCES is None:
 DATA_SOURCES_BULK = DATA_SOURCES.get("bulk_samples")
 DATA_SOURCES_NEW = DATA_SOURCES.get("new_sample")
 
+LOCAL_API_KEY = config.get("auth").get("bearer")
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
