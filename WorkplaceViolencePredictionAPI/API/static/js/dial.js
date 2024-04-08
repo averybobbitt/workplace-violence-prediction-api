@@ -1,13 +1,14 @@
 window.onload = function () {
     const gaugeElement = document.getElementById("demoGauge");
 
-    setInterval(async () => {
-        let wpvResponse = await fetch("http://localhost:8000/api/model/latest");
-        let wpvJSON = wpvResponse.json();
-        let probability = wpvJSON["wpvProbability"];
+    setInterval(() => {
+        fetch("http://localhost:8000/api/model/latest").then((response) => {
+            let data = response.json();
+            let probability = data["wpvProbability"];
 
-        setGaugeValue(gaugeElement, probability.toFixed(2));
-        console.log(wpvJSON);
+            setGaugeValue(gaugeElement, probability.toFixed(2));
+            console.log(data);
+        });
     }, 2000);
 };
 
