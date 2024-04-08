@@ -1,6 +1,17 @@
 window.onload = function () {
     const gaugeElement = document.getElementById("demoGauge");
 
+    /*
+    Skeleton code for a HTTP GET request to the PredictionModelViewset.
+
+    fetch(http://127.0.0.1:8000/api/model/, {
+      method: "GET" // default, so we can ignore
+    })
+
+    Next, I will need to figure out how to store this inside a variable and replace Math.random().toFixed(2)
+        with the prediction value made by the API call.
+    */
+
     setInterval(() => {
         fetch("http://localhost:8000/api/model/latest").then((response) => {
             response.json().then((data) => {
