@@ -11,7 +11,7 @@ from rest_framework.authentication import BasicAuthentication
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
-from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser, IsAuthenticatedOrReadOnly
 
 from WorkplaceViolencePredictionAPI.API.authentication import BearerAuthentication
 from WorkplaceViolencePredictionAPI.API.models import HospitalData, TrainingData, IncidentLog, RiskData
@@ -142,7 +142,7 @@ class PredictionModelViewSet(viewsets.ModelViewSet):
     queryset = RiskData.objects.all()
     serializer_class = RiskDataSerializer
 
-    @action(methods=["GET"], detail=False, permission_classes=[AllowAny])
+    @action(methods=["GET"], detail=False, permission_classes=[IsAuthenticatedOrReadOnly])
     def latest(self, request, **kwargs):
         latest_entry = RiskData.objects.latest()
         serializer = RiskDataSerializer(latest_entry, many=False)
