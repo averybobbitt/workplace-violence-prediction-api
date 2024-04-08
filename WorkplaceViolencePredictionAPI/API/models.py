@@ -5,11 +5,7 @@
 #   * Make sure each ForeignKey and OneToOneField has `on_delete` set to the desired behavior
 #   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
 # Feel free to rename the models, but don't rename db_table values or field names.
-import numpy
-import pandas as pd
 from django.db import models
-
-from WorkplaceViolencePredictionAPI.API.Forest import Forest
 
 
 class HospitalData(models.Model):
@@ -51,24 +47,6 @@ class RiskData(models.Model):
         app_label = "API"
         db_table = "risk_data"
         get_latest_by = ["id"]
-
-    def dict(self, hData):
-        avgNurses = float(hData.avgNurses)
-        avgPatients = float(hData.avgPatients)
-        percentBedsFull = float(hData.percentBedsFull)
-        timeOfDay = ((hData.timeOfDay.hour * 3600 + hData.timeOfDay.minute * 60 + hData.timeOfDay.second)
-                     * 1000 + hData.timeOfDay.microsecond / 1000)
-        
-        data_df = pd.DataFrame(numpy.array([[avgNurses, avgPatients, percentBedsFull, timeOfDay]]),
-                               columns=['avgNurses', 'avgPatients', 'percentBedsFull', 'timeOfDay'])
-        prediction = Forest().predict(data_df)[0]
-        probabilities = Forest().predict_prob(data_df)[0][1]
-
-        return {
-            "hData": hData.id,
-            "wpvRisk": prediction,
-            "wpvProbability": probabilities
-        }
 
 
 class IncidentLog(models.Model):
