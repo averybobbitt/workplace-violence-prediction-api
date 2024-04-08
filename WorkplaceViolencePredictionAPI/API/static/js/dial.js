@@ -1,6 +1,17 @@
 window.onload = function () {
     const gaugeElement = document.getElementById("demoGauge");
 
+    /*
+    Skeleton code for a HTTP GET request
+
+    fetch(url, {
+      method: "GET" // default, so we can ignore
+    })
+
+    Next, I will need to figure out how to store this inside a variable and replace Math.random().toFixed(2)
+        with the prediction value made by the API call.
+    */
+
     setInterval(() => {
         setGaugeValue(gaugeElement, Math.random().toFixed(2));
     }, 2000);
