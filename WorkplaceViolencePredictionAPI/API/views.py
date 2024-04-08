@@ -17,6 +17,7 @@ from WorkplaceViolencePredictionAPI.API.authentication import BearerAuthenticati
 from WorkplaceViolencePredictionAPI.API.models import HospitalData, TrainingData, IncidentLog, RiskData
 from WorkplaceViolencePredictionAPI.API.serializers import HospitalDataSerializer, TrainingDataSerializer, \
     IncidentDataSerializer, RiskDataSerializer
+from WorkplaceViolencePredictionAPI.helpers import risk_to_dict
 
 """
 Django REST framework allows you to combine the logic for a set of related views in a single class, called a ViewSet.
@@ -143,18 +144,18 @@ class PredictionModelViewSet(viewsets.ModelViewSet):
 
     def create(self, request):
         if row := request.headers.get("id"):
-            queryset = HospitalData.objects.get(id=row)
+            hData = HospitalData.objects.get(id=row)
         else:
-            queryset = HospitalData.objects.latest()
+            hData = HospitalData.objects.latest()
 
-        new_entry = RiskData.dict(queryset)
+        new_entry = risk_to_dict(hData)
         serializer = self.get_serializer(data=new_entry, many=False)
         try:
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            response = {f"Row {queryset.id} is WPV risk": str(new_entry.get("wpvRisk")),
+            response = {f"Row {hData.id} is WPV risk": str(new_entry.get("wpvRisk")),
                         "Probability of WPV": str(new_entry.get('wpvProbability') * 100) + "%"}
-            
+
             return JsonResponse(response, status=status.HTTP_200_OK)
         except ValidationError:
             return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
