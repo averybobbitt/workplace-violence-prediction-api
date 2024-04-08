@@ -142,6 +142,12 @@ class PredictionModelViewSet(viewsets.ModelViewSet):
     queryset = RiskData.objects.all()
     serializer_class = RiskDataSerializer
 
+    @action(methods=["GET"], detail=False)
+    def latest(self, request, **kwargs):
+        latest_entry = RiskData.objects.latest()
+        serializer = RiskDataSerializer(latest_entry, many=False)
+        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+
     def create(self, request):
         if row := request.headers.get("id"):
             hData = HospitalData.objects.get(id=row)
