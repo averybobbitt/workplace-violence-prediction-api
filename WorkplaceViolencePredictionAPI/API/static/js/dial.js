@@ -3,13 +3,13 @@ window.onload = function () {
 
     setInterval(() => {
         fetch("http://localhost:8000/api/model/latest").then((response) => {
-            let data = response.json();
-            let probability = data["wpvProbability"];
-
-            setGaugeValue(gaugeElement, probability.toFixed(2));
-            console.log(data);
+            response.json().then((data) => {
+                let probability = data["wpvProbability"];
+                setGaugeValue(gaugeElement, probability.toFixed(2));
+                console.log(data);
+            });
         });
-    }, 2000);
+    }, 5000);
 };
 
 function setGaugeValue(gauge, value) {
