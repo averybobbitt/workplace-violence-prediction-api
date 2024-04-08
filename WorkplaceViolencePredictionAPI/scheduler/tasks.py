@@ -4,8 +4,9 @@ import requests
 from django.conf import settings
 from django.core.exceptions import ValidationError
 
-from WorkplaceViolencePredictionAPI.API.models import HospitalData, RiskData
+from WorkplaceViolencePredictionAPI.API.models import HospitalData
 from WorkplaceViolencePredictionAPI.API.serializers import HospitalDataSerializer, RiskDataSerializer
+from WorkplaceViolencePredictionAPI.helpers import risk_to_dict
 
 logger = logging.getLogger("wpv")
 
@@ -30,7 +31,7 @@ def get_data():
 def predict():
     # get the latest data from hospital data
     queryset = HospitalData.objects.latest()
-    riskData_dict = RiskData.dict(None, queryset)
+    riskData_dict = risk_to_dict(queryset)
     prediction = riskData_dict.get("wpvRisk")
     probabilities = riskData_dict.get("wpvProbability")
 
