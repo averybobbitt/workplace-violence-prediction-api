@@ -15,13 +15,16 @@ window.onload = function () {
     setInterval(() => {
         fetch("http://localhost:8000/api/model/latest").then((response) => {
             response.json().then((data) => {
+                let risk = data["wpvRisk"];
                 let probability = parseFloat(data["wpvProbability"]);
+
                 setGaugeValue(gaugeElement, probability.toFixed(2));
+                updateRisk(risk);
 
                 console.log(`Prediction ${data["id"]}: ${probability.toFixed(2)}`);
             });
         });
-    }, 5000);
+    }, 1000);
 };
 
 function setGaugeValue(gauge, value) {
@@ -29,6 +32,21 @@ function setGaugeValue(gauge, value) {
 
     gauge.querySelector(".gauge_fill").style.transform = `rotate(${value / 2}turn)`;
     gauge.querySelector(".gauge_percentage").innerText = Math.round(value * 100);
+}
+
+function updateRisk(risk) {
+    const element = document.getElementById("riskYN");
+
+    if (risk) {
+        element.innerText = "YES";
+        element.style.color = "red";
+    } else if (!risk) {
+        element.innerText = "NO";
+        element.style.color = "green";
+    } else {
+        element.innerText = "ERROR";
+        element.style.removeProperty("color");
+    }
 }
 
 function changeNum() {
