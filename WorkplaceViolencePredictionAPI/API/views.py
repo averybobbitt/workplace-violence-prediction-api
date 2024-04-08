@@ -4,8 +4,8 @@ from datetime import datetime
 import requests
 from django.conf import settings
 from django.db.models import F, Func
-from django.http import HttpResponse, JsonResponse
-from django.template import loader
+from django.http import JsonResponse
+from django.shortcuts import render
 from rest_framework import viewsets, status
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.authtoken.models import Token
@@ -142,7 +142,7 @@ class PredictionModelViewSet(viewsets.ModelViewSet):
     queryset = RiskData.objects.all()
     serializer_class = RiskDataSerializer
 
-    @action(methods=["GET"], detail=False)
+    @action(methods=["GET"], detail=False, permission_classes=[AllowAny])
     def latest(self, request, **kwargs):
         latest_entry = RiskData.objects.latest()
         serializer = RiskDataSerializer(latest_entry, many=False)
@@ -210,11 +210,9 @@ class IncidentLogViewSet(viewsets.ModelViewSet):
 
 # Home view
 def home(request):
-    template = loader.get_template('home.html')
-    return HttpResponse(template.render())
+    return render(request, "home.html")
 
 
 # Dial view
 def dial(request):
-    template = loader.get_template('dial.html')
-    return HttpResponse(template.render())
+    return render(request, "dial.html")
