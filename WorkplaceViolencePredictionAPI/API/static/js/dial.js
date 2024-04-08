@@ -15,9 +15,10 @@ window.onload = function () {
     setInterval(() => {
         fetch("http://localhost:8000/api/model/latest").then((response) => {
             response.json().then((data) => {
-                let probability = data["wpvProbability"];
+                let probability = parseFloat(data["wpvProbability"]);
                 setGaugeValue(gaugeElement, probability.toFixed(2));
-                console.log(data);
+
+                console.log(`Prediction ${data["id"]}: ${probability.toFixed(2)}`);
             });
         });
     }, 5000);
