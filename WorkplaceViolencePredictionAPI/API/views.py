@@ -1,8 +1,6 @@
 import logging
 from datetime import datetime
 
-import numpy
-import pandas as pd
 import requests
 from django.conf import settings
 from django.db.models import F, Func
@@ -15,7 +13,6 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 
-from WorkplaceViolencePredictionAPI.API.Forest import Forest
 from WorkplaceViolencePredictionAPI.API.authentication import BearerAuthentication
 from WorkplaceViolencePredictionAPI.API.models import HospitalData, TrainingData, IncidentLog, RiskData
 from WorkplaceViolencePredictionAPI.API.serializers import HospitalDataSerializer, TrainingDataSerializer, \
@@ -149,26 +146,16 @@ class PredictionModelViewSet(viewsets.ModelViewSet):
             queryset = HospitalData.objects.get(id=row)
         else:
             queryset = HospitalData.objects.latest()
-        avgNurses = float(queryset.avgNurses)
-        avgPatients = float(queryset.avgPatients)
-        percentBedsFull = float(queryset.percentBedsFull)
-        timeOfDay = ((queryset.timeOfDay.hour * 3600 + queryset.timeOfDay.minute * 60 + queryset.timeOfDay.second)
-                     * 1000 + queryset.timeOfDay.microsecond / 1000)
-        data_df = pd.DataFrame(numpy.array([[avgNurses, avgPatients, percentBedsFull, timeOfDay]]),
-                               columns=['avgNurses', 'avgPatients', 'percentBedsFull', 'timeOfDay'])
-        prediction = Forest().predict(data_df)[0]
-        probabilities = Forest().predict_prob(data_df)[0][1]
-        new_entry = {
-            "hData": queryset.id,
-            "wpvRisk": prediction,
-            "wpvProbability": probabilities
-        }
+
+        new_entry = RiskData.dict(queryset)
         serializer = self.get_serializer(data=new_entry, many=False)
         try:
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            return JsonResponse({f"Row {queryset.id} is WPV risk": str(prediction),
-                                 "Probability of WPV": str(probabilities * 100) + "%"}, status=status.HTTP_200_OK)
+            response = {f"Row {queryset.id} is WPV risk": str(new_entry.get("wpvRisk")),
+                        "Probability of WPV": str(new_entry.get('wpvProbability') * 100) + "%"}
+            
+            return JsonResponse(response, status=status.HTTP_200_OK)
         except ValidationError:
             return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
