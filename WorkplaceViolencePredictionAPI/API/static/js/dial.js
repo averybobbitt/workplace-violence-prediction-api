@@ -1,8 +1,13 @@
 window.onload = function () {
     const gaugeElement = document.getElementById("demoGauge");
 
-    setInterval(() => {
-        setGaugeValue(gaugeElement, Math.random().toFixed(2));
+    setInterval(async () => {
+        let wpvResponse = await fetch("http://localhost:8000/api/model/latest");
+        let wpvJSON = wpvResponse.json();
+        let probability = wpvJSON["wpvProbability"];
+
+        setGaugeValue(gaugeElement, probability.toFixed(2));
+        console.log(wpvJSON);
     }, 2000);
 };
 
