@@ -2,9 +2,9 @@ window.onload = function () {
     const gaugeElement = document.getElementById("demoGauge");
 
     /*
-    Skeleton code for a HTTP GET request
+    Skeleton code for a HTTP GET request to the PredictionModelViewset.
 
-    fetch(url, {
+    fetch(http://127.0.0.1:8000/api/model/, {
       method: "GET" // default, so we can ignore
     })
 
