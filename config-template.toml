@@ -8,3 +8,6 @@ database = "sweng"
 user = ""
 password = ""
 host = ""
+
+[auth]
+bearer = "4c5b35f9f82fd394d135fe6b40a33c3ec756e384"

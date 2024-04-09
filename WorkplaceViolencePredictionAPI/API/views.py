@@ -1,25 +1,23 @@
 import logging
 from datetime import datetime
 
-import numpy
-import pandas as pd
 import requests
 from django.conf import settings
 from django.db.models import F, Func
-from django.http import HttpResponse, JsonResponse
-from django.template import loader
+from django.http import JsonResponse
+from django.shortcuts import render
 from rest_framework import viewsets, status
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
-from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser, IsAuthenticatedOrReadOnly
 
-from WorkplaceViolencePredictionAPI.API.Forest import Forest
 from WorkplaceViolencePredictionAPI.API.authentication import BearerAuthentication
 from WorkplaceViolencePredictionAPI.API.models import HospitalData, TrainingData, IncidentLog, RiskData
 from WorkplaceViolencePredictionAPI.API.serializers import HospitalDataSerializer, TrainingDataSerializer, \
     IncidentDataSerializer, RiskDataSerializer
+from WorkplaceViolencePredictionAPI.helpers import risk_to_dict
 
 """
 Django REST framework allows you to combine the logic for a set of related views in a single class, called a ViewSet.
@@ -144,31 +142,27 @@ class PredictionModelViewSet(viewsets.ModelViewSet):
     queryset = RiskData.objects.all()
     serializer_class = RiskDataSerializer
 
+    @action(methods=["GET"], detail=False, permission_classes=[IsAuthenticatedOrReadOnly])
+    def latest(self, request, **kwargs):
+        latest_entry = RiskData.objects.latest()
+        serializer = RiskDataSerializer(latest_entry, many=False)
+        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+
     def create(self, request):
         if row := request.headers.get("id"):
-            queryset = HospitalData.objects.get(id=row)
+            hData = HospitalData.objects.get(id=row)
         else:
-            queryset = HospitalData.objects.latest()
-        avgNurses = float(queryset.avgNurses)
-        avgPatients = float(queryset.avgPatients)
-        percentBedsFull = float(queryset.percentBedsFull)
-        timeOfDay = ((queryset.timeOfDay.hour * 3600 + queryset.timeOfDay.minute * 60 + queryset.timeOfDay.second)
-                     * 1000 + queryset.timeOfDay.microsecond / 1000)
-        data_df = pd.DataFrame(numpy.array([[avgNurses, avgPatients, percentBedsFull, timeOfDay]]),
-                               columns=['avgNurses', 'avgPatients', 'percentBedsFull', 'timeOfDay'])
-        prediction = Forest().predict(data_df)[0]
-        probabilities = Forest().predict_prob(data_df)[0][1]
-        new_entry = {
-            "hData": queryset.id,
-            "wpvRisk": prediction,
-            "wpvProbability": probabilities
-        }
+            hData = HospitalData.objects.latest()
+
+        new_entry = risk_to_dict(hData)
         serializer = self.get_serializer(data=new_entry, many=False)
         try:
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            return JsonResponse({f"Row {queryset.id} is WPV risk": str(prediction),
-                                 "Probability of WPV": str(probabilities * 100) + "%"}, status=status.HTTP_200_OK)
+            response = {f"Row {hData.id} is WPV risk": str(new_entry.get("wpvRisk")),
+                        "Probability of WPV": str(new_entry.get('wpvProbability') * 100) + "%"}
+
+            return JsonResponse(response, status=status.HTTP_200_OK)
         except ValidationError:
             return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -216,11 +210,9 @@ class IncidentLogViewSet(viewsets.ModelViewSet):
 
 # Home view
 def home(request):
-    template = loader.get_template('home.html')
-    return HttpResponse(template.render())
+    return render(request, "home.html")
 
 
 # Dial view
 def dial(request):
-    template = loader.get_template('dial.html')
-    return HttpResponse(template.render())
+    return render(request, "dial.html")
