@@ -26,6 +26,13 @@ def append(email):
         f = open('emails.txt', 'a+')
         f.write("\n"+email)
         f.close()
+        with open('emails.txt', 'r+') as f:
+            n = f.readlines()
+            f.seek(0)
+            for line in n:
+                if line.strip() != '':
+                    f.write(line)
+            f.truncate()
     else:
         print("ERROR: WRONG INPUT TYPE")
 
@@ -36,7 +43,7 @@ def remove(email):
             n = f.readlines()
             f.seek(0)
             for line in n:
-                if line != email:
+                if line.strip() != email:
                     f.write(line)
             f.truncate()
 
