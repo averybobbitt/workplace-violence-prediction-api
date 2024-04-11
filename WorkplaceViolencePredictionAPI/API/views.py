@@ -151,7 +151,8 @@ class EmailViewSet(viewsets.ViewSet):
     authentication_classes = [BasicAuthentication, BearerAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def create(self, request, **kwargs):
+    @action(detail=False, methods=['post'])
+    def send(self, request):
 
         from WorkplaceViolencePredictionAPI.API.Email_notification_test import execute
 
@@ -160,3 +161,29 @@ class EmailViewSet(viewsets.ViewSet):
             return JsonResponse({'message': 'Emails sent successfully'}, status=200)
         except FileNotFoundError as e:
             return JsonResponse({'error': 'File not found: ' + str(e)}, status=500)
+
+    @action(detail=False, methods=['post'])
+    def append(self, request, pk=None):
+
+        from WorkplaceViolencePredictionAPI.API.Email_notification_test import append
+
+        string_input = request.data.get('email')
+        print(string_input)
+        if isinstance(string_input, str):
+            append(string_input)
+            return JsonResponse({'message': 'Email appended successfully'}, status=200)
+        else:
+            return JsonResponse({'error': 'Invalid or empty email input'}, status=400)
+
+    @action(detail=False, methods=['post'])
+    def remove(self, request, pk=None):
+
+        from WorkplaceViolencePredictionAPI.API.Email_notification_test import remove
+
+        string_input = "poopoobutt@gmail.com"
+        print(string_input)
+        if isinstance(string_input, str):
+            remove(string_input)
+            return JsonResponse({'message': 'Email removed successfully'}, status=200)
+        else:
+            return JsonResponse({'error': 'Invalid or empty email input'}, status=400)
