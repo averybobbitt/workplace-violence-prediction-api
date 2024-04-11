@@ -32,7 +32,6 @@ router.register(r"train", views.TrainingDataViewSet)
 
 urlpatterns = [
     path("", views.home),
-    path("dial/", views.dial),
     path("log/", views.log),
     path("email/", views.manageEmail),
     path("admin/", admin.site.urls),  # built-in admin portal for Django
