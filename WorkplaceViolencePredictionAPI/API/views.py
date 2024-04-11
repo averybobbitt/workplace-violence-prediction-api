@@ -219,5 +219,5 @@ def log(request):
 
 
 # Manage email View
-def manageEmail(request):
-    return render(request, "manageemails.html")
+def manage_emails(request):
+    return render(request, "manage_emails.html")
