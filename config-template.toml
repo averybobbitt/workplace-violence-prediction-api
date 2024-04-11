@@ -1,7 +1,7 @@
 [data_sources]
-new_sample = "http://localhost:8001/new"
+new_sample = "http://dummy/new"
 # this is kinda weird; the viewset that uses this endpoint supplies a value for the endpoint parameter, so it has to be truncated like this
-bulk_samples = "http://localhost:8001/bulk?samples="
+bulk_samples = "http://dummy/bulk?samples="
 
 [database]
 database = "sweng"
@@ -10,4 +10,4 @@ password = ""
 host = ""
 
 [auth]
-bearer = "4c5b35f9f82fd394d135fe6b40a33c3ec756e384"
+bearer = ""
