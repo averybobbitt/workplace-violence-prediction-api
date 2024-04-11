@@ -180,7 +180,7 @@ class EmailViewSet(viewsets.ViewSet):
 
         from WorkplaceViolencePredictionAPI.API.Email_notification_test import remove
 
-        string_input = "poopoobutt@gmail.com"
+        string_input = request.data.get('email')
         print(string_input)
         if isinstance(string_input, str):
             remove(string_input)
