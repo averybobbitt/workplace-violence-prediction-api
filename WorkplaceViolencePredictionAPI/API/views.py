@@ -213,11 +213,6 @@ def home(request):
     return render(request, "home.html")
 
 
-# Dial view
-def dial(request):
-    return render(request, "dial.html")
-
-
 # Log View
 def log(request):
     return render(request, "incidentlog.html")
