@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <script src="{% static 'js/home.js' %}"></script>
+    <title>Dial</title>
+</head>
+<body>
+
+<!-- Credit for HTML/JS/CSS dial to Dom -- https://codepen.io/dcode-software -->
+
+<div class="header">
+    <h1>WPV Risk Level</h1>
+    <h2>Current Risk: <span id="riskYN">loading...</span></h2>
+</div>
+
+<div class="gauge" id="demoGauge">
+    <div class="gauge_body">
+        <div class="gauge_fill"></div>
+        <div class="gauge_cover">
+            <span class="gauge_percentage">0</span>%
+        </div>
+    </div>
+</div>
+
+<div class="button_container">
+    <div class="m_button">
+        <!-- Need an absolute path to the incident log page because it is not in the
+                same directory. -->
+        <a href="/log">
+            <button class="but">Log Incident</button>
+        </a>
+    </div>
+    <div class="m_button">
+        <a href="/email">
+            <button class="but">Manage Emails</button>
+        </a>
+    </div>
+</div>
+</body>
+</html>

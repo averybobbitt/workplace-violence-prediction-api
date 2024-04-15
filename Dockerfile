@@ -12,3 +12,6 @@ RUN pip install -r requirements.txt
 
 # Copy the project code into the container
 COPY . /app/
+
+# Collect static files
+RUN python manage.py collectstatic --noinput
