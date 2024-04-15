@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     "WorkplaceViolencePredictionAPI.API",
+    "drf_spectacular"
 ]
 
 MIDDLEWARE = [
@@ -116,7 +117,7 @@ ASGI_APPLICATION = "WorkplaceViolencePredictionAPI.asgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-db_config = config.get('database')
+db_config = config.get("database")
 if db_config is None:
     raise Exception("No database configuration defined in config.toml")
 
@@ -155,7 +156,8 @@ REST_FRAMEWORK = {
     # or allow read-only access for unauthenticated users.
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly"
-    ]
+    ],
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
 # Internationalization
@@ -176,3 +178,11 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Settings for drf_spectacular (an OpenAPI doc generator)
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Workplace Violence Prediction API",
+    "DESCRIPTION": "An automated system to predict potential incidents of workplace violence in a hospital",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+}
