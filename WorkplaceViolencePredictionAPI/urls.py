@@ -27,6 +27,7 @@ router.register(r"hello", views.HelloViewSet, basename="hello")
 router.register(r"token", views.TokenViewSet, basename="token")
 router.register(r"data", views.HospitalDataViewSet)
 router.register(r"model", views.PredictionModelViewSet, basename="model")
+router.register(r"email", views.EmailViewSet, basename="email")
 router.register(r"log", views.IncidentLogViewSet)
 router.register(r"train", views.TrainingDataViewSet)
 
