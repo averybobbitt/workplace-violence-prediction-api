@@ -8,8 +8,7 @@ services:
       - "8000:8000"
 
   dummy:
-    image: dummy-api
+    image: abobbitt/sweng-dummy-api
     container_name: dummy-api
-    build: https://git.bobbitt.dev/avery/dummy-system-api.git
     ports:
       - "8001:80"
