@@ -1,18 +1,22 @@
-import numpy
-import pandas as pd
+import logging
+from datetime import datetime
+
 import requests
+from django.conf import settings
+from django.db.models import F, Func
 from django.http import JsonResponse
+from django.shortcuts import render
 from rest_framework import viewsets, status
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
-from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
-
-from WorkplaceViolencePredictionAPI.API.Forest import Forest
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser, IsAuthenticatedOrReadOnly
 from WorkplaceViolencePredictionAPI.API.authentication import BearerAuthentication
-from WorkplaceViolencePredictionAPI.API.models import HospitalData
-from WorkplaceViolencePredictionAPI.API.serializers import HospitalDataSerializer
+from WorkplaceViolencePredictionAPI.API.models import HospitalData, TrainingData, IncidentLog, RiskData
+from WorkplaceViolencePredictionAPI.API.serializers import HospitalDataSerializer, TrainingDataSerializer, \
+    IncidentDataSerializer, RiskDataSerializer
+from WorkplaceViolencePredictionAPI.helpers import risk_to_dict
 
 
 """
@@ -35,16 +39,20 @@ https://stackoverflow.com/questions/41379654/difference-between-apiview-class-an
 https://medium.com/@p0zn/django-apiview-vs-viewsets-which-one-to-choose-c8945e538af4
 """
 
+logger = logging.getLogger("wpv")
+
 
 # Hello world ViewSet
 class HelloViewSet(viewsets.ViewSet):
     @action(detail=False, permission_classes=[AllowAny])
     def world(self, request):
+        logger.debug("Hello world!")
         return JsonResponse({"message": "Hello, world!"})
 
     @action(detail=False, permission_classes=[IsAdminUser],
             authentication_classes=[BasicAuthentication, BearerAuthentication])
     def admin(self, request):
+        logger.debug("Hello admin!")
         return JsonResponse({"message": "Hello, admin!"})
 
 
@@ -103,16 +111,14 @@ class HospitalDataViewSet(viewsets.ModelViewSet):
                 return JsonResponse({"error": "Value must be an integer"}, status=status.HTTP_400_BAD_REQUEST)
 
             # if value is good, get N samples
-            new_entries = requests.get(f"https://api.bobbitt.dev/bulk?samples={num_samples}").json()
+            new_entries = requests.get(f"{settings.DATA_SOURCES_BULK}{num_samples}").json()
             serializer = self.get_serializer(data=new_entries, many=True)
             data_size = len(new_entries)
-            print(new_entries)
         else:
             # otherwise, get only 1 sample
-            new_entry = requests.get("https://api.bobbitt.dev/new").json()
+            new_entry = requests.get(settings.DATA_SOURCES_NEW).json()
             serializer = self.get_serializer(data=new_entry, many=False)
             data_size = 1
-            print(new_entry)
         # save new entry/entries to database
         try:
             serializer.is_valid(raise_exception=True)
@@ -123,27 +129,98 @@ class HospitalDataViewSet(viewsets.ModelViewSet):
             return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class PredictionModelViewSet(viewsets.ViewSet):
+class TrainingDataViewSet(viewsets.ModelViewSet):
+    queryset = TrainingData.objects.all()
+    serializer_class = TrainingDataSerializer
     authentication_classes = [BearerAuthentication]
     permission_classes = [IsAuthenticated]
-    forest = Forest()  # singleton instance
 
-    def list(self, request):
+
+class PredictionModelViewSet(viewsets.ModelViewSet):
+    authentication_classes = [BearerAuthentication]
+    permission_classes = [IsAuthenticated]
+    queryset = RiskData.objects.all()
+    serializer_class = RiskDataSerializer
+
+    @action(methods=["GET"], detail=False, permission_classes=[IsAuthenticatedOrReadOnly])
+    def latest(self, request, **kwargs):
+        latest_entry = RiskData.objects.latest()
+        serializer = RiskDataSerializer(latest_entry, many=False)
+        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+
+    def create(self, request):
         if row := request.headers.get("id"):
-            queryset = HospitalData.objects.get(id=row)
+            hData = HospitalData.objects.get(id=row)
         else:
-            queryset = HospitalData.objects.latest()
-        avgNurses = float(queryset.avgNurses)
-        avgPatients = float(queryset.avgPatients)
-        percentBedsFull = float(queryset.percentBedsFull)
-        timeOfDay = (
-                            queryset.timeOfDay.hour * 3600 + queryset.timeOfDay.minute * 60 + queryset.timeOfDay.second) * 1000 + queryset.timeOfDay.microsecond / 1000
-        data_df = pd.DataFrame(numpy.array([[avgNurses, avgPatients, percentBedsFull, timeOfDay]]),
-                               columns=['avgNurses', 'avgPatients', 'percentBedsFull', 'timeOfDay'])
-        prediction = self.forest.predict(data_df)[0]
-        probabilities = self.forest.predict_prob(data_df)[0][1]
-        return JsonResponse({f"Row {queryset.id} is WPV risk": str(prediction),
-                             "Probability of WPV": str(probabilities * 100) + "%"}, status=status.HTTP_200_OK)
+            hData = HospitalData.objects.latest()
+
+        new_entry = risk_to_dict(hData)
+        serializer = self.get_serializer(data=new_entry, many=False)
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            response = {f"Row {hData.id} is WPV risk": str(new_entry.get("wpvRisk")),
+                        "Probability of WPV": str(new_entry.get('wpvProbability') * 100) + "%"}
+
+            return JsonResponse(response, status=status.HTTP_200_OK)
+        except ValidationError:
+            return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class IncidentLogViewSet(viewsets.ModelViewSet):
+    authentication_classes = [BearerAuthentication]
+    permission_classes = [IsAuthenticated]
+    queryset = IncidentLog.objects.all()
+    serializer_class = IncidentDataSerializer
+
+    def create(self, request, **kwargs):
+        headers = request.headers
+        req_headers = ["incidentType", "incidentDate", "affectedPeople", "incidentDescription"]
+        for header in req_headers:
+            if headers.get(header) is None:
+                return JsonResponse({"error": f"Missing header {header}"}, status=status.HTTP_400_BAD_REQUEST)
+        closest_hdata = (HospitalData.objects.annotate(
+            time_difference=Func(F("createdTime") - datetime.strptime(headers.get("incidentDate"), "%Y-%m-%d %H:%M:%S"),
+                                 function="ABS"))
+                         .order_by("time_difference").first().id)
+        new_log = {
+            "incidentType": headers.get("incidentType"),
+            "incidentDate": headers.get("incidentDate"),
+            "affectedPeople": headers.get("affectedPeople"),
+            "incidentDescription": headers.get("incidentDescription"),
+            "hData": closest_hdata
+        }
+        serializer = self.serializer_class(data=new_log, many=False)
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return JsonResponse({"Status": f"Incident {serializer.data.get("id")} logged"},
+                                status=status.HTTP_201_CREATED)
+        except ValidationError:
+            return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, **kwargs):
+        if row := request.headers.get("id"):
+            IncidentLog.objects.get(id=row).delete()
+            return JsonResponse({"Success": f"Incident {row} deleted"}, status=status.HTTP_204_NO_CONTENT)
+        else:
+            IncidentLog.objects.get(id=row).delete()
+            return JsonResponse({"Error": "Missing required id header"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+# Home view
+def home(request):
+    return render(request, "home.html")
+
+
+# Log View
+def log(request):
+    return render(request, "incidentlog.html")
+
+
+# Manage email View
+def manage_emails(request):
+    return render(request, "manage_emails.html")
 
 
 class EmailViewSet(viewsets.ViewSet):
