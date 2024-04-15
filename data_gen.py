@@ -1,7 +1,7 @@
 import datetime
 import random
 from datetime import time
-
+from imblearn.over_sampling import SMOTE
 import numpy
 
 
@@ -92,3 +92,42 @@ def generate_sample() -> dict:
 # Generates sample data then dumps it into a JSON
 def generate_bulk_samples(samples=10000) -> list[dict]:
     return [generate_sample() for _ in range(samples)]
+
+
+def generate_training_data(samples=10000, smotePercentage=.25) -> list[dict]:
+    data = []
+    timeData = []
+    dataClass = []
+    # get randomly* generated values
+    for i in range(samples):
+        bed_occupancy = generate_inpatient_bed_occupancy_data()
+        nurses = generate_number_of_nurses()
+        patients = generate_number_of_patients()
+
+        # check for wpv risk
+        randNum1 = random.uniform(0.75, 1.5)
+        randNum2 = random.uniform(0.75, 1.5)
+        randNum3 = random.uniform(0.75, 1.5)
+        wpv = (
+                nurses <= (5.153 - randNum1 * 0.5652)
+                and bed_occupancy >= (0.72176 + randNum2 * 0.08739)
+                and patients >= (66.9516 + randNum3 * 6.953)
+        )
+
+        data.append([nurses, patients, bed_occupancy])
+        dataClass.append(wpv)
+
+    data_smote, class_smote = SMOTE(sampling_strategy=smotePercentage).fit_resample(data, dataClass)
+    dictList = []
+    for i in range(len(data_smote)):
+        sample = {
+            # pad generated values with f-string formatting
+            "avgNurses": f"{data_smote[i][0]:.10f}",
+            "avgPatients": f"{data_smote[i][1]:.10f}",
+            "percentBedsFull": f"{data_smote[i][2]:.10f}",
+            "timeOfDay": generate_time_of_day().isoformat(),
+            "wpvRisk": class_smote[i]
+        }
+        dictList.append(sample)
+
+    return dictList

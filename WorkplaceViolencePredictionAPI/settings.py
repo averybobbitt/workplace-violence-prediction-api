@@ -26,6 +26,8 @@ if DATA_SOURCES is None:
 DATA_SOURCES_BULK = DATA_SOURCES.get("bulk_samples")
 DATA_SOURCES_NEW = DATA_SOURCES.get("new_sample")
 
+LOCAL_API_KEY = config.get("auth").get("bearer")
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -40,7 +42,6 @@ DEBUG = os.environ.get("DJANGO_DEBUG", False)
 ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
 # Application definition
-
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -55,6 +56,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -65,6 +67,8 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "WorkplaceViolencePredictionAPI.urls"
 
+# It is important to note APP_DIRS is set to true here, this makes the template loader
+# search for a "templates" subdir in all app directories for apps defined in INSTALLED_APPS
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -80,6 +84,31 @@ TEMPLATES = [
         },
     },
 ]
+
+LOGS_PATH = os.path.join(BASE_DIR, "logs")
+if not os.path.exists(LOGS_PATH):
+    os.mkdir(LOGS_PATH)
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "file": {
+            "class": "logging.FileHandler",
+            "filename": os.path.join(LOGS_PATH, "log.log"),
+        },
+        "console": {
+            "class": "logging.StreamHandler",
+        }
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console", "file"],
+            "level": "INFO",
+            "propagate": True,
+        }
+    },
+}
 
 WSGI_APPLICATION = "WorkplaceViolencePredictionAPI.wsgi.application"
 ASGI_APPLICATION = "WorkplaceViolencePredictionAPI.asgi.application"
@@ -139,7 +168,8 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
-
+# Similarly to TEMPLATES above, Django will search for a "static" subdir in all app directories
+STATIC_ROOT = BASE_DIR / "static/"
 STATIC_URL = "static/"
 
 # Default primary key field type
