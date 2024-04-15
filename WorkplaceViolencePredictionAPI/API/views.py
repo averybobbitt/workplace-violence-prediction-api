@@ -239,12 +239,12 @@ class EmailViewSet(viewsets.ViewSet):
         except FileNotFoundError as e:
             return JsonResponse({'error': 'File not found: ' + str(e)}, status=500)
 
-    @action(detail=False, methods=['post'])
+    @action(detail=False, methods=['POST'])
     def append(self, request, pk=None):
 
         from WorkplaceViolencePredictionAPI.API.Email_notification_test import append
 
-        string_input = request.data.get('email')
+        string_input = request.headers.get("email")
         print(string_input)
         if isinstance(string_input, str):
             append(string_input)
@@ -257,10 +257,14 @@ class EmailViewSet(viewsets.ViewSet):
 
         from WorkplaceViolencePredictionAPI.API.Email_notification_test import remove
 
-        string_input = request.data.get('email')
+        string_input = request.headers.get('email')
         print(string_input)
         if isinstance(string_input, str):
             remove(string_input)
             return JsonResponse({'message': 'Email removed successfully'}, status=200)
         else:
             return JsonResponse({'error': 'Invalid or empty email input'}, status=400)
+
+    def list(self, request):
+        from WorkplaceViolencePredictionAPI.API.Email_notification_test import list
+        return JsonResponse({"emails": list()}, status=200)
