@@ -4,6 +4,7 @@ from datetime import time
 from pandas import DataFrame
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
 
 from WorkplaceViolencePredictionAPI.API.models import TrainingData
 
@@ -24,7 +25,7 @@ class Forest:
             queryset = TrainingData.objects.all().values()
         self.queryset = queryset
         self.dataframe = self.queryset_to_dataframe()
-        self.model = self.create_model()
+        self.model, self.accuracy = self.create_model()
 
     # Creates and trains a random forest model
     def create_model(self):
@@ -36,7 +37,9 @@ class Forest:
         # Training the model on the training dataset
         # fit function is used to train the model using the training sets as parameters
         rf.fit(x_train, y_train)
-        return rf
+        # Get test prediction data
+        y_pred = rf.predict(x_test)
+        return rf, accuracy_score(y_test, y_pred)
 
     def predict(self, x_test):
         y_pred = self.model.predict(x_test)
