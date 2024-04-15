@@ -12,12 +12,12 @@ from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser, IsAuthenticatedOrReadOnly
-
 from WorkplaceViolencePredictionAPI.API.authentication import BearerAuthentication
 from WorkplaceViolencePredictionAPI.API.models import HospitalData, TrainingData, IncidentLog, RiskData
 from WorkplaceViolencePredictionAPI.API.serializers import HospitalDataSerializer, TrainingDataSerializer, \
     IncidentDataSerializer, RiskDataSerializer
 from WorkplaceViolencePredictionAPI.helpers import risk_to_dict
+
 
 """
 Django REST framework allows you to combine the logic for a set of related views in a single class, called a ViewSet.
@@ -221,3 +221,46 @@ def log(request):
 # Manage email View
 def manage_emails(request):
     return render(request, "manage_emails.html")
+
+
+class EmailViewSet(viewsets.ViewSet):
+
+    authentication_classes = [BasicAuthentication, BearerAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    @action(detail=False, methods=['post'])
+    def send(self, request):
+
+        from WorkplaceViolencePredictionAPI.API.Email_notification_test import execute
+
+        try:
+            execute()
+            return JsonResponse({'message': 'Emails sent successfully'}, status=200)
+        except FileNotFoundError as e:
+            return JsonResponse({'error': 'File not found: ' + str(e)}, status=500)
+
+    @action(detail=False, methods=['post'])
+    def append(self, request, pk=None):
+
+        from WorkplaceViolencePredictionAPI.API.Email_notification_test import append
+
+        string_input = request.data.get('email')
+        print(string_input)
+        if isinstance(string_input, str):
+            append(string_input)
+            return JsonResponse({'message': 'Email appended successfully'}, status=200)
+        else:
+            return JsonResponse({'error': 'Invalid or empty email input'}, status=400)
+
+    @action(detail=False, methods=['post'])
+    def remove(self, request, pk=None):
+
+        from WorkplaceViolencePredictionAPI.API.Email_notification_test import remove
+
+        string_input = request.data.get('email')
+        print(string_input)
+        if isinstance(string_input, str):
+            remove(string_input)
+            return JsonResponse({'message': 'Email removed successfully'}, status=200)
+        else:
+            return JsonResponse({'error': 'Invalid or empty email input'}, status=400)
