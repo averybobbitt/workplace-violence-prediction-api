@@ -23,19 +23,21 @@ from WorkplaceViolencePredictionAPI.API import views
 # routers only work with ViewSets, not regular Views
 # for ViewSets not associated with a model, we need to explicitly define the basename
 router = routers.DefaultRouter()
-router.register(r"hello", views.HelloView, basename="hello")
-router.register(r"token", views.TokenView, basename="token")
-router.register(r"email", views.EmailView, basename="email")
 router.register(r"data", views.HospitalDataViewSet)
 router.register(r"train", views.TrainingDataViewSet)
 router.register(r"model", views.PredictionModelViewSet)
 router.register(r"log", views.IncidentLogViewSet)
 
 urlpatterns = [
-    path("", views.home),
+    path("admin/", admin.site.urls),  # built-in admin portal for Django
+    # Webpage Routes
+    path("", views.home, name="home"),
     path("log/", views.log, name="log"),
     path("email/", views.manage_emails, name="email"),
-    path("admin/", admin.site.urls),  # built-in admin portal for Django
+    # API Routes
     path("api/", include(router.urls)),  # router paths defined above
     path("api/auth/", include("rest_framework.urls")),  # login/out for browser view
+    path("api/hello/", views.HelloView.as_view()),
+    path("api/token/", views.TokenView.as_view()),
+    path("api/email/", views.EmailView.as_view()),
 ]
