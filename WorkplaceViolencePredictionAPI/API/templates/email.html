@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <script src="{% static 'js/email.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/email.css' %}">
+    <title>Manage Emails</title>
+</head>
+<body>
+<div class="container">
+    <h1>Manage Emails</h1>
+    <h2>Emails:</h2>
+    <span id="emails">loading...</span><br>
+    <input type="text" placeholder="Enter email address" id="inputBox">
+    <br>
+    <button class="btn btn-danger" onclick="rmEmail()">Remove Email</button>
+    <button class="btn btn-primary" onclick="addEmail()">Add Email</button>
+</div>
+</body>
+</html>

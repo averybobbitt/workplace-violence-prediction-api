@@ -239,8 +239,8 @@ def log(request):
 
 
 # Manage email View
-def manage_emails(request):
-    return render(request, "manage_emails.html")
+def email(request):
+    return render(request, "email.html")
 
 
 # API documentation View
