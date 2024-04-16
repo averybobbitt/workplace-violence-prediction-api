@@ -241,3 +241,8 @@ def log(request):
 # Manage email View
 def manage_emails(request):
     return render(request, "manage_emails.html")
+
+
+# API documentation View
+def docs(request):
+    return render(request, "docs.html")

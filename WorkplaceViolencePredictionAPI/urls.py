@@ -35,6 +35,7 @@ urlpatterns = [
     path("", views.home, name="home"),
     path("log/", views.log, name="log"),
     path("email/", views.manage_emails, name="email"),
+    path("api/docs/", views.docs, name="docs"),
     # API Routes
     path("api/", include(router.urls)),  # router paths defined above
     path("api/auth/", include("rest_framework.urls")),  # login/out for browser view
