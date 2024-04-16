@@ -37,8 +37,8 @@ SECRET_KEY = os.urandom(24).hex()
 
 # Check if application is running in a development environment
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("DJANGO_DEBUG", False)
-
+# DEBUG = os.environ.get("DJANGO_DEBUG", False)
+DEBUG = True
 ALLOWED_HOSTS = ["localhost", "127.0.0.1", "smtp.gmail.com"]
 
 # Application definition
@@ -60,7 +60,7 @@ MIDDLEWARE = [
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
+    # "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
