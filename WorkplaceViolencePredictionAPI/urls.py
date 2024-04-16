@@ -23,13 +23,13 @@ from WorkplaceViolencePredictionAPI.API import views
 # routers only work with ViewSets, not regular Views
 # for ViewSets not associated with a model, we need to explicitly define the basename
 router = routers.DefaultRouter()
-router.register(r"hello", views.HelloViewSet, basename="hello")
-router.register(r"token", views.TokenViewSet, basename="token")
+router.register(r"hello", views.HelloView, basename="hello")
+router.register(r"token", views.TokenView, basename="token")
+router.register(r"email", views.EmailView, basename="email")
 router.register(r"data", views.HospitalDataViewSet)
-router.register(r"model", views.PredictionModelViewSet, basename="model")
-router.register(r"email", views.EmailViewSet, basename="email")
-router.register(r"log", views.IncidentLogViewSet)
 router.register(r"train", views.TrainingDataViewSet)
+router.register(r"model", views.PredictionModelViewSet)
+router.register(r"log", views.IncidentLogViewSet)
 
 urlpatterns = [
     path("", views.home),
