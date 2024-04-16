@@ -2,13 +2,9 @@ window.onload = function () {
     setInterval(() => {
         fetch("http://localhost:8000/api/email").then((response) => {
             response.json().then((data) => {
-                let list = data["emails"];
-                if (data["emails"] == "") {
-                    let list = data["emails"];
-                } else {
-                    let list = "No emails in alert mailing list.";
-                }
-                updateEmailDisplay(list);
+                let emails = data.toString();
+
+                updateEmailDisplay(emails);
             });
         });
     }, 1000);
@@ -16,26 +12,38 @@ window.onload = function () {
 
 function addEmail() {
     let input = document.getElementById("inputBox").value;
-    let header = new Headers();
-    header.append("email", input);
+    console.log(input);
+    console.log(JSON.stringify({
+        "email": input
+    }));
+
     fetch("http://localhost:8000/api/email/", {
         method: "PUT",
-        headers: header
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            "email": input
+        })
     }).then(r => console.log(`Email added: ${input}`));
     document.getElementById("inputBox").value = "";
 }
 
 function rmEmail() {
     let input = document.getElementById("inputBox").value;
-    let header = new Headers();
-    header.append("email", input);
+
     fetch("http://localhost:8000/api/email/", {
         method: "DELETE",
-        headers: header
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            "email": input
+        })
     }).then(r => console.log(`Email removed: ${input}`));
     document.getElementById("inputBox").value = "";
 }
 
-function updateEmailDisplay(risk) {
-    document.getElementById("emails").innerText = risk;
+function updateEmailDisplay(list) {
+    document.getElementById("emails").innerHTML = list.replace(",", "<br>");
 }

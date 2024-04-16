@@ -10,7 +10,7 @@ from django.shortcuts import render
 from rest_framework import viewsets, status, generics
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 
 from WorkplaceViolencePredictionAPI.API.authentication import BearerAuthentication
 from WorkplaceViolencePredictionAPI.API.models import HospitalData, TrainingData, IncidentLog, RiskData
@@ -43,7 +43,7 @@ logger = logging.getLogger("wpv")
 
 class EmailView(generics.GenericAPIView):
     authentication_classes = [BearerAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     # get all current recipients
     def get(self, request):
