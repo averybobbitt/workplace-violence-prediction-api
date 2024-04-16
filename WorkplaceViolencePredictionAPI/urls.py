@@ -34,7 +34,7 @@ urlpatterns = [
     # Webpage Routes
     path("", views.home, name="home"),
     path("log/", views.log, name="log"),
-    path("email/", views.manage_emails, name="email"),
+    path("email/", views.email, name="email"),
     path("api/docs/", views.docs, name="docs"),
     # API Routes
     path("api/", include(router.urls)),  # router paths defined above

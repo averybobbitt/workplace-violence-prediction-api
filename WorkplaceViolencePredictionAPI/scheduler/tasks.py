@@ -4,7 +4,7 @@ import requests
 from django.conf import settings
 from django.core.exceptions import ValidationError
 
-from WorkplaceViolencePredictionAPI.API.models import HospitalData
+from WorkplaceViolencePredictionAPI.API.models import HospitalData, RiskData
 from WorkplaceViolencePredictionAPI.API.serializers import HospitalDataSerializer, RiskDataSerializer
 from WorkplaceViolencePredictionAPI.helpers import risk_to_dict
 
@@ -58,3 +58,5 @@ def predict():
     # display the risk results
     logger.info({f"Row {queryset.id} is WPV risk": str(prediction),
                  "Probability of WPV": str(probabilities * 100) + "%"})
+
+

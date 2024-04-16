@@ -13,32 +13,51 @@
 <!-- Credit for HTML/JS/CSS dial to Dom -- https://codepen.io/dcode-software -->
 
 <div class="header">
-    <h1>WPV Risk Level</h1>
-    <h2>Current Risk: <span id="riskYN">loading...</span></h2>
+    <h1>Workplace Violence Prediction System</h1>
 </div>
+<div class="body_container">
 
-<div class="gauge" id="demoGauge">
-    <div class="gauge_body">
-        <div class="gauge_fill"></div>
-        <div class="gauge_cover">
-            <span class="gauge_percentage">0</span>%
+    <div class="body_left">
+
+        <div class="gauge_container">
+            <div class="gauge" id="demoGauge">
+                <div class="gauge_body">
+                    <div class="gauge_fill"></div>
+                    <div class="gauge_cover">
+                        <span class="gauge_percentage">0</span>%
+                    </div>
+                </div>
+            </div>
         </div>
+
+
+        <div class="risk_container">
+            <h2>Current Risk: <span id="riskYN">loading...</span></h2>
+        </div>
+
+        <div class="button_container">
+            <div class="m_button">
+                <!-- Need an absolute path to the incident log page because it is not in the
+                        same directory. -->
+                <a href="/log">
+                    <button class="but">Log Incident</button>
+                </a>
+            </div>
+            <div class="m_button">
+                <a href="/email">
+                    <button class="but">Manage Emails</button>
+                </a>
+            </div>
+        </div>
+
     </div>
+
+    <div class="body_right">
+        RIGHT SIDE WHERE TABLE WILL BE
+    </div>
+
+
 </div>
 
-<div class="button_container">
-    <div class="m_button">
-        <!-- Need an absolute path to the incident log page because it is not in the
-                same directory. -->
-        <a href="{% url 'log' %}">
-            <button class="but">Log Incident</button>
-        </a>
-    </div>
-    <div class="m_button">
-        <a href="{% url 'email' %}">
-            <button class="but">Manage Emails</button>
-        </a>
-    </div>
-</div>
 </body>
 </html>
