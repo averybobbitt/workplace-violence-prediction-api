@@ -45,6 +45,12 @@ class EmailView(generics.GenericAPIView):
     authentication_classes = [BearerAuthentication]
     permission_classes = [IsAuthenticated]
 
+    # get all current recipients
+    def get(self, request):
+        emails = settings.EMAIL_RECIPIENTS
+
+        return JsonResponse(emails, safe=False)
+
     # send emails to recipients
     def post(self, request):
         try:
