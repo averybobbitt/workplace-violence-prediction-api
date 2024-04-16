@@ -9,9 +9,9 @@ paths:
     get:
       operationId: data_list
       tags:
-      - data
+        - data
       security:
-      - tokenAuth: []
+        - tokenAuth: [ ]
       responses:
         '200':
           content:
@@ -23,12 +23,8 @@ paths:
           description: ''
     post:
       operationId: data_create
-      description: |-
-        This https request is an example for if a hospital uses their own api route to gather their own data
-        in a dictionary and want to put it into a database. If a hospital already has a database with
-        live information to use, this function is obsolete.
       tags:
-      - data
+        - data
       requestBody:
         content:
           application/json:
@@ -42,7 +38,7 @@ paths:
               $ref: '#/components/schemas/HospitalData'
         required: true
       security:
-      - tokenAuth: []
+        - tokenAuth: [ ]
       responses:
         '201':
           content:
@@ -54,16 +50,16 @@ paths:
     get:
       operationId: data_retrieve
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this hospital data.
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          description: A unique integer value identifying this hospital data.
+          required: true
       tags:
-      - data
+        - data
       security:
-      - tokenAuth: []
+        - tokenAuth: [ ]
       responses:
         '200':
           content:
@@ -74,14 +70,14 @@ paths:
     put:
       operationId: data_update
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this hospital data.
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          description: A unique integer value identifying this hospital data.
+          required: true
       tags:
-      - data
+        - data
       requestBody:
         content:
           application/json:
@@ -95,7 +91,7 @@ paths:
               $ref: '#/components/schemas/HospitalData'
         required: true
       security:
-      - tokenAuth: []
+        - tokenAuth: [ ]
       responses:
         '200':
           content:
@@ -106,14 +102,14 @@ paths:
     patch:
       operationId: data_partial_update
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this hospital data.
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          description: A unique integer value identifying this hospital data.
+          required: true
       tags:
-      - data
+        - data
       requestBody:
         content:
           application/json:
@@ -126,7 +122,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedHospitalData'
       security:
-      - tokenAuth: []
+        - tokenAuth: [ ]
       responses:
         '200':
           content:
@@ -137,16 +133,16 @@ paths:
     delete:
       operationId: data_destroy
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this hospital data.
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          description: A unique integer value identifying this hospital data.
+          required: true
       tags:
-      - data
+        - data
       security:
-      - tokenAuth: []
+        - tokenAuth: [ ]
       responses:
         '204':
           description: No response body
@@ -154,9 +150,9 @@ paths:
     get:
       operationId: data_latest_retrieve
       tags:
-      - data
+        - data
       security:
-      - tokenAuth: []
+        - tokenAuth: [ ]
       responses:
         '200':
           content:
@@ -164,13 +160,41 @@ paths:
               schema:
                 $ref: '#/components/schemas/HospitalData'
           description: ''
+  /api/email/:
+    post:
+      operationId: email_create
+      tags:
+        - email
+      security:
+        - tokenAuth: [ ]
+      responses:
+        '200':
+          description: No response body
+    put:
+      operationId: email_update
+      tags:
+        - email
+      security:
+        - tokenAuth: [ ]
+      responses:
+        '200':
+          description: No response body
+    delete:
+      operationId: email_destroy
+      tags:
+        - email
+      security:
+        - tokenAuth: [ ]
+      responses:
+        '204':
+          description: No response body
   /api/log/:
     get:
       operationId: log_list
       tags:
-      - log
+        - log
       security:
-      - tokenAuth: []
+        - tokenAuth: [ ]
       responses:
         '200':
           content:
@@ -183,7 +207,7 @@ paths:
     post:
       operationId: log_create
       tags:
-      - log
+        - log
       requestBody:
         content:
           application/json:
@@ -197,7 +221,7 @@ paths:
               $ref: '#/components/schemas/IncidentData'
         required: true
       security:
-      - tokenAuth: []
+        - tokenAuth: [ ]
       responses:
         '201':
           content:
@@ -209,16 +233,16 @@ paths:
     get:
       operationId: log_retrieve
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this incident log.
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          description: A unique integer value identifying this incident log.
+          required: true
       tags:
-      - log
+        - log
       security:
-      - tokenAuth: []
+        - tokenAuth: [ ]
       responses:
         '200':
           content:
@@ -229,14 +253,14 @@ paths:
     put:
       operationId: log_update
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this incident log.
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          description: A unique integer value identifying this incident log.
+          required: true
       tags:
-      - log
+        - log
       requestBody:
         content:
           application/json:
@@ -250,7 +274,7 @@ paths:
               $ref: '#/components/schemas/IncidentData'
         required: true
       security:
-      - tokenAuth: []
+        - tokenAuth: [ ]
       responses:
         '200':
           content:
@@ -261,14 +285,14 @@ paths:
     patch:
       operationId: log_partial_update
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this incident log.
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          description: A unique integer value identifying this incident log.
+          required: true
       tags:
-      - log
+        - log
       requestBody:
         content:
           application/json:
@@ -281,7 +305,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedIncidentData'
       security:
-      - tokenAuth: []
+        - tokenAuth: [ ]
       responses:
         '200':
           content:
@@ -292,16 +316,16 @@ paths:
     delete:
       operationId: log_destroy
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this incident log.
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          description: A unique integer value identifying this incident log.
+          required: true
       tags:
-      - log
+        - log
       security:
-      - tokenAuth: []
+        - tokenAuth: [ ]
       responses:
         '204':
           description: No response body
@@ -309,9 +333,9 @@ paths:
     get:
       operationId: model_list
       tags:
-      - model
+        - model
       security:
-      - tokenAuth: []
+        - tokenAuth: [ ]
       responses:
         '200':
           content:
@@ -324,7 +348,7 @@ paths:
     post:
       operationId: model_create
       tags:
-      - model
+        - model
       requestBody:
         content:
           application/json:
@@ -338,7 +362,7 @@ paths:
               $ref: '#/components/schemas/RiskData'
         required: true
       security:
-      - tokenAuth: []
+        - tokenAuth: [ ]
       responses:
         '201':
           content:
@@ -350,16 +374,16 @@ paths:
     get:
       operationId: model_retrieve
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this risk data.
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          description: A unique integer value identifying this risk data.
+          required: true
       tags:
-      - model
+        - model
       security:
-      - tokenAuth: []
+        - tokenAuth: [ ]
       responses:
         '200':
           content:
@@ -370,14 +394,14 @@ paths:
     put:
       operationId: model_update
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this risk data.
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          description: A unique integer value identifying this risk data.
+          required: true
       tags:
-      - model
+        - model
       requestBody:
         content:
           application/json:
@@ -391,7 +415,7 @@ paths:
               $ref: '#/components/schemas/RiskData'
         required: true
       security:
-      - tokenAuth: []
+        - tokenAuth: [ ]
       responses:
         '200':
           content:
@@ -402,14 +426,14 @@ paths:
     patch:
       operationId: model_partial_update
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this risk data.
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          description: A unique integer value identifying this risk data.
+          required: true
       tags:
-      - model
+        - model
       requestBody:
         content:
           application/json:
@@ -422,7 +446,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedRiskData'
       security:
-      - tokenAuth: []
+        - tokenAuth: [ ]
       responses:
         '200':
           content:
@@ -433,16 +457,16 @@ paths:
     delete:
       operationId: model_destroy
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this risk data.
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          description: A unique integer value identifying this risk data.
+          required: true
       tags:
-      - model
+        - model
       security:
-      - tokenAuth: []
+        - tokenAuth: [ ]
       responses:
         '204':
           description: No response body
@@ -450,10 +474,10 @@ paths:
     get:
       operationId: model_latest_retrieve
       tags:
-      - model
+        - model
       security:
-      - tokenAuth: []
-      - {}
+        - tokenAuth: [ ]
+        - { }
       responses:
         '200':
           content:
@@ -462,33 +486,39 @@ paths:
                 $ref: '#/components/schemas/RiskData'
           description: ''
   /api/token/:
-    get:
-      operationId: token_retrieve
-      tags:
-      - token
-      security:
-      - basicAuth: []
-      - tokenAuth: []
-      responses:
-        '200':
-          description: No response body
     post:
       operationId: token_create
       tags:
-      - token
+        - token
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AuthToken'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AuthToken'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthToken'
+        required: true
       security:
-      - basicAuth: []
-      - tokenAuth: []
+        - cookieAuth: [ ]
+        - basicAuth: [ ]
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthToken'
+          description: ''
   /api/train/:
     get:
       operationId: train_list
       tags:
-      - train
+        - train
       security:
-      - tokenAuth: []
+        - tokenAuth: [ ]
       responses:
         '200':
           content:
@@ -501,7 +531,7 @@ paths:
     post:
       operationId: train_create
       tags:
-      - train
+        - train
       requestBody:
         content:
           application/json:
@@ -515,7 +545,7 @@ paths:
               $ref: '#/components/schemas/TrainingData'
         required: true
       security:
-      - tokenAuth: []
+        - tokenAuth: [ ]
       responses:
         '201':
           content:
@@ -527,16 +557,16 @@ paths:
     get:
       operationId: train_retrieve
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this training data.
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          description: A unique integer value identifying this training data.
+          required: true
       tags:
-      - train
+        - train
       security:
-      - tokenAuth: []
+        - tokenAuth: [ ]
       responses:
         '200':
           content:
@@ -547,14 +577,14 @@ paths:
     put:
       operationId: train_update
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this training data.
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          description: A unique integer value identifying this training data.
+          required: true
       tags:
-      - train
+        - train
       requestBody:
         content:
           application/json:
@@ -568,7 +598,7 @@ paths:
               $ref: '#/components/schemas/TrainingData'
         required: true
       security:
-      - tokenAuth: []
+        - tokenAuth: [ ]
       responses:
         '200':
           content:
@@ -579,14 +609,14 @@ paths:
     patch:
       operationId: train_partial_update
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this training data.
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          description: A unique integer value identifying this training data.
+          required: true
       tags:
-      - train
+        - train
       requestBody:
         content:
           application/json:
@@ -599,7 +629,7 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedTrainingData'
       security:
-      - tokenAuth: []
+        - tokenAuth: [ ]
       responses:
         '200':
           content:
@@ -610,21 +640,37 @@ paths:
     delete:
       operationId: train_destroy
       parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this training data.
-        required: true
+        - in: path
+          name: id
+          schema:
+            type: integer
+          description: A unique integer value identifying this training data.
+          required: true
       tags:
-      - train
+        - train
       security:
-      - tokenAuth: []
+        - tokenAuth: [ ]
       responses:
         '204':
           description: No response body
 components:
   schemas:
+    AuthToken:
+      type: object
+      properties:
+        username:
+          type: string
+          writeOnly: true
+        password:
+          type: string
+          writeOnly: true
+        token:
+          type: string
+          readOnly: true
+      required:
+        - password
+        - token
+        - username
     HospitalData:
       type: object
       properties:
@@ -651,12 +697,12 @@ components:
           type: string
           format: time
       required:
-      - avgNurses
-      - avgPatients
-      - createdTime
-      - id
-      - percentBedsFull
-      - timeOfDay
+        - avgNurses
+        - avgPatients
+        - createdTime
+        - id
+        - percentBedsFull
+        - timeOfDay
     IncidentData:
       type: object
       properties:
@@ -679,11 +725,11 @@ components:
           type: integer
           nullable: true
       required:
-      - affectedPeople
-      - id
-      - incidentDate
-      - incidentDescription
-      - incidentType
+        - affectedPeople
+        - id
+        - incidentDate
+        - incidentDescription
+        - incidentType
     PatchedHospitalData:
       type: object
       properties:
@@ -788,9 +834,9 @@ components:
           type: integer
           nullable: true
       required:
-      - id
-      - wpvProbability
-      - wpvRisk
+        - id
+        - wpvProbability
+        - wpvRisk
     TrainingData:
       type: object
       properties:
@@ -819,16 +865,20 @@ components:
         wpvRisk:
           type: boolean
       required:
-      - avgNurses
-      - avgPatients
-      - createdTime
-      - id
-      - percentBedsFull
-      - timeOfDay
+        - avgNurses
+        - avgPatients
+        - createdTime
+        - id
+        - percentBedsFull
+        - timeOfDay
   securitySchemes:
     basicAuth:
       type: http
       scheme: basic
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
     tokenAuth:
       type: http
       scheme: bearer
