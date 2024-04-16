@@ -131,3 +131,22 @@ def generate_training_data(samples=10000, smotePercentage=.25) -> list[dict]:
         dictList.append(sample)
 
     return dictList
+
+def generate_wpv_sample():
+    time_of_day = generate_time_of_day()
+    randNum1 = random.uniform(0.75, 1.5)
+    randNum2 = random.uniform(0.75, 1.5)
+    randNum3 = random.uniform(0.75, 1.5)
+    nurses = (5.153 - randNum1 * 0.5652)
+    bed_occupancy = (0.72176 + randNum2 * 0.08739)
+    patients = (66.9516 + randNum3 * 6.953)
+    wpv = 1
+    sample = {
+        # pad generated values with f-string formatting
+        "avgNurses": f"{nurses:.10f}",
+        "avgPatients": f"{patients:.10f}",
+        "percentBedsFull": f"{bed_occupancy:.10f}",
+        "timeOfDay": time_of_day.isoformat(),
+        "wpvRisk": wpv
+    }
+    return sample
