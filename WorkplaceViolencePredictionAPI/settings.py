@@ -39,7 +39,7 @@ SECRET_KEY = os.urandom(24).hex()
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DJANGO_DEBUG", False)
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "smtp.gmail.com"]
 
 # Application definition
 INSTALLED_APPS = [
@@ -186,3 +186,16 @@ SPECTACULAR_SETTINGS = {
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
 }
+
+# Email notification settings
+EMAIL_CONFIG = config.get("email")
+
+if EMAIL_CONFIG is None:
+    raise Exception("No email configuration defined in config.toml")
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_SENDER = EMAIL_CONFIG.get("sender")
+EMAIL_HOST_PASSWORD = EMAIL_CONFIG.get("password")

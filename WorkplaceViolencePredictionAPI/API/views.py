@@ -3,6 +3,7 @@ from datetime import datetime
 
 import requests
 from django.conf import settings
+from django.core.mail import get_connection, EmailMessage
 from django.db.models import F, Func
 from django.http import JsonResponse
 from django.shortcuts import render
@@ -11,9 +12,8 @@ from rest_framework.authentication import BasicAuthentication
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
-from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 
-from WorkplaceViolencePredictionAPI.API import Email_notification_test
 from WorkplaceViolencePredictionAPI.API.authentication import BearerAuthentication
 from WorkplaceViolencePredictionAPI.API.models import HospitalData, TrainingData, IncidentLog, RiskData
 from WorkplaceViolencePredictionAPI.API.serializers import HospitalDataSerializer, TrainingDataSerializer, \
@@ -41,20 +41,6 @@ https://medium.com/@p0zn/django-apiview-vs-viewsets-which-one-to-choose-c8945e53
 """
 
 logger = logging.getLogger("wpv")
-
-
-# Hello world ViewSet
-class HelloView(views.APIView):
-    @action(detail=False, permission_classes=[AllowAny])
-    def world(self, request):
-        logger.debug("Hello world!")
-        return JsonResponse({"message": "Hello, world!"})
-
-    @action(detail=False, permission_classes=[IsAdminUser],
-            authentication_classes=[BasicAuthentication, BearerAuthentication])
-    def admin(self, request):
-        logger.debug("Hello admin!")
-        return JsonResponse({"message": "Hello, admin!"})
 
 
 class TokenView(views.APIView):
@@ -86,27 +72,74 @@ class EmailView(views.APIView):
     @action(detail=False, methods=['post'])
     def send(self, request):
         try:
-            Email_notification_test.execute()
+            bcc_recipients = []
+            with open('emails.txt', 'r') as file:
+                for line in file:
+                    recipient = line.strip()
+                    bcc_recipients.append(recipient)
+
+            connection = get_connection(
+                backend=settings.EMAIL_BACKEND,
+                host=settings.EMAIL_HOST,
+                port=settings.EMAIL_PORT,
+                username=settings.EMAIL_HOST_SENDER,
+                password=settings.EMAIL_HOST_PASSWORD,
+                use_tls=True
+            )
+
+            # Email sends message to itself and BCCs a list of recipients
+            try:
+                email = EmailMessage(
+                    subject="Warning: Risk levels in the hospital!",
+                    body="This message is to inform you of high risk levels within the hospital. "
+                         "Please be cautious of heightened stress levels as we work to resolve the issue.",
+                    bcc=bcc_recipients,
+                    from_email=settings.EMAIL_HOST_SENDER,
+                    to=[settings.EMAIL_HOST_SENDER],
+                    connection=connection,
+                )
+
+                email.send()
+            except Exception as e:
+                logging.error(f"Error sending email: {e}")
+
             return JsonResponse({'message': 'Emails sent successfully'}, status=200)
         except FileNotFoundError as e:
             return JsonResponse({'error': 'File not found: ' + str(e)}, status=500)
 
     @action(detail=False, methods=['post'])
-    def append(self, request, pk=None):
+    def append(self, request):
         string_input = request.data.get('email')
 
         if isinstance(string_input, str):
-            Email_notification_test.append(string_input)
+            f = open('emails.txt', 'a+')
+            f.write("\n" + string_input)
+            f.close()
+            with open('emails.txt', 'r+') as f:
+                n = f.readlines()
+                f.seek(0)
+                for line in n:
+                    if line.strip() != '':
+                        f.write(line)
+                f.truncate()
+
             return JsonResponse({'message': 'Email appended successfully'}, status=200)
         else:
             return JsonResponse({'error': 'Invalid or empty email input'}, status=400)
 
     @action(detail=False, methods=['post'])
-    def remove(self, request, pk=None):
+    def remove(self, request):
         string_input = request.data.get('email')
 
         if isinstance(string_input, str):
-            Email_notification_test.remove(string_input)
+            with open('emails.txt', 'r+') as f:
+                n = f.readlines()
+                f.seek(0)
+                for line in n:
+                    if line.strip() != string_input:
+                        f.write(line)
+                f.truncate()
+
             return JsonResponse({'message': 'Email removed successfully'}, status=200)
         else:
             return JsonResponse({'error': 'Invalid or empty email input'}, status=400)
@@ -177,8 +210,8 @@ class PredictionModelViewSet(viewsets.ModelViewSet):
 
     @action(methods=["GET"], detail=False, permission_classes=[IsAuthenticatedOrReadOnly])
     def latest(self, request, **kwargs):
-        latest_entry = RiskData.objects.latest()
-        serializer = RiskDataSerializer(latest_entry, many=False)
+        queryset = RiskData.objects.latest()
+        serializer = RiskDataSerializer(queryset, many=False)
         return JsonResponse(serializer.data, status=status.HTTP_200_OK)
 
     def create(self, request, **kwargs):
