@@ -9,7 +9,6 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from rest_framework import viewsets, status, views
 from rest_framework.authentication import BasicAuthentication
-from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
@@ -41,28 +40,6 @@ https://medium.com/@p0zn/django-apiview-vs-viewsets-which-one-to-choose-c8945e53
 """
 
 logger = logging.getLogger("wpv")
-
-
-class TokenView(views.APIView):
-    authentication_classes = [BasicAuthentication, BearerAuthentication]
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        tokens = Token.objects.filter(user=request.user)
-
-        if tokens.exists():
-            return JsonResponse({"key": tokens[0].key}, status=status.HTTP_200_OK)
-        else:
-            return JsonResponse({"error": "Token does not exist"}, status=status.HTTP_400_BAD_REQUEST)
-
-    def post(self, request):
-        user = request.user
-        token, created = Token.objects.get_or_create(user=user)
-
-        if created:
-            return JsonResponse({"key": token.key}, status=status.HTTP_201_CREATED)
-        else:
-            return JsonResponse({"error": "Token already exists"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class EmailView(views.APIView):
