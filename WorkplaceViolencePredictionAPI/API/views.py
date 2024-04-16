@@ -7,7 +7,7 @@ from django.core.mail import get_connection, EmailMessage
 from django.db.models import F, Func
 from django.http import JsonResponse
 from django.shortcuts import render
-from rest_framework import viewsets, status, views
+from rest_framework import viewsets, status, generics
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
@@ -41,7 +41,7 @@ https://medium.com/@p0zn/django-apiview-vs-viewsets-which-one-to-choose-c8945e53
 logger = logging.getLogger("wpv")
 
 
-class EmailView(views.APIView):
+class EmailView(generics.GenericAPIView):
     authentication_classes = [BearerAuthentication]
     permission_classes = [IsAuthenticated]
 
