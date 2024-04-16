@@ -57,29 +57,6 @@ class HelloViewSet(viewsets.ViewSet):
         return JsonResponse({"message": "Hello, admin!"})
 
 
-# ViewSet for users to get authentication tokens
-class TokenView(views.APIView):
-    authentication_classes = [BasicAuthentication, BearerAuthentication]
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        tokens = Token.objects.filter(user=request.user)
-
-        if tokens.exists():
-            return JsonResponse({"key": tokens[0].key}, status=status.HTTP_200_OK)
-        else:
-            return JsonResponse({"error": "Token does not exist"}, status=status.HTTP_400_BAD_REQUEST)
-
-    def post(self, request):
-        user = request.user
-        token, created = Token.objects.get_or_create(user=user)
-
-        if created:
-            return JsonResponse({"key": token.key}, status=status.HTTP_201_CREATED)
-        else:
-            return JsonResponse({"error": "Token already exists"}, status=status.HTTP_400_BAD_REQUEST)
-
-
 # Hospital data ViewSet
 class HospitalDataViewSet(viewsets.ModelViewSet):
     queryset = HospitalData.objects.all()
@@ -149,7 +126,7 @@ class PredictionModelViewSet(viewsets.ModelViewSet):
         serializer = RiskDataSerializer(latest_entry, many=False)
         return JsonResponse(serializer.data, status=status.HTTP_200_OK)
 
-    def create(self, request):
+    def create(self, request, **kwargs):
         if row := request.headers.get("id"):
             hData = HospitalData.objects.get(id=row)
         else:
@@ -195,18 +172,40 @@ class IncidentLogViewSet(viewsets.ModelViewSet):
         try:
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            return JsonResponse({"Status": f"Incident {serializer.data.get("id")} logged"},
+            return JsonResponse({"Status": f"Incident {serializer.data.get('id')} logged"},
                                 status=status.HTTP_201_CREATED)
         except ValidationError:
             return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, **kwargs):
+    def destroy(self, request, **kwargs):
         if row := request.headers.get("id"):
             IncidentLog.objects.get(id=row).delete()
             return JsonResponse({"Success": f"Incident {row} deleted"}, status=status.HTTP_204_NO_CONTENT)
         else:
             IncidentLog.objects.get(id=row).delete()
             return JsonResponse({"Error": "Missing required id header"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class TokenView(views.APIView):
+    authentication_classes = [BasicAuthentication, BearerAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        tokens = Token.objects.filter(user=request.user)
+
+        if tokens.exists():
+            return JsonResponse({"key": tokens[0].key}, status=status.HTTP_200_OK)
+        else:
+            return JsonResponse({"error": "Token does not exist"}, status=status.HTTP_400_BAD_REQUEST)
+
+    def post(self, request):
+        user = request.user
+        token, created = Token.objects.get_or_create(user=user)
+
+        if created:
+            return JsonResponse({"key": token.key}, status=status.HTTP_201_CREATED)
+        else:
+            return JsonResponse({"error": "Token already exists"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class EmailViewSet(views.APIView):
