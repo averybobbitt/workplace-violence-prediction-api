@@ -39,5 +39,5 @@ urlpatterns = [
     path("api/", include(router.urls)),  # router paths defined above
     path("api/auth/", include("rest_framework.urls")),  # login/out for browser view
     path("api/token/", obtain_auth_token),
-    path("api/email/", views.EmailView),
+    path("api/email/", views.EmailView.as_view()),
 ]
