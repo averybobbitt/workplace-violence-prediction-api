@@ -44,7 +44,7 @@ logger = logging.getLogger("wpv")
 
 
 # Hello world ViewSet
-class HelloViewSet(viewsets.ViewSet):
+class HelloView(views.APIView):
     @action(detail=False, permission_classes=[AllowAny])
     def world(self, request):
         logger.debug("Hello world!")
@@ -55,6 +55,61 @@ class HelloViewSet(viewsets.ViewSet):
     def admin(self, request):
         logger.debug("Hello admin!")
         return JsonResponse({"message": "Hello, admin!"})
+
+
+class TokenView(views.APIView):
+    authentication_classes = [BasicAuthentication, BearerAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        tokens = Token.objects.filter(user=request.user)
+
+        if tokens.exists():
+            return JsonResponse({"key": tokens[0].key}, status=status.HTTP_200_OK)
+        else:
+            return JsonResponse({"error": "Token does not exist"}, status=status.HTTP_400_BAD_REQUEST)
+
+    def post(self, request):
+        user = request.user
+        token, created = Token.objects.get_or_create(user=user)
+
+        if created:
+            return JsonResponse({"key": token.key}, status=status.HTTP_201_CREATED)
+        else:
+            return JsonResponse({"error": "Token already exists"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class EmailView(views.APIView):
+    authentication_classes = [BasicAuthentication, BearerAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    @action(detail=False, methods=['post'])
+    def send(self, request):
+        try:
+            Email_notification_test.execute()
+            return JsonResponse({'message': 'Emails sent successfully'}, status=200)
+        except FileNotFoundError as e:
+            return JsonResponse({'error': 'File not found: ' + str(e)}, status=500)
+
+    @action(detail=False, methods=['post'])
+    def append(self, request, pk=None):
+        string_input = request.data.get('email')
+
+        if isinstance(string_input, str):
+            Email_notification_test.append(string_input)
+            return JsonResponse({'message': 'Email appended successfully'}, status=200)
+        else:
+            return JsonResponse({'error': 'Invalid or empty email input'}, status=400)
+
+    @action(detail=False, methods=['post'])
+    def remove(self, request, pk=None):
+        string_input = request.data.get('email')
+
+        if isinstance(string_input, str):
+            Email_notification_test.remove(string_input)
+            return JsonResponse({'message': 'Email removed successfully'}, status=200)
+        else:
+            return JsonResponse({'error': 'Invalid or empty email input'}, status=400)
 
 
 # Hospital data ViewSet
@@ -184,61 +239,6 @@ class IncidentLogViewSet(viewsets.ModelViewSet):
         else:
             IncidentLog.objects.get(id=row).delete()
             return JsonResponse({"Error": "Missing required id header"}, status=status.HTTP_400_BAD_REQUEST)
-
-
-class TokenView(views.APIView):
-    authentication_classes = [BasicAuthentication, BearerAuthentication]
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        tokens = Token.objects.filter(user=request.user)
-
-        if tokens.exists():
-            return JsonResponse({"key": tokens[0].key}, status=status.HTTP_200_OK)
-        else:
-            return JsonResponse({"error": "Token does not exist"}, status=status.HTTP_400_BAD_REQUEST)
-
-    def post(self, request):
-        user = request.user
-        token, created = Token.objects.get_or_create(user=user)
-
-        if created:
-            return JsonResponse({"key": token.key}, status=status.HTTP_201_CREATED)
-        else:
-            return JsonResponse({"error": "Token already exists"}, status=status.HTTP_400_BAD_REQUEST)
-
-
-class EmailViewSet(views.APIView):
-    authentication_classes = [BasicAuthentication, BearerAuthentication]
-    permission_classes = [IsAuthenticated]
-
-    @action(detail=False, methods=['post'])
-    def send(self, request):
-        try:
-            Email_notification_test.execute()
-            return JsonResponse({'message': 'Emails sent successfully'}, status=200)
-        except FileNotFoundError as e:
-            return JsonResponse({'error': 'File not found: ' + str(e)}, status=500)
-
-    @action(detail=False, methods=['post'])
-    def append(self, request, pk=None):
-        string_input = request.data.get('email')
-
-        if isinstance(string_input, str):
-            Email_notification_test.append(string_input)
-            return JsonResponse({'message': 'Email appended successfully'}, status=200)
-        else:
-            return JsonResponse({'error': 'Invalid or empty email input'}, status=400)
-
-    @action(detail=False, methods=['post'])
-    def remove(self, request, pk=None):
-        string_input = request.data.get('email')
-
-        if isinstance(string_input, str):
-            Email_notification_test.remove(string_input)
-            return JsonResponse({'message': 'Email removed successfully'}, status=200)
-        else:
-            return JsonResponse({'error': 'Invalid or empty email input'}, status=400)
 
 
 # Home view
