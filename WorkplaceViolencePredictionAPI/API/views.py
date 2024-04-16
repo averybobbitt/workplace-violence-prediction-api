@@ -8,7 +8,6 @@ from django.db.models import F, Func
 from django.http import JsonResponse
 from django.shortcuts import render
 from rest_framework import viewsets, status, views
-from rest_framework.authentication import BasicAuthentication
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
@@ -43,18 +42,12 @@ logger = logging.getLogger("wpv")
 
 
 class EmailView(views.APIView):
-    authentication_classes = [BasicAuthentication, BearerAuthentication]
+    authentication_classes = [BearerAuthentication]
     permission_classes = [IsAuthenticated]
 
-    @action(detail=False, methods=['post'])
-    def send(self, request):
+    # send emails to recipients
+    def post(self, request):
         try:
-            bcc_recipients = []
-            with open('emails.txt', 'r') as file:
-                for line in file:
-                    recipient = line.strip()
-                    bcc_recipients.append(recipient)
-
             connection = get_connection(
                 backend=settings.EMAIL_BACKEND,
                 host=settings.EMAIL_HOST,
@@ -65,61 +58,42 @@ class EmailView(views.APIView):
             )
 
             # Email sends message to itself and BCCs a list of recipients
-            try:
-                email = EmailMessage(
-                    subject="Warning: Risk levels in the hospital!",
-                    body="This message is to inform you of high risk levels within the hospital. "
-                         "Please be cautious of heightened stress levels as we work to resolve the issue.",
-                    bcc=bcc_recipients,
-                    from_email=settings.EMAIL_HOST_SENDER,
-                    to=[settings.EMAIL_HOST_SENDER],
-                    connection=connection,
-                )
+            email = EmailMessage(
+                subject="Warning: Risk levels in the hospital!",
+                body="This message is to inform you of high risk levels within the hospital. "
+                     "Please be cautious of heightened stress levels as we work to resolve the issue.",
+                bcc=settings.EMAIL_RECIPIENTS,
+                from_email=settings.EMAIL_HOST_SENDER,
+                to=[settings.EMAIL_HOST_SENDER],
+                connection=connection,
+            )
 
-                email.send()
-            except Exception as e:
-                logging.error(f"Error sending email: {e}")
-
+            email.send()
             return JsonResponse({'message': 'Emails sent successfully'}, status=200)
-        except FileNotFoundError as e:
-            return JsonResponse({'error': 'File not found: ' + str(e)}, status=500)
+        except Exception as e:
+            logging.error(f"Error sending email: {e}")
 
-    @action(detail=False, methods=['post'])
-    def append(self, request):
-        string_input = request.data.get('email')
+    # add an email to the recipients list
+    def put(self, request):
+        email = request.data.get('email')
 
-        if isinstance(string_input, str):
-            f = open('emails.txt', 'a+')
-            f.write("\n" + string_input)
-            f.close()
-            with open('emails.txt', 'r+') as f:
-                n = f.readlines()
-                f.seek(0)
-                for line in n:
-                    if line.strip() != '':
-                        f.write(line)
-                f.truncate()
-
-            return JsonResponse({'message': 'Email appended successfully'}, status=200)
-        else:
+        if email is None:
             return JsonResponse({'error': 'Invalid or empty email input'}, status=400)
 
-    @action(detail=False, methods=['post'])
-    def remove(self, request):
-        string_input = request.data.get('email')
+        settings.EMAIL_RECIPIENTS.append(email)
 
-        if isinstance(string_input, str):
-            with open('emails.txt', 'r+') as f:
-                n = f.readlines()
-                f.seek(0)
-                for line in n:
-                    if line.strip() != string_input:
-                        f.write(line)
-                f.truncate()
+        return JsonResponse({'message': 'Email appended successfully'}, status=200)
 
-            return JsonResponse({'message': 'Email removed successfully'}, status=200)
-        else:
+    # remove an email from the recipients list
+    def delete(self, request):
+        email = request.data.get('email')
+
+        if email is None:
             return JsonResponse({'error': 'Invalid or empty email input'}, status=400)
+
+        settings.EMAIL_RECIPIENTS = [r for r in settings.EMAIL_RECIPIENTS if r != email]
+
+        return JsonResponse({'message': 'Email removed successfully'}, status=200)
 
 
 # Hospital data ViewSet
