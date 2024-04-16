@@ -82,3 +82,7 @@ def execute():
         email.send()
     except Exception as e:
         logging.error(f"Error sending email: {e}")
+
+def list():
+    with open("emails.txt", "r") as file:
+        return file.read()
