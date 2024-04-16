@@ -1,14 +1,62 @@
 body {
     height: 100vh;
+    background-color: lightgray;
+}
 
+.body_container {
+    background-color: lightgray;
+    display: flex;
+    width: auto;
+    height: 100%;
+}
+
+.body_left {
+    padding-top: 3%;
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    width: 50%;
+    gap: 40px;
+}
+
+.body_right {
+    width: 50%;
+    background-color: white;
 }
 
 :root {
     --rotation: 0deg
 }
 
+
+.gauge_container {
+    border-radius: 30px;
+    width: 75%;
+    height: 40%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #d26161;
+    grid-row: 1;
+}
+
+.risk_container {
+    grid-row: 2;
+    display: flex;
+    background-color: #d26161;
+    width: 75%;
+    height: 15%;
+    border-radius: 30px;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 30px;
+    font-weight: bold;
+}
+
 .gauge {
-    max-width: 300px;
+    flex: 1;
+    max-width: 80%;
     margin: auto;
 }
 
@@ -37,7 +85,7 @@ body {
 .gauge_cover {
     width: 75%;
     height: 150%;
-    background: white;
+    background: rgba(224, 54, 54, 0.685);
     border-radius: 50%;
     position: absolute;
     top: 25%;
@@ -48,35 +96,60 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding-bottom: 25%;
+    padding-bottom: 35%;
     box-sizing: border-box;
 
     /* Font */
-    font-size: 32px;
+    font-size: 70px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    color: white;
 }
 
 .button_container {
     display: flex;
-    height: 25%;
-    grid-template-columns:auto auto;
-    grid-template-rows:1fr;
+    height: 15%;
+    width: 75%;
     justify-content: space-evenly;
-    align-content: center
+    align-items: center;
 }
 
 .m_button {
-    font-size: 150%;
-    width: 25%;
-    align-items: center
+    width: 50%;
+    height: 100%;
 }
 
 .but {
-    height: 50%;
-    width: 50%;
-    font-size: 125%;
-    vertical-align: center
+    padding: 10%;
+    font-size: 100%;
+    align-items: center;
+    width: 80%;
+    font-size: 150%;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    vertical-align: center;
+    border: none;
+    background-color: #6d9ecb;
+    color: white;
+    border-radius: 10px;
 }
 
-.but, .header, .m_button {
-    text-align: center
+.but, .m_button {
+    text-align: center;
+}
+
+.but:hover {
+    background-color: #195388dc;
+    cursor: pointer;
+}
+
+.header {
+    background-color: #4d4c4c;
+    color: white;
+    width: 100%;
+    top: 0;
+    left: 0;
+    display: flex;
+    font-family: Arial, Helvetica, sans-serif;
+    justify-content: center;
 }
