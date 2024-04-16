@@ -6,7 +6,7 @@ from django.conf import settings
 from django.db.models import F, Func
 from django.http import JsonResponse
 from django.shortcuts import render
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, views
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
@@ -58,11 +58,11 @@ class HelloViewSet(viewsets.ViewSet):
 
 
 # ViewSet for users to get authentication tokens
-class TokenViewSet(viewsets.ViewSet):
+class TokenView(views.APIView):
     authentication_classes = [BasicAuthentication, BearerAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def list(self, request):
+    def get(self, request):
         tokens = Token.objects.filter(user=request.user)
 
         if tokens.exists():
@@ -70,7 +70,7 @@ class TokenViewSet(viewsets.ViewSet):
         else:
             return JsonResponse({"error": "Token does not exist"}, status=status.HTTP_400_BAD_REQUEST)
 
-    def create(self, request):
+    def post(self, request):
         user = request.user
         token, created = Token.objects.get_or_create(user=user)
 
@@ -209,22 +209,7 @@ class IncidentLogViewSet(viewsets.ModelViewSet):
             return JsonResponse({"Error": "Missing required id header"}, status=status.HTTP_400_BAD_REQUEST)
 
 
-# Home view
-def home(request):
-    return render(request, "home.html")
-
-
-# Log View
-def log(request):
-    return render(request, "incidentlog.html")
-
-
-# Manage email View
-def manage_emails(request):
-    return render(request, "manage_emails.html")
-
-
-class EmailViewSet(viewsets.ViewSet):
+class EmailViewSet(views.APIView):
     authentication_classes = [BasicAuthentication, BearerAuthentication]
     permission_classes = [IsAuthenticated]
 
@@ -255,3 +240,18 @@ class EmailViewSet(viewsets.ViewSet):
             return JsonResponse({'message': 'Email removed successfully'}, status=200)
         else:
             return JsonResponse({'error': 'Invalid or empty email input'}, status=400)
+
+
+# Home view
+def home(request):
+    return render(request, "home.html")
+
+
+# Log View
+def log(request):
+    return render(request, "incidentlog.html")
+
+
+# Manage email View
+def manage_emails(request):
+    return render(request, "manage_emails.html")
