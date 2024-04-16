@@ -17,6 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
+from rest_framework.authtoken.views import obtain_auth_token
 
 from WorkplaceViolencePredictionAPI.API import views
 
@@ -37,7 +38,7 @@ urlpatterns = [
     # API Routes
     path("api/", include(router.urls)),  # router paths defined above
     path("api/auth/", include("rest_framework.urls")),  # login/out for browser view
+    path("api/token/", obtain_auth_token),
     path("api/hello/", views.HelloView.as_view()),
-    path("api/token/", views.TokenView.as_view()),
     path("api/email/", views.EmailView.as_view()),
 ]
