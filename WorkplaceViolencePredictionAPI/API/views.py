@@ -3,21 +3,20 @@ from datetime import datetime
 
 import requests
 from django.conf import settings
+from django.core.mail import get_connection, EmailMessage
 from django.db.models import F, Func
 from django.http import JsonResponse
 from django.shortcuts import render
-from rest_framework import viewsets, status
-from rest_framework.authentication import BasicAuthentication
-from rest_framework.authtoken.models import Token
+from rest_framework import viewsets, status, generics
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
-from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+
 from WorkplaceViolencePredictionAPI.API.authentication import BearerAuthentication
 from WorkplaceViolencePredictionAPI.API.models import HospitalData, TrainingData, IncidentLog, RiskData
 from WorkplaceViolencePredictionAPI.API.serializers import HospitalDataSerializer, TrainingDataSerializer, \
     IncidentDataSerializer, RiskDataSerializer
 from WorkplaceViolencePredictionAPI.helpers import risk_to_dict
-
 
 """
 Django REST framework allows you to combine the logic for a set of related views in a single class, called a ViewSet.
@@ -42,41 +41,59 @@ https://medium.com/@p0zn/django-apiview-vs-viewsets-which-one-to-choose-c8945e53
 logger = logging.getLogger("wpv")
 
 
-# Hello world ViewSet
-class HelloViewSet(viewsets.ViewSet):
-    @action(detail=False, permission_classes=[AllowAny])
-    def world(self, request):
-        logger.debug("Hello world!")
-        return JsonResponse({"message": "Hello, world!"})
-
-    @action(detail=False, permission_classes=[IsAdminUser],
-            authentication_classes=[BasicAuthentication, BearerAuthentication])
-    def admin(self, request):
-        logger.debug("Hello admin!")
-        return JsonResponse({"message": "Hello, admin!"})
-
-
-# ViewSet for users to get authentication tokens
-class TokenViewSet(viewsets.ViewSet):
-    authentication_classes = [BasicAuthentication, BearerAuthentication]
+class EmailView(generics.GenericAPIView):
+    authentication_classes = [BearerAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def list(self, request):
-        tokens = Token.objects.filter(user=request.user)
+    # send emails to recipients
+    def post(self, request):
+        try:
+            connection = get_connection(
+                backend=settings.EMAIL_BACKEND,
+                host=settings.EMAIL_HOST,
+                port=settings.EMAIL_PORT,
+                username=settings.EMAIL_HOST_SENDER,
+                password=settings.EMAIL_HOST_PASSWORD,
+                use_tls=True
+            )
 
-        if tokens.exists():
-            return JsonResponse({"key": tokens[0].key}, status=status.HTTP_200_OK)
-        else:
-            return JsonResponse({"error": "Token does not exist"}, status=status.HTTP_400_BAD_REQUEST)
+            # Email sends message to itself and BCCs a list of recipients
+            email = EmailMessage(
+                subject="Warning: Risk levels in the hospital!",
+                body="This message is to inform you of high risk levels within the hospital. "
+                     "Please be cautious of heightened stress levels as we work to resolve the issue.",
+                bcc=settings.EMAIL_RECIPIENTS,
+                from_email=settings.EMAIL_HOST_SENDER,
+                to=[settings.EMAIL_HOST_SENDER],
+                connection=connection,
+            )
 
-    def create(self, request):
-        user = request.user
-        token, created = Token.objects.get_or_create(user=user)
+            email.send()
+            return JsonResponse({'message': 'Emails sent successfully'}, status=200)
+        except Exception as e:
+            logging.error(f"Error sending email: {e}")
 
-        if created:
-            return JsonResponse({"key": token.key}, status=status.HTTP_201_CREATED)
-        else:
-            return JsonResponse({"error": "Token already exists"}, status=status.HTTP_400_BAD_REQUEST)
+    # add an email to the recipients list
+    def put(self, request):
+        email = request.data.get('email')
+
+        if email is None:
+            return JsonResponse({'error': 'Invalid or empty email input'}, status=400)
+
+        settings.EMAIL_RECIPIENTS.append(email)
+
+        return JsonResponse({'message': 'Email appended successfully'}, status=200)
+
+    # remove an email from the recipients list
+    def delete(self, request):
+        email = request.data.get('email')
+
+        if email is None:
+            return JsonResponse({'error': 'Invalid or empty email input'}, status=400)
+
+        settings.EMAIL_RECIPIENTS = [r for r in settings.EMAIL_RECIPIENTS if r != email]
+
+        return JsonResponse({'message': 'Email removed successfully'}, status=200)
 
 
 # Hospital data ViewSet
@@ -144,11 +161,11 @@ class PredictionModelViewSet(viewsets.ModelViewSet):
 
     @action(methods=["GET"], detail=False, permission_classes=[IsAuthenticatedOrReadOnly])
     def latest(self, request, **kwargs):
-        latest_entry = RiskData.objects.latest()
-        serializer = RiskDataSerializer(latest_entry, many=False)
+        queryset = RiskData.objects.latest()
+        serializer = RiskDataSerializer(queryset, many=False)
         return JsonResponse(serializer.data, status=status.HTTP_200_OK)
 
-    def create(self, request):
+    def create(self, request, **kwargs):
         if row := request.headers.get("id"):
             hData = HospitalData.objects.get(id=row)
         else:
@@ -194,18 +211,21 @@ class IncidentLogViewSet(viewsets.ModelViewSet):
         try:
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            return JsonResponse({"Status": f"Incident {serializer.data.get("id")} logged"},
+            return JsonResponse({"Status": f"Incident {serializer.data.get('id')} logged"},
                                 status=status.HTTP_201_CREATED)
         except ValidationError:
             return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, **kwargs):
+    def destroy(self, request, **kwargs):
         if row := request.headers.get("id"):
             IncidentLog.objects.get(id=row).delete()
             return JsonResponse({"Success": f"Incident {row} deleted"}, status=status.HTTP_204_NO_CONTENT)
         else:
             IncidentLog.objects.get(id=row).delete()
             return JsonResponse({"Error": "Missing required id header"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+##########################################################
 
 
 # Home view
@@ -223,48 +243,6 @@ def manage_emails(request):
     return render(request, "manage_emails.html")
 
 
-class EmailViewSet(viewsets.ViewSet):
-
-    authentication_classes = [BasicAuthentication, BearerAuthentication]
-    permission_classes = [IsAuthenticated]
-
-    @action(detail=False, methods=['post'])
-    def send(self, request):
-
-        from WorkplaceViolencePredictionAPI.API.Email_notification_test import execute
-
-        try:
-            execute()
-            return JsonResponse({'message': 'Emails sent successfully'}, status=200)
-        except FileNotFoundError as e:
-            return JsonResponse({'error': 'File not found: ' + str(e)}, status=500)
-
-    @action(detail=False, methods=['POST'])
-    def append(self, request, pk=None):
-
-        from WorkplaceViolencePredictionAPI.API.Email_notification_test import append
-
-        string_input = request.headers.get("email")
-        print(string_input)
-        if isinstance(string_input, str):
-            append(string_input)
-            return JsonResponse({'message': 'Email appended successfully'}, status=200)
-        else:
-            return JsonResponse({'error': 'Invalid or empty email input'}, status=400)
-
-    @action(detail=False, methods=['post'])
-    def remove(self, request, pk=None):
-
-        from WorkplaceViolencePredictionAPI.API.Email_notification_test import remove
-
-        string_input = request.headers.get('email')
-        print(string_input)
-        if isinstance(string_input, str):
-            remove(string_input)
-            return JsonResponse({'message': 'Email removed successfully'}, status=200)
-        else:
-            return JsonResponse({'error': 'Invalid or empty email input'}, status=400)
-
-    def list(self, request):
-        from WorkplaceViolencePredictionAPI.API.Email_notification_test import list
-        return JsonResponse({"emails": list()}, status=200)
+# API documentation View
+def docs(request):
+    return render(request, "docs.html")

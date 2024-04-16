@@ -17,25 +17,28 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
+from rest_framework.authtoken.views import obtain_auth_token
 
 from WorkplaceViolencePredictionAPI.API import views
 
 # routers only work with ViewSets, not regular Views
 # for ViewSets not associated with a model, we need to explicitly define the basename
 router = routers.DefaultRouter()
-router.register(r"hello", views.HelloViewSet, basename="hello")
-router.register(r"token", views.TokenViewSet, basename="token")
 router.register(r"data", views.HospitalDataViewSet)
-router.register(r"model", views.PredictionModelViewSet, basename="model")
-router.register(r"email", views.EmailViewSet, basename="email")
-router.register(r"log", views.IncidentLogViewSet)
 router.register(r"train", views.TrainingDataViewSet)
+router.register(r"model", views.PredictionModelViewSet)
+router.register(r"log", views.IncidentLogViewSet)
 
 urlpatterns = [
-    path("", views.home),
+    path("admin/", admin.site.urls),  # built-in admin portal for Django
+    # Webpage Routes
+    path("", views.home, name="home"),
     path("log/", views.log, name="log"),
     path("email/", views.manage_emails, name="email"),
-    path("admin/", admin.site.urls),  # built-in admin portal for Django
+    path("api/docs/", views.docs, name="docs"),
+    # API Routes
     path("api/", include(router.urls)),  # router paths defined above
     path("api/auth/", include("rest_framework.urls")),  # login/out for browser view
+    path("api/token/", obtain_auth_token),
+    path("api/email/", views.EmailView.as_view()),
 ]
