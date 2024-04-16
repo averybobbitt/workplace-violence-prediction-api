@@ -37,8 +37,7 @@ SECRET_KEY = os.urandom(24).hex()
 
 # Check if application is running in a development environment
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = os.environ.get("DJANGO_DEBUG", False)
-DEBUG = True
+DEBUG = os.environ.get("DJANGO_DEBUG", False)
 ALLOWED_HOSTS = ["localhost", "127.0.0.1", "smtp.gmail.com"]
 
 # Application definition
