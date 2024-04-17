@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <script src="{% static 'js/log.js' %}"></script>
     <title>Document</title>
 </head>
 <body>
@@ -46,7 +48,7 @@
     <div class="m_button">
         <!-- Eventually, this will be replaced and an incident will actually be submitted. -->
         <a href="../">
-            <button class="but">Submit Incident</button>
+            <button class="but">onclick="submitIncident()">Submit Incident</button>
         </a>
     </div>
 </div>
