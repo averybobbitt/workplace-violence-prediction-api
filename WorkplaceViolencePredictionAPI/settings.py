@@ -110,6 +110,8 @@ LOGGING = {
     },
 }
 
+DOCUMENTATION_PATH = os.path.join(BASE_DIR, "WorkplaceViolencePredictionAPI", "openapi.json")
+
 WSGI_APPLICATION = "WorkplaceViolencePredictionAPI.wsgi.application"
 ASGI_APPLICATION = "WorkplaceViolencePredictionAPI.asgi.application"
 

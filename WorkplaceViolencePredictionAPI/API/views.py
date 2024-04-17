@@ -1,3 +1,4 @@
+import json
 import logging
 from datetime import datetime
 
@@ -42,7 +43,6 @@ logger = logging.getLogger("wpv")
 
 
 class EmailView(generics.GenericAPIView):
-    authentication_classes = [BearerAuthentication]
     permission_classes = [AllowAny]
 
     # get all current recipients
@@ -100,6 +100,20 @@ class EmailView(generics.GenericAPIView):
         settings.EMAIL_RECIPIENTS = [r for r in settings.EMAIL_RECIPIENTS if r != email]
 
         return JsonResponse({'message': 'Email removed successfully'}, status=200)
+
+
+class DocumentationView(generics.GenericAPIView):
+    permission_classes = [AllowAny]
+    
+    def get(self, request):
+        try:
+            with open(settings.DOCUMENTATION_PATH) as f:
+                schema = json.load(f)
+        except Exception as e:
+            logger.error(f"Error reading OpenAPI schema: {e}")
+            return JsonResponse({'error': str(e)}, status=400)
+
+        return JsonResponse(schema)
 
 
 # Hospital data ViewSet
