@@ -1,5 +1,6 @@
 import json
 import logging
+import os.path
 from datetime import datetime
 
 import requests
@@ -104,10 +105,12 @@ class EmailView(generics.GenericAPIView):
 
 class DocumentationView(generics.GenericAPIView):
     permission_classes = [AllowAny]
-    
+
     def get(self, request):
+        path = os.path.join(settings.DOCUMENTATION_PATH, "openapi.json")
+        
         try:
-            with open(settings.DOCUMENTATION_PATH) as f:
+            with open(path) as f:
                 schema = json.load(f)
         except Exception as e:
             logger.error(f"Error reading OpenAPI schema: {e}")
