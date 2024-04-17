@@ -1,6 +1,9 @@
 window.onload = function () {
     const gaugeElement = document.getElementById("demoGauge");
-    const tableElement = document.getElementById("recentData");
+    const tableElement = new DataTable("#recentData", {
+        responsive: true,
+        order: [[0, "desc"]]
+    });
 
     setInterval(() => {
         fetch("http://localhost:8000/api/model/latest").then((response) => {
@@ -48,27 +51,24 @@ function updateGauge(gauge, data) {
 }
 
 function updateTable(table, data) {
-    let top_row = table.querySelector("tbody tr:first-child");
-    // assuming "id" is first column
-    let top_id = top_row.querySelector("td:first-child").innerText;
-    let new_id = data["id"];
+    // assuming "id" is first column and latest data is first row
+    let top_id = Number(table.rows(0).data()[0][0]);
+    let new_id = Number(data["id"]);
+    let exists = false;
 
-    let top_id_int = Number(top_id);
-    let new_id_int = Number(new_id);
-
-    if (new_id_int > top_id_int) {
-        const tbody = table.querySelector("tbody");
-        let row = tbody.insertRow(0);
-
-        let i = 0; // enumerated for-in loop
-        for (let [key, value] of Object.entries(data)) {
-            let cell = row.insertCell(i);
-            cell.innerHTML = value;
-            i++;
+    // Iterate through each row in the table to check if new_id already exists
+    table.rows().every(function () {
+        let rowData = this.data();
+        if (rowData[0] === new_id) {
+            exists = true;
+            return false; // Exit the loop early since we found a match
         }
+    });
 
-        console.log(`Updating table -- OLD: ${top_id_int} -- NEW: ${new_id_int}`);
+    if (!exists && new_id > top_id) {
+        table.row.add(Object.values(data)).draw();
+        console.log(`Updating table -- OLD: ${top_id} -- NEW: ${new_id}`);
     } else {
-        console.log(`Not updating table -- OLD: ${top_id_int} -- NEW: ${new_id_int}`);
+        console.log(`Not updating table -- OLD: ${top_id} -- NEW: ${new_id}`);
     }
 }

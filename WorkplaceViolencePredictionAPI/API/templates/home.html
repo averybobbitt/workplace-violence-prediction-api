@@ -3,9 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
+            integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.datatables.net/v/dt/dt-2.0.4/r-3.0.2/datatables.min.js"></script>
+    <link href="https://cdn.datatables.net/v/dt/dt-2.0.4/r-3.0.2/datatables.min.css" rel="stylesheet">
+
     {% load static %}
-    <link rel="stylesheet" href="{% static 'css/home.css' %}">
     <script src="{% static 'js/home.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+
     <title>Dial</title>
 </head>
 <body>
@@ -53,7 +61,7 @@
         <h2>Recent Data</h2>
         <div class="table_wrapper">
             <!-- it could be worth checking out https://django-tables2.readthedocs.io/en/latest/ -->
-            <table id="recentData">
+            <table id="recentData" class="display" style="width:100%">
                 <thead>
                 <tr>
                     <!-- Create table headers from the keys of the first dictionary -->

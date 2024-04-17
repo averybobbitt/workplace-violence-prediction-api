@@ -34,9 +34,9 @@ body {
 }
 
 .table_wrapper {
-    display: table
+    margin-left: 1em;
+    margin-right: 1em;
 }
-
 
 .gauge_container {
     border-radius: 30px;
