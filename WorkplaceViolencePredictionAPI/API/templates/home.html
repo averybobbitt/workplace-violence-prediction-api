@@ -30,21 +30,18 @@
             </div>
         </div>
 
-
         <div class="risk_container">
             <h2>Current Risk: <span id="riskYN">loading...</span></h2>
         </div>
 
         <div class="button_container">
             <div class="m_button">
-                <!-- Need an absolute path to the incident log page because it is not in the
-                        same directory. -->
-                <a href="/log">
+                <a href="{% url 'log' %}">
                     <button class="but">Log Incident</button>
                 </a>
             </div>
             <div class="m_button">
-                <a href="/email">
+                <a href="{% url 'email' %}">
                     <button class="but">Manage Emails</button>
                 </a>
             </div>
@@ -55,7 +52,6 @@
     <div class="body_right">
         RIGHT SIDE WHERE TABLE WILL BE
     </div>
-
 
 </div>
 
