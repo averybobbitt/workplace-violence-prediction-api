@@ -50,7 +50,31 @@
     </div>
 
     <div class="body_right">
-        RIGHT SIDE WHERE TABLE WILL BE
+        <h2>Recent Data</h2>
+        <div class="table_wrapper">
+            <!-- it could be worth checking out https://django-tables2.readthedocs.io/en/latest/ -->
+            <table id="recentData">
+                <thead>
+                <tr>
+                    <!-- Create table headers from the keys of the first dictionary -->
+                    {% for key in data.0.keys %}
+                        <th>{{ key }}</th>
+                    {% endfor %}
+                </tr>
+                </thead>
+                <tbody>
+                {% for item in data %}
+                    <tr>
+                        <!-- Populate table rows with data from each dictionary -->
+                        {% for value in item.values %}
+                            <td>{{ value }}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
     </div>
 
 </div>

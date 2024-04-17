@@ -108,7 +108,7 @@ class DocumentationView(generics.GenericAPIView):
 
     def get(self, request):
         path = os.path.join(settings.DOCUMENTATION_PATH, "openapi.json")
-        
+
         try:
             with open(path) as f:
                 schema = json.load(f)
@@ -126,7 +126,7 @@ class HospitalDataViewSet(viewsets.ModelViewSet):
     authentication_classes = [BearerAuthentication]
     permission_classes = [IsAuthenticated]
 
-    @action(methods=["GET"], detail=False)
+    @action(methods=["GET"], detail=False, permission_classes=[IsAuthenticatedOrReadOnly])
     def latest(self, request, **kwargs):
         latest_entry = HospitalData.objects.latest()
         serializer = HospitalDataSerializer(latest_entry, many=False)
@@ -253,7 +253,11 @@ class IncidentLogViewSet(viewsets.ModelViewSet):
 
 # Home view
 def home(request):
-    return render(request, "home.html")
+    # possibly more taxing on the db than it needs to be
+    queryset = HospitalData.objects.all().order_by("-id")
+    data = queryset.values()[:10]
+
+    return render(request, "home.html", context={"data": data})
 
 
 # Log View
