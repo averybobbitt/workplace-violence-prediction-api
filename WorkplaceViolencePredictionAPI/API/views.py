@@ -255,7 +255,7 @@ class IncidentLogViewSet(viewsets.ModelViewSet):
 def home(request):
     # possibly more taxing on the db than it needs to be
     queryset = HospitalData.objects.all().order_by("-id")
-    data = queryset.values()[:10]
+    data = queryset.values()[:100]
 
     return render(request, "home.html", context={"data": data})
 
