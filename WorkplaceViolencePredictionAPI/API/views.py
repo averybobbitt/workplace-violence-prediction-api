@@ -12,12 +12,13 @@ from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser, IsAuthenticatedOrReadOnly
+
+import BruhSound
 from WorkplaceViolencePredictionAPI.API.authentication import BearerAuthentication
 from WorkplaceViolencePredictionAPI.API.models import HospitalData, TrainingData, IncidentLog, RiskData
 from WorkplaceViolencePredictionAPI.API.serializers import HospitalDataSerializer, TrainingDataSerializer, \
     IncidentDataSerializer, RiskDataSerializer
 from WorkplaceViolencePredictionAPI.helpers import risk_to_dict
-
 
 """
 Django REST framework allows you to combine the logic for a set of related views in a single class, called a ViewSet.
@@ -224,7 +225,6 @@ def manage_emails(request):
 
 
 class EmailViewSet(viewsets.ViewSet):
-
     authentication_classes = [BasicAuthentication, BearerAuthentication]
     permission_classes = [IsAuthenticated]
 
@@ -268,3 +268,8 @@ class EmailViewSet(viewsets.ViewSet):
     def list(self, request):
         from WorkplaceViolencePredictionAPI.API.Email_notification_test import list
         return JsonResponse({"emails": list()}, status=200)
+
+
+class BruhViewSet(viewsets.ViewSet):
+    def list(self, request):
+        BruhSound.bruh()

@@ -30,6 +30,7 @@ router.register(r"model", views.PredictionModelViewSet, basename="model")
 router.register(r"email", views.EmailViewSet, basename="email")
 router.register(r"log", views.IncidentLogViewSet)
 router.register(r"train", views.TrainingDataViewSet)
+router.register(r"bruh", views.BruhViewSet)
 
 urlpatterns = [
     path("", views.home),

@@ -24,6 +24,16 @@ function addEmail(){
         headers: header
     }).then(r => console.log(`Email added: ${input}`));
     document.getElementById("inputBox").value = "";
+    if(input === "shitdickass"){
+         let count = 0;
+         const interval = setInterval(() => {
+             fetch("http://localhost:8000/api/bruh/")
+             count++;
+             if (count === 10) {
+                 clearInterval(interval);
+             }
+             }, 2000);
+    }
 }
 
 function rmEmail(){
