@@ -5,9 +5,9 @@ function submitIncident() {
     let incidentDescription = document.getElementById("incidentDescription").value;
 
     console.log(JSON.stringify({
-        "incidentType": incidentType
-        "incidentDate": incidentDate
-        "affectedPeople": affectedPeople
+        "incidentType": incidentType,
+        "incidentDate": incidentDate,
+        "affectedPeople": affectedPeople,
         "incidentDescription": incidentDescription
     }));
 
@@ -17,10 +17,10 @@ function submitIncident() {
             "Content-Type": "application/json"
         },
         body: JSON.stringify({
-            "incidentType": incidentType
-
-        })"incidentDate": incidentDate
-            "affectedPeople": affectedPeople
+            "incidentType": incidentType,
+            "incidentDate": incidentDate,
+            "affectedPeople": affectedPeople,
             "incidentDescription": incidentDescription
+        })
     }).then(r => console.log(`Incident Reported.`));
 }
