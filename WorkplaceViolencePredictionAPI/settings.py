@@ -51,7 +51,8 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     "WorkplaceViolencePredictionAPI.API",
-    "drf_spectacular"
+    "drf_spectacular",
+    "corsheaders"
 ]
 
 MIDDLEWARE = [
@@ -67,7 +68,7 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = {
-    'http://localhost:8000',
+    "http://localhost:8000",
 }
 
 ROOT_URLCONF = "WorkplaceViolencePredictionAPI.urls"
