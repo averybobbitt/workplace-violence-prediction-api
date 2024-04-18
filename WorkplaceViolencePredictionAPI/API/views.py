@@ -1,4 +1,6 @@
+import json
 import logging
+import os.path
 from datetime import datetime
 
 import requests
@@ -42,7 +44,6 @@ logger = logging.getLogger("wpv")
 
 
 class EmailView(generics.GenericAPIView):
-    authentication_classes = [BearerAuthentication]
     permission_classes = [AllowAny]
 
     # get all current recipients
@@ -102,6 +103,22 @@ class EmailView(generics.GenericAPIView):
         return JsonResponse({'message': 'Email removed successfully'}, status=200)
 
 
+class DocumentationView(generics.GenericAPIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        path = os.path.join(settings.DOCUMENTATION_PATH, "openapi.json")
+
+        try:
+            with open(path) as f:
+                schema = json.load(f)
+        except Exception as e:
+            logger.error(f"Error reading OpenAPI schema: {e}")
+            return JsonResponse({'error': str(e)}, status=400)
+
+        return JsonResponse(schema)
+
+
 # Hospital data ViewSet
 class HospitalDataViewSet(viewsets.ModelViewSet):
     queryset = HospitalData.objects.all()
@@ -109,7 +126,7 @@ class HospitalDataViewSet(viewsets.ModelViewSet):
     authentication_classes = [BearerAuthentication]
     permission_classes = [IsAuthenticated]
 
-    @action(methods=["GET"], detail=False)
+    @action(methods=["GET"], detail=False, permission_classes=[IsAuthenticatedOrReadOnly])
     def latest(self, request, **kwargs):
         latest_entry = HospitalData.objects.latest()
         serializer = HospitalDataSerializer(latest_entry, many=False)
@@ -236,7 +253,11 @@ class IncidentLogViewSet(viewsets.ModelViewSet):
 
 # Home view
 def home(request):
-    return render(request, "home.html")
+    # possibly more taxing on the db than it needs to be
+    queryset = HospitalData.objects.all().order_by("-id")
+    data = queryset.values()[:100]
+
+    return render(request, "home.html", context={"data": data})
 
 
 # Log View

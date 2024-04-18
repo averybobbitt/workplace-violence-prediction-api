@@ -41,4 +41,5 @@ urlpatterns = [
     path("api/auth/", include("rest_framework.urls")),  # login/out for browser view
     path("api/token/", obtain_auth_token),
     path("api/email/", views.EmailView.as_view()),
+    path("api/docs/json", views.DocumentationView.as_view())
 ]
