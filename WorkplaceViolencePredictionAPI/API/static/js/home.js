@@ -65,6 +65,8 @@ function updateTable(table, data) {
         }
     });
 
+    console.log(data);
+
     if (!exists && new_id > top_id) {
         table.row.add(Object.values(data)).draw();
         table.columns.adjust().draw();
@@ -79,21 +81,21 @@ function formatHospitalData(data) {
 
     if (Array.isArray(data)) {
         formatted = {
-            "ID": data[0],
-            "Created Time": dayjs(data[1].replaceAll(".", ""), ["MMMM D, YYYY, h a", "MMMM D, YYYY, h:mm a"]).format("MM/DD/YYYY HH:mm"),
-            "Average Nurses": parseFloat(data[2]).toFixed(2),
-            "Average Patients": parseFloat(data[3]).toFixed(2),
-            "% Beds Full": (parseFloat(data[4]) * 100).toFixed(2),
-            "Time of Day": dayjs(data[5].replaceAll(".", ""), ["h a", "h:mm a"]).format("h:mm a")
+            "id": data[0],
+            "createdTime": dayjs(data[1].replaceAll(".", ""), ["MMMM D, YYYY, h a", "MMMM D, YYYY, h:mm a"]).format("MM/DD/YYYY HH:mm"),
+            "avgNurses": parseFloat(data[2]).toFixed(2),
+            "avgPatients": parseFloat(data[3]).toFixed(2),
+            "percentBedsFull": (parseFloat(data[4]) * 100).toFixed(2),
+            "timeOfDay": dayjs(data[5].replaceAll(".", ""), ["h a", "h:mm a"]).format("h:mm a")
         };
     } else {
         formatted = {
-            "ID": data.id,
-            "Created Time": dayjs(data.createdTime).format("MM/DD/YYYY HH:mm"),
-            "Average Nurses": parseFloat(data.avgNurses).toFixed(2),
-            "Average Patients": parseFloat(data.avgPatients).toFixed(2),
-            "% Beds Full": (parseFloat(data.percentBedsFull) * 100).toFixed(2),
-            "Time of Day": dayjs(data.timeOfDay, "HH:mm:ss").format("h:mm a")
+            "id": data.id,
+            "createdTime": dayjs(data.createdTime).format("MM/DD/YYYY HH:mm"),
+            "avgNurses": parseFloat(data.avgNurses).toFixed(2),
+            "avgPatients": parseFloat(data.avgPatients).toFixed(2),
+            "percentBedsFull": (parseFloat(data.percentBedsFull) * 100).toFixed(2),
+            "timeOfDay": dayjs(data.timeOfDay, "HH:mm:ss").format("h:mm a")
         };
     }
 
