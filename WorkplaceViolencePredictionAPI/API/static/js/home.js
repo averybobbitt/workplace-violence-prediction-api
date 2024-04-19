@@ -1,4 +1,4 @@
-window.onload = function () {
+$(function () {
     const gaugeElement = document.getElementById("demoGauge");
     const tableElement = new DataTable("#recentData", {
         responsive: true,
@@ -20,7 +20,7 @@ window.onload = function () {
             });
         });
     }, 1000);
-};
+});
 
 function updateRisk(risk) {
     const element = document.getElementById("riskYN");
@@ -67,6 +67,7 @@ function updateTable(table, data) {
 
     if (!exists && new_id > top_id) {
         table.row.add(Object.values(data)).draw();
+        table.columns.adjust().draw();
         console.log(`Updating table -- OLD: ${top_id} -- NEW: ${new_id}`);
     } else {
         console.log(`Not updating table -- OLD: ${top_id} -- NEW: ${new_id}`);
