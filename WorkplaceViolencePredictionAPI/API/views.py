@@ -253,7 +253,11 @@ class IncidentLogViewSet(viewsets.ModelViewSet):
 
 # Home view
 def home(request):
-    return render(request, "home.html")
+    # possibly more taxing on the db than it needs to be
+    queryset = HospitalData.objects.all().order_by("-id")
+    data = queryset.values()[:100]
+
+    return render(request, "home.html", context={"data": data})
 
 
 # Log View

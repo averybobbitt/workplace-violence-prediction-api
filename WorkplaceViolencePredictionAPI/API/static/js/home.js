@@ -16,7 +16,7 @@ $(function () {
     setInterval(() => {
         fetch("http://localhost:8000/api/data/latest").then((response) => {
             response.json().then((data) => {
-                updateTable(tableElement, data);
+                updateTable(tableElement, formatHospitalData(data));
             });
         });
     }, 1000);
@@ -72,4 +72,30 @@ function updateTable(table, data) {
     } else {
         console.log(`Not updating table -- OLD: ${top_id} -- NEW: ${new_id}`);
     }
+}
+
+function formatHospitalData(data) {
+    let formatted;
+
+    if (Array.isArray(data)) {
+        formatted = {
+            "ID": data[0],
+            "Created Time": dayjs(data[1].replaceAll(".", ""), ["MMMM D, YYYY, h a", "MMMM D, YYYY, h:mm a"]).format("MM/DD/YYYY HH:mm"),
+            "Average Nurses": parseFloat(data[2]).toFixed(2),
+            "Average Patients": parseFloat(data[3]).toFixed(2),
+            "% Beds Full": (parseFloat(data[4]) * 100).toFixed(2),
+            "Time of Day": dayjs(data[5].replaceAll(".", ""), ["h a", "h:mm a"]).format("h:mm a")
+        };
+    } else {
+        formatted = {
+            "ID": data.id,
+            "Created Time": dayjs(data.createdTime).format("MM/DD/YYYY HH:mm"),
+            "Average Nurses": parseFloat(data.avgNurses).toFixed(2),
+            "Average Patients": parseFloat(data.avgPatients).toFixed(2),
+            "% Beds Full": (parseFloat(data.percentBedsFull) * 100).toFixed(2),
+            "Time of Day": dayjs(data.timeOfDay, "HH:mm:ss").format("h:mm a")
+        };
+    }
+
+    return formatted;
 }
