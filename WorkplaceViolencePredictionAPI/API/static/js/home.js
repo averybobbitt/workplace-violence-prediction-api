@@ -53,7 +53,7 @@ function updateGauge(gauge, data) {
 function updateTable(table, data) {
     // assuming "id" is first column and latest data is first row
     let top_id = Number(table.rows(0).data()[0][0]);
-    let new_id = Number(data["id"]);
+    let new_id = Number(data.id);
     let exists = false;
 
     // Iterate through each row in the table to check if new_id already exists
@@ -95,7 +95,7 @@ function formatHospitalData(data) {
             "avgNurses": parseFloat(data.avgNurses).toFixed(2),
             "avgPatients": parseFloat(data.avgPatients).toFixed(2),
             "percentBedsFull": (parseFloat(data.percentBedsFull) * 100).toFixed(2),
-            "timeOfDay": dayjs(data.timeOfDay, "HH:mm:ss").format("h:mm a")
+            "timeOfDay": data.timeOfDay
         };
     }
 
