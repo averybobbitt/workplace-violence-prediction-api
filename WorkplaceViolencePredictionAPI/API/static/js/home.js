@@ -88,16 +88,16 @@ function formatHospitalData(data) {
     if (Array.isArray(data)) {
         formatted = {
             "id": data[0],
-            "createdTime": dayjs(data[1].replaceAll(".", ""), ["MMMM D, YYYY, h a", "MMMM D, YYYY, h:mm a"]).format("MM/DD/YYYY HH:mm"),
+            "createdTime": dayjs(data[1].replaceAll(".", ""), ["MMMM D, YYYY, h a", "MMMM D, YYYY, h:mm a"]).format("MM/DD/YYYY HH:mm:ss"),
             "avgNurses": parseFloat(data[2]).toFixed(2),
             "avgPatients": parseFloat(data[3]).toFixed(2),
             "percentBedsFull": (parseFloat(data[4]) * 100).toFixed(2),
-            "timeOfDay": dayjs(data[5].replaceAll(".", ""), ["h a", "h:mm a"]).format("h:mm a")
+            "timeOfDay": dayjs(data[5].replaceAll(".", ""), ["h a", "h:mm a"]).format("HH:mm:ss")
         };
     } else {
         formatted = {
             "id": data.id,
-            "createdTime": dayjs(data.createdTime).format("MM/DD/YYYY HH:mm"),
+            "createdTime": dayjs(data.createdTime).format("MM/DD/YYYY HH:mm:ss"),
             "avgNurses": parseFloat(data.avgNurses).toFixed(2),
             "avgPatients": parseFloat(data.avgPatients).toFixed(2),
             "percentBedsFull": (parseFloat(data.percentBedsFull) * 100).toFixed(2),
