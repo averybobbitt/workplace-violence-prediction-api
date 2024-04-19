@@ -68,10 +68,13 @@
             <table id="recentData" class="display" style="width:100%">
                 <thead>
                 <tr>
-                    <!-- Create table headers from the keys of the first dictionary -->
-                    {% for key in data.0.keys %}
-                        <th>{{ key }}</th>
-                    {% endfor %}
+                    <!-- Create table headers -->
+                    <th>ID</th>
+                    <th>Created Time</th>
+                    <th>Average Nurses</th>
+                    <th>Average Patients</th>
+                    <th>% Beds Full</th>
+                    <th>Time of Day</th>
                 </tr>
                 </thead>
                 <tbody>
