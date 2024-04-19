@@ -30,7 +30,7 @@ function updateRisk(risk) {
         element.style.color = "red";
     } else if (!risk) {
         element.innerText = "NO";
-        element.style.color = "green";
+        element.style.color = "rgb(44, 241, 44)";
     } else {
         element.innerText = "ERROR";
         element.style.removeProperty("color");
