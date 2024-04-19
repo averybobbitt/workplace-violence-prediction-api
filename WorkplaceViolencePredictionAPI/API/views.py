@@ -124,9 +124,9 @@ class HospitalDataViewSet(viewsets.ModelViewSet):
     queryset = HospitalData.objects.all()
     serializer_class = HospitalDataSerializer
     authentication_classes = [BearerAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
-    @action(methods=["GET"], detail=False, permission_classes=[IsAuthenticatedOrReadOnly])
+    @action(methods=["GET"], detail=False)
     def latest(self, request, **kwargs):
         latest_entry = HospitalData.objects.latest()
         serializer = HospitalDataSerializer(latest_entry, many=False)
@@ -253,11 +253,7 @@ class IncidentLogViewSet(viewsets.ModelViewSet):
 
 # Home view
 def home(request):
-    # possibly more taxing on the db than it needs to be
-    queryset = HospitalData.objects.all().order_by("-id")
-    data = queryset.values()[:100]
-
-    return render(request, "home.html", context={"data": data})
+    return render(request, "home.html")
 
 
 # Log View
