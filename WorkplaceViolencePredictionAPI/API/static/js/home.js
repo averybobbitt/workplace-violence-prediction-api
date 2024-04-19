@@ -52,7 +52,13 @@ function updateGauge(gauge, data) {
 
 function updateTable(table, data) {
     // assuming "id" is first column and latest data is first row
-    let top_id = Number(table.rows(0).data()[0][0]);
+    let top_id;
+    try {
+        top_id = Number(table.rows(0).data()[0][0]);
+    } catch {
+        top_id = 0;
+    }
+
     let new_id = Number(data.id);
     let exists = false;
 
