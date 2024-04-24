@@ -261,7 +261,7 @@ def home(request):
 
 # Log View
 def log(request):
-    return render(request, "incidentlog.html")
+    return render(request, "log.html")
 
 
 # Manage email View
