@@ -51,10 +51,12 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     "WorkplaceViolencePredictionAPI.API",
-    "drf_spectacular"
+    "drf_spectacular",
+    "corsheaders"
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -63,6 +65,11 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8000",
+    "http://127.0.0.1:8000"
 ]
 
 ROOT_URLCONF = "WorkplaceViolencePredictionAPI.urls"
@@ -109,6 +116,8 @@ LOGGING = {
         }
     },
 }
+
+DOCUMENTATION_PATH = os.path.join(BASE_DIR, "WorkplaceViolencePredictionAPI", "docs")
 
 WSGI_APPLICATION = "WorkplaceViolencePredictionAPI.wsgi.application"
 ASGI_APPLICATION = "WorkplaceViolencePredictionAPI.asgi.application"
