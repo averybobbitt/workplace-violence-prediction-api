@@ -11,7 +11,7 @@ function submitIncident() {
         "incidentDescription": incidentDescription
     }));
 
-    fetch("http://localhost:8000/api/email/", {
+    fetch("http://localhost:8000/api/log/", {
         method: "PUT",
         headers: {
             "Content-Type": "application/json"
