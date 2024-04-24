@@ -10,7 +10,7 @@ $(function () {
     const titleHTML = "<div class='dt-layout-cell dt-mid' id='tableTitle'><div class='dt-length'><h2>Recent Data</h2></div></div>";
     firstTableHeaderElement.after(titleHTML);
 
-    tableElement.setInterval(() => {
+    setInterval(() => {
         fetch("http://localhost:8000/api/model/latest").then((response) => {
             response.json().then((data) => {
                 updateGauge(gaugeElement, data);
