@@ -7,19 +7,20 @@ body {
     display: flex;
     width: auto;
     height: 100%;
+    padding-top: 3%;
 }
 
 .body_left {
-    padding-top: 3%;
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 50%;
+    width: 40%;
     gap: 40px;
+    padding-right: 1em;
 }
 
 .body_right {
-    width: 50%;
+    width: 60%;
     background-color: white;
 }
 
@@ -31,14 +32,9 @@ body {
     --rotation: 0deg
 }
 
-.table_wrapper {
-    margin-left: 1em;
-    margin-right: 1em;
-}
-
 .gauge_container {
     border-radius: 30px;
-    width: 75%;
+    width: 100%;
     height: 40%;
     display: flex;
     align-items: center;
@@ -51,7 +47,7 @@ body {
     grid-row: 2;
     display: flex;
     background-color: #4F8FC0;
-    width: 75%;
+    width: 100%;
     height: 15%;
     border-radius: 30px;
     align-items: center;
@@ -118,13 +114,11 @@ body {
 .button_container {
     display: flex;
     height: 15%;
-    width: 75%;
-    justify-content: space-evenly;
-    align-items: center;
+    width: 100%;
 }
 
 .m_button {
-    width: 50%;
+    width: 100%;
     height: 100%;
 }
 
@@ -158,6 +152,18 @@ body {
     left: 0;
     display: flex;
     justify-content: center;
+}
+
+.table_container {
+    color: white;
+    background-color: #4F8FC0;
+    border-radius: 30px;
+    align-items: center;
+    justify-content: center;
+}
+
+#recentData_wrapper {
+    padding: 1em;
 }
 
 #tableTitle {
