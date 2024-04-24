@@ -12,7 +12,7 @@ function submitIncident() {
     }));
 
     fetch("http://localhost:8000/api/log/", {
-        method: "PUT",
+        method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
@@ -22,5 +22,12 @@ function submitIncident() {
             "affectedPeople": affectedPeople,
             "incidentDescription": incidentDescription
         })
-    }).then(r => console.log(`Incident Reported.`));
+    }).then(response => {
+        if (response.ok) {
+            console.log(`Incident Reported.`);
+        } else {
+            console.log(response);
+            throw new Error(`Error! status: ${response.status}`);
+        }
+    });
 }
