@@ -85,7 +85,7 @@ body {
     left: 0;
     width: inherit;
     height: 100%;
-    background:red;
+    background: red;
     transform-origin: center top;
     transition: transform 0.2s ease-out;
 }
@@ -113,7 +113,6 @@ body {
     font-weight: bold;
     color: white;
 }
-
 
 
 .button_container {
@@ -159,4 +158,8 @@ body {
     left: 0;
     display: flex;
     justify-content: center;
+}
+
+#tableTitle {
+    text-align: right;
 }

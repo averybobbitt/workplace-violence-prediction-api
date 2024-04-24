@@ -5,7 +5,12 @@ $(function () {
         order: [[0, "desc"]]
     });
 
-    setInterval(() => {
+    // Add title to table
+    const firstTableHeaderElement = $("#recentData_wrapper .dt-layout-row:first > .dt-start");
+    const titleHTML = "<div class='dt-layout-cell dt-mid' id='tableTitle'><div class='dt-length'><h2>Recent Data</h2></div></div>";
+    firstTableHeaderElement.after(titleHTML);
+
+    tableElement.setInterval(() => {
         fetch("http://localhost:8000/api/model/latest").then((response) => {
             response.json().then((data) => {
                 updateGauge(gaugeElement, data);
