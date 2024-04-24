@@ -4,30 +4,26 @@ function submitIncident() {
     let affectedPeople = document.getElementById("affectedPeople").value;
     let incidentDescription = document.getElementById("incidentDescription").value;
 
-    console.log(JSON.stringify({
+    let requestBody = JSON.stringify({
         "incidentType": incidentType,
         "incidentDate": incidentDate,
         "affectedPeople": affectedPeople,
         "incidentDescription": incidentDescription
-    }));
+    });
+
+    console.log(requestBody);
 
     fetch("http://localhost:8000/api/log/", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({
-            "incidentType": incidentType,
-            "incidentDate": incidentDate,
-            "affectedPeople": affectedPeople,
-            "incidentDescription": incidentDescription
-        })
+        body: requestBody
     }).then(response => {
         if (response.ok) {
             console.log(`Incident Reported.`);
         } else {
-            console.log(response);
-            throw new Error(`Error! status: ${response.status}`);
+            console.error(response);
         }
     });
 }
