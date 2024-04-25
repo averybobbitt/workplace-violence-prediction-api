@@ -1,40 +1,48 @@
 body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
 
-        .login-container {
-            background-color: #bab7b7;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
+.login-container {
+    background-color: #bab7b7;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
 
-        .login-container h1 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .login-container h2 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
+.login-container h1 {
+    text-align: center;
+    margin-bottom: 20px;
+}
 
-        .login-container button {
-            width: 20%;
-            padding: 10px;
-            border: none;
-            border-radius: 3px;
-            background-color: #007bff;
-            color: #fff;
-            cursor: pointer;
-        }
-        #inputs {
-            text-align: center;
-        }
-        .login-container button:hover {
-            background-color: #0056b3;
-        }
+.login-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.login-container button {
+    width: 20%;
+    padding: 10px;
+    border: none;
+    border-radius: 3px;
+    background-color: #007bff;
+    color: #fff;
+    cursor: pointer;
+}
+
+.login-container button:hover {
+    background-color: #0056b3;
+}
+
+.errorlist {
+    list-style-type: none;
+    color: red;
+}
+
+#inputs {
+    text-align: center;
+}
