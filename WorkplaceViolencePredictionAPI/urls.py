@@ -31,11 +31,13 @@ router.register(r"log", views.IncidentLogViewSet)
 
 urlpatterns = [
     path("admin/", admin.site.urls),  # built-in admin portal for Django
+    path("accounts/", include("django.contrib.auth.urls")),
     # Webpage Routes
-    path("", views.home, name="home"),
+    path("", views.home, name="home",),
     path("log/", views.log, name="log"),
     path("email/", views.email, name="email"),
     path("api/docs/", views.docs, name="docs"),
+
     # API Routes
     path("api/", include(router.urls)),  # router paths defined above
     path("api/auth/", include("rest_framework.urls")),  # login/out for browser view

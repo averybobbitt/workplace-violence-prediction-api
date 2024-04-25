@@ -52,7 +52,7 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "WorkplaceViolencePredictionAPI.API",
     "drf_spectacular",
-    "corsheaders"
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
@@ -60,7 +60,7 @@ MIDDLEWARE = [
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
-    # "django.middleware.csrf.CsrfViewMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
@@ -185,6 +185,16 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Directs site to home page after login and logout
+LOGIN_REDIRECT_URL = "home"
+LOGOUT_REDIRECT_URL = "login"
+
+# configures sessions to be cookie based
+SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
+
+# prevents access to stored cookie data from JavaScript
+SESSION_COOKIE_HTTPONLY = True
 
 # Settings for drf_spectacular (an OpenAPI doc generator)
 SPECTACULAR_SETTINGS = {

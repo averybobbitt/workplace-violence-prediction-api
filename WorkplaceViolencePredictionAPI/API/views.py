@@ -5,6 +5,7 @@ from datetime import datetime
 
 import requests
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
 from django.core.mail import get_connection, EmailMessage
 from django.db.models import F, Func
 from django.http import JsonResponse
@@ -252,6 +253,7 @@ class IncidentLogViewSet(viewsets.ModelViewSet):
 
 
 # Home view
+@login_required
 def home(request):
     # possibly more taxing on the db than it needs to be
     queryset = HospitalData.objects.all().order_by("-id")
@@ -261,15 +263,18 @@ def home(request):
 
 
 # Log View
+@login_required
 def log(request):
     return render(request, "incidentlog.html")
 
 
 # Manage email View
+@login_required
 def email(request):
     return render(request, "email.html")
 
 
 # API documentation View
+@login_required
 def docs(request):
     return render(request, "docs.html")

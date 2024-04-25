@@ -22,9 +22,13 @@
 
 <div class="header">
     <h1>Workplace Violence Prediction System</h1>
+    <form method="post" action="{% url 'logout' %}">
+    {% csrf_token %}
+    <button type="submit">logout</button>
+</form>
+
 </div>
 <div class="body_container">
-
     <div class="body_left">
 
         <div class="gauge_container">
