@@ -194,9 +194,6 @@ LOGOUT_REDIRECT_URL = "login"
 # configures sessions to be cookie based
 SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
 
-# prevents access to stored cookie data from JavaScript
-SESSION_COOKIE_HTTPONLY = True
-
 # Settings for drf_spectacular (an OpenAPI doc generator)
 SPECTACULAR_SETTINGS = {
     "TITLE": "Workplace Violence Prediction API",
