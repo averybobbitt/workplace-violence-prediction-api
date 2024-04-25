@@ -7,6 +7,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
             integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
             crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/customParseFormat.js"></script>
+
     <script src="https://cdn.datatables.net/v/dt/dt-2.0.4/r-3.0.2/datatables.min.js"></script>
     <link href="https://cdn.datatables.net/v/dt/dt-2.0.4/r-3.0.2/datatables.min.css" rel="stylesheet">
 
@@ -62,27 +66,29 @@
     </div>
 
     <div class="body_right">
-        <h2>Recent Data (latest 100)</h2>
-        <div class="table_wrapper">
+        <div class="table_container">
             <!-- it could be worth checking out https://django-tables2.readthedocs.io/en/latest/ -->
             <table id="recentData" class="display" style="width:100%">
                 <thead>
                 <tr>
-                    <!-- Create table headers from the keys of the first dictionary -->
-                    {% for key in data.0.keys %}
-                        <th>{{ key }}</th>
-                    {% endfor %}
+                    <!-- Create table headers -->
+                    <th>ID</th>
+                    <th>Created Time</th>
+                    <th>Average Nurses</th>
+                    <th>Average Patients</th>
+                    <th>% Beds Full</th>
+                    <th>Time of Day</th>
                 </tr>
                 </thead>
                 <tbody>
-                {% for item in data %}
-                    <tr>
-                        <!-- Populate table rows with data from each dictionary -->
-                        {% for value in item.values %}
-                            <td>{{ value }}</td>
-                        {% endfor %}
-                    </tr>
-                {% endfor %}
+                {# {% for item in data %} #}
+                {# <tr> #}
+                {# <!-- Populate table rows with data from each dictionary --> #}
+                {# {% for value in item.values %} #}
+                {# <td>{{ value }}</td> #}
+                {# {% endfor %} #}
+                {# </tr> #}
+                {# {% endfor %} #}
                 </tbody>
             </table>
 

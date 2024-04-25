@@ -7,7 +7,6 @@ import requests
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.mail import get_connection, EmailMessage
-from django.db.models import F, Func
 from django.http import JsonResponse
 from django.shortcuts import render
 from rest_framework import viewsets, status, generics
@@ -125,9 +124,9 @@ class HospitalDataViewSet(viewsets.ModelViewSet):
     queryset = HospitalData.objects.all()
     serializer_class = HospitalDataSerializer
     authentication_classes = [BearerAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
-    @action(methods=["GET"], detail=False, permission_classes=[IsAuthenticatedOrReadOnly])
+    @action(methods=["GET"], detail=False)
     def latest(self, request, **kwargs):
         latest_entry = HospitalData.objects.latest()
         serializer = HospitalDataSerializer(latest_entry, many=False)
@@ -210,31 +209,43 @@ class PredictionModelViewSet(viewsets.ModelViewSet):
 
 class IncidentLogViewSet(viewsets.ModelViewSet):
     authentication_classes = [BearerAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]  # THIS NEEDS TO BE CHANGED WHEN PROPER AUTH IS IMPLEMENTED FOR WEB UI
     queryset = IncidentLog.objects.all()
     serializer_class = IncidentDataSerializer
 
     def create(self, request, **kwargs):
-        headers = request.headers
-        req_headers = ["incidentType", "incidentDate", "affectedPeople", "incidentDescription"]
-        for header in req_headers:
-            if headers.get(header) is None:
-                return JsonResponse({"error": f"Missing header {header}"}, status=status.HTTP_400_BAD_REQUEST)
-        closest_hdata = (HospitalData.objects.annotate(
-            time_difference=Func(F("createdTime") - datetime.strptime(headers.get("incidentDate"), "%Y-%m-%d %H:%M:%S"),
-                                 function="ABS"))
-                         .order_by("time_difference").first().id)
+        data = request.data
+        required_fields = ["incidentType", "incidentDate", "affectedPeople", "incidentDescription"]
+
+        for field in required_fields:
+            if data.get(field) is None:
+                return JsonResponse({"error": f"Missing key in body {field}"}, status=status.HTTP_400_BAD_REQUEST)
+
+        incidentType = data.get("incidentType")
+        incidentDate = data.get("incidentDate")
+        affectedPeople = data.get("affectedPeople")
+        incidentDescription = data.get("incidentDescription")
+
+        # find closest HospitalData to incidentDate
+        incidentDateTime = datetime.strptime(incidentDate, "%Y-%m-%dT%H:%M")
+        closest_hdata = HospitalData.objects.filter(createdTime__lte=incidentDateTime).order_by('-createdTime').first()
+
+        if closest_hdata is None:
+            return JsonResponse({"error": f"Couldn't find data prior to given date"}, status=status.HTTP_404_NOT_FOUND)
+
         new_log = {
-            "incidentType": headers.get("incidentType"),
-            "incidentDate": headers.get("incidentDate"),
-            "affectedPeople": headers.get("affectedPeople"),
-            "incidentDescription": headers.get("incidentDescription"),
-            "hData": closest_hdata
+            "incidentType": incidentType,
+            "incidentDate": incidentDate,
+            "affectedPeople": affectedPeople,
+            "incidentDescription": incidentDescription,
+            "hData": closest_hdata.pk
         }
+
         serializer = self.serializer_class(data=new_log, many=False)
         try:
             serializer.is_valid(raise_exception=True)
             serializer.save()
+
             return JsonResponse({"Status": f"Incident {serializer.data.get('id')} logged"},
                                 status=status.HTTP_201_CREATED)
         except ValidationError:
@@ -256,8 +267,7 @@ class IncidentLogViewSet(viewsets.ModelViewSet):
 @login_required
 def home(request):
     # possibly more taxing on the db than it needs to be
-    queryset = HospitalData.objects.all().order_by("-id")
-    data = queryset.values()[:100]
+    data = HospitalData.objects.all().order_by("-id").values()[:100]
 
     return render(request, "home.html", context={"data": data})
 
@@ -265,7 +275,7 @@ def home(request):
 # Log View
 @login_required
 def log(request):
-    return render(request, "incidentlog.html")
+    return render(request, "log.html")
 
 
 # Manage email View
