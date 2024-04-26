@@ -16,9 +16,9 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 
 from WorkplaceViolencePredictionAPI.API.authentication import BearerAuthentication
-from WorkplaceViolencePredictionAPI.API.models import HospitalData, TrainingData, IncidentLog, RiskData
+from WorkplaceViolencePredictionAPI.API.models import HospitalData, TrainingData, IncidentLog, RiskData, EmailRecipient
 from WorkplaceViolencePredictionAPI.API.serializers import HospitalDataSerializer, TrainingDataSerializer, \
-    IncidentDataSerializer, RiskDataSerializer
+    IncidentDataSerializer, RiskDataSerializer, EmailRecipientSerializer
 from WorkplaceViolencePredictionAPI.helpers import risk_to_dict
 
 """
@@ -202,6 +202,8 @@ class IncidentLogViewSet(viewsets.ModelViewSet):
 
 
 class EmailViewSet(viewsets.ModelViewSet):
+    queryset = EmailRecipient.objects.all()
+    serializer_class = EmailRecipientSerializer
     authentication_classes = [BearerAuthentication, SessionAuthentication]
     permission_classes = [IsAuthenticated]
 
