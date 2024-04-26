@@ -1,4 +1,5 @@
 function submitIncident() {
+    const csrftoken = Cookies.get("csrftoken");
     let incidentType = document.getElementById("incidentType").value;
     let incidentDate = document.getElementById("incidentDate").value;
     let affectedPeople = document.getElementById("affectedPeople").value;
@@ -15,8 +16,10 @@ function submitIncident() {
 
     fetch("http://localhost:8000/api/log/", {
         method: "POST",
+        credentials: "same-origin",
         headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrftoken
         },
         body: requestBody
     }).then(response => {

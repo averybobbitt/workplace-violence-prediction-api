@@ -61,3 +61,14 @@ class IncidentLog(models.Model):
         app_label = "API"
         db_table = "incident_log"
         get_latest_by = ["id"]
+
+
+class EmailRecipient(models.Model):
+    id = models.BigAutoField(primary_key=True, editable=False)
+    name = models.CharField(db_column="name", max_length=255)
+    email = models.EmailField(db_column="email")
+
+    class Meta:
+        app_label = "API"
+        db_table = "email_recipient"
+        get_latest_by = ["id"]

@@ -10,14 +10,15 @@ from django.core.mail import get_connection, EmailMessage
 from django.http import JsonResponse
 from django.shortcuts import render
 from rest_framework import viewsets, status, generics
+from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 
 from WorkplaceViolencePredictionAPI.API.authentication import BearerAuthentication
-from WorkplaceViolencePredictionAPI.API.models import HospitalData, TrainingData, IncidentLog, RiskData
+from WorkplaceViolencePredictionAPI.API.models import HospitalData, TrainingData, IncidentLog, RiskData, EmailRecipient
 from WorkplaceViolencePredictionAPI.API.serializers import HospitalDataSerializer, TrainingDataSerializer, \
-    IncidentDataSerializer, RiskDataSerializer
+    IncidentDataSerializer, RiskDataSerializer, EmailRecipientSerializer
 from WorkplaceViolencePredictionAPI.helpers import risk_to_dict
 
 """
@@ -43,66 +44,6 @@ https://medium.com/@p0zn/django-apiview-vs-viewsets-which-one-to-choose-c8945e53
 logger = logging.getLogger("wpv")
 
 
-class EmailView(generics.GenericAPIView):
-    permission_classes = [AllowAny]
-
-    # get all current recipients
-    def get(self, request):
-        emails = settings.EMAIL_RECIPIENTS
-
-        return JsonResponse(emails, safe=False)
-
-    # send emails to recipients
-    def post(self, request):
-        try:
-            connection = get_connection(
-                backend=settings.EMAIL_BACKEND,
-                host=settings.EMAIL_HOST,
-                port=settings.EMAIL_PORT,
-                username=settings.EMAIL_HOST_SENDER,
-                password=settings.EMAIL_HOST_PASSWORD,
-                use_tls=True
-            )
-
-            # Email sends message to itself and BCCs a list of recipients
-            email = EmailMessage(
-                subject="Warning: Risk levels in the hospital!",
-                body="This message is to inform you of high risk levels within the hospital. "
-                     "Please be cautious of heightened stress levels as we work to resolve the issue.",
-                bcc=settings.EMAIL_RECIPIENTS,
-                from_email=settings.EMAIL_HOST_SENDER,
-                to=[settings.EMAIL_HOST_SENDER],
-                connection=connection,
-            )
-
-            email.send()
-            return JsonResponse({'message': 'Emails sent successfully'}, status=200)
-        except Exception as e:
-            logging.error(f"Error sending email: {e}")
-
-    # add an email to the recipients list
-    def put(self, request):
-        email = request.data.get('email')
-
-        if email is None:
-            return JsonResponse({'error': 'Invalid or empty email input'}, status=400)
-
-        settings.EMAIL_RECIPIENTS.append(email)
-
-        return JsonResponse({'message': 'Email appended successfully'}, status=200)
-
-    # remove an email from the recipients list
-    def delete(self, request):
-        email = request.data.get('email')
-
-        if email is None:
-            return JsonResponse({'error': 'Invalid or empty email input'}, status=400)
-
-        settings.EMAIL_RECIPIENTS = [r for r in settings.EMAIL_RECIPIENTS if r != email]
-
-        return JsonResponse({'message': 'Email removed successfully'}, status=200)
-
-
 class DocumentationView(generics.GenericAPIView):
     permission_classes = [AllowAny]
 
@@ -123,8 +64,8 @@ class DocumentationView(generics.GenericAPIView):
 class HospitalDataViewSet(viewsets.ModelViewSet):
     queryset = HospitalData.objects.all()
     serializer_class = HospitalDataSerializer
-    authentication_classes = [BearerAuthentication]
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    authentication_classes = [BearerAuthentication, SessionAuthentication]
+    permission_classes = [IsAuthenticated]
 
     @action(methods=["GET"], detail=False)
     def latest(self, request, **kwargs):
@@ -172,12 +113,12 @@ class HospitalDataViewSet(viewsets.ModelViewSet):
 class TrainingDataViewSet(viewsets.ModelViewSet):
     queryset = TrainingData.objects.all()
     serializer_class = TrainingDataSerializer
-    authentication_classes = [BearerAuthentication]
+    authentication_classes = [BearerAuthentication, SessionAuthentication]
     permission_classes = [IsAuthenticated]
 
 
 class PredictionModelViewSet(viewsets.ModelViewSet):
-    authentication_classes = [BearerAuthentication]
+    authentication_classes = [BearerAuthentication, SessionAuthentication]
     permission_classes = [IsAuthenticated]
     queryset = RiskData.objects.all()
     serializer_class = RiskDataSerializer
@@ -208,8 +149,8 @@ class PredictionModelViewSet(viewsets.ModelViewSet):
 
 
 class IncidentLogViewSet(viewsets.ModelViewSet):
-    authentication_classes = [BearerAuthentication]
-    permission_classes = [AllowAny]  # THIS NEEDS TO BE CHANGED WHEN PROPER AUTH IS IMPLEMENTED FOR WEB UI
+    authentication_classes = [BearerAuthentication, SessionAuthentication]
+    permission_classes = [IsAuthenticated]
     queryset = IncidentLog.objects.all()
     serializer_class = IncidentDataSerializer
 
@@ -260,16 +201,48 @@ class IncidentLogViewSet(viewsets.ModelViewSet):
             return JsonResponse({"Error": "Missing required id header"}, status=status.HTTP_400_BAD_REQUEST)
 
 
+class EmailViewSet(viewsets.ModelViewSet):
+    queryset = EmailRecipient.objects.all()
+    serializer_class = EmailRecipientSerializer
+    authentication_classes = [BearerAuthentication, SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    @action(detail=True, methods=['GET'])
+    def send(self, request):
+        try:
+            connection = get_connection(
+                backend=settings.EMAIL_BACKEND,
+                host=settings.EMAIL_HOST,
+                port=settings.EMAIL_PORT,
+                username=settings.EMAIL_HOST_SENDER,
+                password=settings.EMAIL_HOST_PASSWORD,
+                use_tls=True
+            )
+
+            # Email sends message to itself and BCCs a list of recipients
+            email = EmailMessage(
+                subject="Warning: Risk levels in the hospital!",
+                body="This message is to inform you of high risk levels within the hospital. "
+                     "Please be cautious of heightened stress levels as we work to resolve the issue.",
+                bcc=settings.EMAIL_RECIPIENTS,
+                from_email=settings.EMAIL_HOST_SENDER,
+                to=[settings.EMAIL_HOST_SENDER],
+                connection=connection,
+            )
+
+            email.send()
+            return JsonResponse({'message': 'Emails sent successfully'}, status=200)
+        except Exception as e:
+            logging.error(f"Error sending email: {e}")
+
+
 ##########################################################
 
 
 # Home view
 @login_required
 def home(request):
-    # possibly more taxing on the db than it needs to be
-    data = HospitalData.objects.all().order_by("-id").values()[:100]
-
-    return render(request, "home.html", context={"data": data})
+    return render(request, "home.html")
 
 
 # Log View
@@ -284,7 +257,6 @@ def email(request):
     return render(request, "email.html")
 
 
-# API documentation View
-@login_required
+# API documentation View (public)
 def docs(request):
     return render(request, "docs.html")
