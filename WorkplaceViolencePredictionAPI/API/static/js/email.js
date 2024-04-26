@@ -1,4 +1,4 @@
-window.onload = function () {
+$(function () {
     setInterval(() => {
         fetch("http://localhost:8000/api/email").then((response) => {
             response.json().then((data) => {
@@ -8,10 +8,12 @@ window.onload = function () {
             });
         });
     }, 1000);
-};
+});
 
 function addEmail() {
+    const csrftoken = Cookies.get("csrftoken");
     let input = document.getElementById("inputBox").value;
+
     console.log(input);
     console.log(JSON.stringify({
         "email": input
@@ -19,8 +21,10 @@ function addEmail() {
 
     fetch("http://localhost:8000/api/email/", {
         method: "PUT",
+        credentials: "same-origin",
         headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrftoken
         },
         body: JSON.stringify({
             "email": input

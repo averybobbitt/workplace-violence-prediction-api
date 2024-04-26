@@ -10,6 +10,7 @@ from django.core.mail import get_connection, EmailMessage
 from django.http import JsonResponse
 from django.shortcuts import render
 from rest_framework import viewsets, status, generics
+from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
@@ -44,7 +45,8 @@ logger = logging.getLogger("wpv")
 
 
 class EmailView(generics.GenericAPIView):
-    permission_classes = [AllowAny]
+    authentication_classes = [BearerAuthentication, SessionAuthentication]
+    permission_classes = [IsAuthenticated]
 
     # get all current recipients
     def get(self, request):
@@ -123,8 +125,8 @@ class DocumentationView(generics.GenericAPIView):
 class HospitalDataViewSet(viewsets.ModelViewSet):
     queryset = HospitalData.objects.all()
     serializer_class = HospitalDataSerializer
-    authentication_classes = [BearerAuthentication]
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    authentication_classes = [BearerAuthentication, SessionAuthentication]
+    permission_classes = [IsAuthenticated]
 
     @action(methods=["GET"], detail=False)
     def latest(self, request, **kwargs):
@@ -172,12 +174,12 @@ class HospitalDataViewSet(viewsets.ModelViewSet):
 class TrainingDataViewSet(viewsets.ModelViewSet):
     queryset = TrainingData.objects.all()
     serializer_class = TrainingDataSerializer
-    authentication_classes = [BearerAuthentication]
+    authentication_classes = [BearerAuthentication, SessionAuthentication]
     permission_classes = [IsAuthenticated]
 
 
 class PredictionModelViewSet(viewsets.ModelViewSet):
-    authentication_classes = [BearerAuthentication]
+    authentication_classes = [BearerAuthentication, SessionAuthentication]
     permission_classes = [IsAuthenticated]
     queryset = RiskData.objects.all()
     serializer_class = RiskDataSerializer
@@ -208,8 +210,8 @@ class PredictionModelViewSet(viewsets.ModelViewSet):
 
 
 class IncidentLogViewSet(viewsets.ModelViewSet):
-    authentication_classes = [BearerAuthentication]
-    permission_classes = [AllowAny]  # THIS NEEDS TO BE CHANGED WHEN PROPER AUTH IS IMPLEMENTED FOR WEB UI
+    authentication_classes = [BearerAuthentication, SessionAuthentication]
+    permission_classes = [IsAuthenticated]
     queryset = IncidentLog.objects.all()
     serializer_class = IncidentDataSerializer
 
@@ -266,10 +268,7 @@ class IncidentLogViewSet(viewsets.ModelViewSet):
 # Home view
 @login_required
 def home(request):
-    # possibly more taxing on the db than it needs to be
-    data = HospitalData.objects.all().order_by("-id").values()[:100]
-
-    return render(request, "home.html", context={"data": data})
+    return render(request, "home.html")
 
 
 # Log View
@@ -284,7 +283,6 @@ def email(request):
     return render(request, "email.html")
 
 
-# API documentation View
-@login_required
+# API documentation View (public)
 def docs(request):
     return render(request, "docs.html")
