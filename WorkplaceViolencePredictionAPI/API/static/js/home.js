@@ -28,10 +28,10 @@ $(function () {
     }, 1000);
 });
 
-function updateRisk(risk) {
+function updateRisk(risk, probability) {
     const element = document.getElementById("riskYN");
 
-    if (risk) {
+    if (risk || probability > 0.60) {
         element.innerText = "YES";
         element.style.color = "red";
     } else if (!risk) {
@@ -45,15 +45,17 @@ function updateRisk(risk) {
 
 function updateGauge(gauge, data) {
     let risk = data["wpvRisk"];
-    let probability = parseFloat(data["wpvProbability"]).toFixed(2);
+
+    let probability = (parseFloat(data["wpvProbability"]) + Math.random()).toFixed(2);
 
     if (probability < 0 || probability > 1) return;
 
+
     gauge.querySelector(".gauge_fill").style.transform = `rotate(${probability / 2}turn)`;
     gauge.querySelector(".gauge_percentage").innerText = Math.round(probability * 100);
-    updateRisk(risk);
+    updateRisk(risk, probability);
 
-    // console.log(`Prediction ${data["id"]}: ${probability}`);
+    console.log(`Prediction ${data["id"]}: ${probability}`);
 }
 
 function updateTable(table, data) {

@@ -26,4 +26,12 @@ function submitIncident() {
             console.error(response);
         }
     });
+
+}
+
+function resetForms(){
+    document.getElementById("incidentType").value = '';
+    document.getElementById("incidentDate").value = '';
+    document.getElementById("affectedPeople").value = '';
+    document.getElementById("incidentDescription").value = '';
 }
