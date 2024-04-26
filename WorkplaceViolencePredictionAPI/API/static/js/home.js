@@ -1,5 +1,4 @@
 $(function () {
-    const userID = $("meta[name=userID]").attr("content");
     const gaugeElement = document.getElementById("demoGauge");
     const tableElement = new DataTable("#recentData", {
         responsive: true,
