@@ -16,13 +16,22 @@
 <body>
 <div class="container">
     <h1>Manage Emails</h1>
-    <h2>Emails:</h2>
-    <span id="emails">loading...</span><br>
-    <input type="text" placeholder="Enter email address" id="inputBox">
+
+    <form id="email_form">
+        <label for="name">Name:</label><br>
+        <input type="text" id="name" name="name"><br>
+        <label for="email">Email:</label><br>
+        <input type="email" id="email" name="email"><br><br>
+
+        <button class="btn btn-danger" type="button" onclick="rmEmail()">Remove Email</button>
+        <button class="btn btn-primary" type="button" onclick="addEmail()">Add Email</button>
+        <button class="btn btn-warning" type="button" onclick="sendEmail()">Send Email</button>
+    </form>
+
     <br>
-    <button class="btn btn-danger" onclick="rmEmail()">Remove Email</button>
-    <button class="btn btn-primary" onclick="addEmail()">Add Email</button>
-    <button class="btn btn-warning" onclick="sendEmail()">Send Email</button>
+    <h2>Emails:</h2>
+    <span id="emails">loading...</span>
+
     <br><br>
     <a href="{% url 'home' %}" class="btn btn-success">Go to Home Page</a>
 </div>
