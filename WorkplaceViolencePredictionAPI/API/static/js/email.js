@@ -56,7 +56,7 @@ function rmEmail() {
 
 function sendEmail() {
     fetch("http://localhost:8000/api/email/send/", {
-        method: "POST",
+        method: "GET",
         credentials: "same-origin",
         headers: {
             "Content-Type": "application/json"
