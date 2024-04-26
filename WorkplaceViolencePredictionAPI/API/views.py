@@ -247,11 +247,11 @@ class EmailViewSet(viewsets.ModelViewSet):
         if not email:
             return super().list(request, *args, **kwargs)
 
-        if email is not str:
+        if not isinstance(email, str):
             return JsonResponse({"error": "Email must be a string."}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            obj = EmailRecipient.objects.get(email=email)
+            obj = EmailRecipient.objects.get(email__iexact=email)
             serializer = self.get_serializer(obj)
 
             return JsonResponse(serializer.data)
