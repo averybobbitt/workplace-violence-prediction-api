@@ -52,7 +52,7 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "WorkplaceViolencePredictionAPI.API",
     "drf_spectacular",
-    "corsheaders"
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
@@ -61,7 +61,7 @@ MIDDLEWARE = [
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
-    # "django.middleware.csrf.CsrfViewMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
@@ -187,6 +187,13 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# Directs site to home page after login and logout
+LOGIN_REDIRECT_URL = "home"
+LOGOUT_REDIRECT_URL = "login"
+
+# configures sessions to be cookie based
+SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
+
 # Settings for drf_spectacular (an OpenAPI doc generator)
 SPECTACULAR_SETTINGS = {
     "TITLE": "Workplace Violence Prediction API",
@@ -201,10 +208,8 @@ EMAIL_CONFIG = config.get("email")
 if EMAIL_CONFIG is None:
     raise Exception("No email configuration defined in config.toml")
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_SENDER = EMAIL_CONFIG.get("sender")
+EMAIL_HOST_USER = EMAIL_CONFIG.get("sender")
 EMAIL_HOST_PASSWORD = EMAIL_CONFIG.get("password")
-EMAIL_RECIPIENTS = EMAIL_CONFIG.get("recipients")

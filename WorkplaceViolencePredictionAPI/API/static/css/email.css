@@ -10,7 +10,7 @@ body {
     margin-top: 50px;
 }
 
-input[type="text"] {
+input {
     width: 300px;
     padding: 10px;
     font-size: 16px;
@@ -46,4 +46,18 @@ input[type="text"] {
 
 .btn-danger:hover {
     background-color: #c82333;
+}
+
+.btn-warning {
+    background-color: #e5c142;
+    color: #fff;
+}
+
+.btn-warning:hover {
+    background-color: #c9a62a;
+}
+
+#emails ul {
+    list-style: none;
+    padding-left: 0;
 }
