@@ -55,7 +55,7 @@ class DocumentationView(generics.GenericAPIView):
                 schema = json.load(f)
         except Exception as e:
             logger.error(f"Error reading OpenAPI schema: {e}")
-            return JsonResponse({'error': str(e)}, status=400)
+            return JsonResponse({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         return JsonResponse(schema)
 
@@ -208,7 +208,10 @@ class EmailViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     @action(detail=True, methods=['GET'])
-    def send(self, request):
+    def send(self, request, **kwargs):
+        queryset = EmailRecipient.objects.only("email").values_list()
+        emails = [email for email in queryset]
+
         try:
             connection = get_connection(
                 backend=settings.EMAIL_BACKEND,
@@ -224,7 +227,7 @@ class EmailViewSet(viewsets.ModelViewSet):
                 subject="Warning: Risk levels in the hospital!",
                 body="This message is to inform you of high risk levels within the hospital. "
                      "Please be cautious of heightened stress levels as we work to resolve the issue.",
-                bcc=settings.EMAIL_RECIPIENTS,
+                bcc=emails,
                 from_email=settings.EMAIL_HOST_SENDER,
                 to=[settings.EMAIL_HOST_SENDER],
                 connection=connection,
@@ -234,6 +237,26 @@ class EmailViewSet(viewsets.ModelViewSet):
             return JsonResponse({'message': 'Emails sent successfully'}, status=200)
         except Exception as e:
             logging.error(f"Error sending email: {e}")
+            return JsonResponse({"error": e}, status=status.HTTP_400_BAD_REQUEST)
+
+    def list(self, request, *args, **kwargs):
+        # Get query parameter from URL
+        email = request.query_params.get('email')
+
+        # If unique_field parameter is present, retrieve single object
+        if not email:
+            return super().list(request, *args, **kwargs)
+
+        if email is not str:
+            return JsonResponse({"error": "Email must be a string."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            obj = EmailRecipient.objects.get(email=email)
+            serializer = self.get_serializer(obj)
+
+            return JsonResponse(serializer.data)
+        except EmailRecipient.DoesNotExist:
+            return JsonResponse({'error': 'Object not found.'}, status=status.HTTP_404_NOT_FOUND)
 
 
 ##########################################################
