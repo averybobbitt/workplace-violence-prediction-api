@@ -207,7 +207,7 @@ class EmailViewSet(viewsets.ModelViewSet):
     authentication_classes = [BearerAuthentication, SessionAuthentication]
     permission_classes = [IsAuthenticated]
 
-    @action(detail=True, methods=['GET'])
+    @action(methods=['GET'], detail=False)
     def send(self, request, **kwargs):
         queryset = EmailRecipient.objects.only("email").values_list()
         emails = [email for email in queryset]
