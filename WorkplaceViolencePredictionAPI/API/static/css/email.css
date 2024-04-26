@@ -56,3 +56,8 @@ input {
 .btn-warning:hover {
     background-color: #c9a62a;
 }
+
+#emails ul {
+    list-style: none;
+    padding-left: 0;
+}
