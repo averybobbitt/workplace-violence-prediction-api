@@ -33,7 +33,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),  # built-in admin portal for Django
     path("accounts/", include("django.contrib.auth.urls")),
     # Webpage Routes
-    path("", views.home, name="home",),
+    path("", views.home, name="home"),
     path("log/", views.log, name="log"),
     path("email/", views.email, name="email"),
     path("api/docs/", views.docs, name="docs"),
