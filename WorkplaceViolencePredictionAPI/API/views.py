@@ -6,7 +6,7 @@ from datetime import datetime
 import requests
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.core.mail import get_connection, EmailMessage
+from django.core.mail import EmailMessage
 from django.http import JsonResponse
 from django.shortcuts import render
 from rest_framework import viewsets, status, generics
@@ -215,15 +215,6 @@ class EmailViewSet(viewsets.ModelViewSet):
         logger.debug(emails)
 
         try:
-            connection = get_connection(
-                backend=settings.EMAIL_BACKEND,
-                host=settings.EMAIL_HOST,
-                port=settings.EMAIL_PORT,
-                username=settings.EMAIL_HOST_USER,
-                password=settings.EMAIL_HOST_PASSWORD,
-                use_tls=True
-            )
-
             # Email sends message to itself and BCCs a list of recipients
             email = EmailMessage(
                 subject="Warning: Risk levels in the hospital!",
@@ -231,8 +222,7 @@ class EmailViewSet(viewsets.ModelViewSet):
                      "Please be cautious of heightened stress levels as we work to resolve the issue.",
                 bcc=emails,
                 from_email=settings.EMAIL_HOST_USER,
-                to=[settings.EMAIL_HOST_USER],
-                connection=connection,
+                to=[settings.EMAIL_HOST_USER]
             )
 
             email.send()

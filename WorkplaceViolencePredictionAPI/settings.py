@@ -208,7 +208,6 @@ EMAIL_CONFIG = config.get("email")
 if EMAIL_CONFIG is None:
     raise Exception("No email configuration defined in config.toml")
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
