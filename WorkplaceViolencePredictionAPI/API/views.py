@@ -207,7 +207,7 @@ class EmailViewSet(viewsets.ModelViewSet):
     authentication_classes = [BearerAuthentication, SessionAuthentication]
     permission_classes = [IsAuthenticated]
 
-    @action(detail=True, methods=['POST'])
+    @action(detail=True, methods=['GET'])
     def send(self, request):
         try:
             connection = get_connection(
