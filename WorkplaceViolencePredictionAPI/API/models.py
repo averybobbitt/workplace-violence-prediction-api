@@ -66,7 +66,7 @@ class IncidentLog(models.Model):
 class EmailRecipient(models.Model):
     id = models.BigAutoField(primary_key=True, editable=False)
     name = models.CharField(db_column="name", max_length=255)
-    email = models.EmailField(db_column="email")
+    email = models.EmailField(db_column="email", unique=True)
 
     class Meta:
         app_label = "API"
