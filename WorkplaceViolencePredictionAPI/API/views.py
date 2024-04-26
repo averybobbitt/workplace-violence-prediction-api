@@ -201,7 +201,7 @@ class IncidentLogViewSet(viewsets.ModelViewSet):
             return JsonResponse({"Error": "Missing required id header"}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class EmailView(viewsets.ModelViewSet):
+class EmailViewSet(viewsets.ModelViewSet):
     authentication_classes = [BearerAuthentication, SessionAuthentication]
     permission_classes = [IsAuthenticated]
 

@@ -28,6 +28,7 @@ router.register(r"data", views.HospitalDataViewSet)
 router.register(r"train", views.TrainingDataViewSet)
 router.register(r"model", views.PredictionModelViewSet)
 router.register(r"log", views.IncidentLogViewSet)
+router.register(r"email", views.EmailViewSet)
 
 urlpatterns = [
     path("admin/", admin.site.urls),  # built-in admin portal for Django
@@ -42,6 +43,5 @@ urlpatterns = [
     path("api/", include(router.urls)),  # router paths defined above
     path("api/auth/", include("rest_framework.urls")),  # login/out for browser view
     path("api/token/", obtain_auth_token),
-    path("api/email/", views.EmailView.as_view()),
     path("api/docs/json", views.DocumentationView.as_view())
 ]
