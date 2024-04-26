@@ -47,3 +47,12 @@ input[type="text"] {
 .btn-danger:hover {
     background-color: #c82333;
 }
+
+.btn-warning {
+    background-color: #e5c142;
+    color: #fff;
+}
+
+.btn-warning:hover {
+    background-color: #c9a62a;
+}

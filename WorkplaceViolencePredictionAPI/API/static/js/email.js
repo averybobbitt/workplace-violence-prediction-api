@@ -51,6 +51,19 @@ function rmEmail() {
     document.getElementById("inputBox").value = "";
 }
 
+function sendEmail() {
+    const csrftoken = Cookies.get("csrftoken");
+
+    fetch("http://localhost:8000/api/email/", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrftoken
+        }
+    }).then(r => console.log(`Email sent`));
+}
+
 function updateEmailDisplay(list) {
     document.getElementById("emails").innerHTML = list.replace(",", "<br>");
 }
