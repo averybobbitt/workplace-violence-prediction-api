@@ -55,13 +55,13 @@ function rmEmail() {
 }
 
 function sendEmail() {
-    fetch("http://localhost:8000/api/email/send/", {
+    fetch("http://localhost:8000/api/email/send", {
         method: "GET",
         credentials: "same-origin",
         headers: {
             "Content-Type": "application/json"
         }
-    }).then(r => console.log(`Email sent`));
+    }).then(r => r.json().then(j => console.log(j)));
 }
 
 function updateEmailDisplay(list) {

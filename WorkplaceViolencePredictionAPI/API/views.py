@@ -209,15 +209,17 @@ class EmailViewSet(viewsets.ModelViewSet):
 
     @action(methods=['GET'], detail=False)
     def send(self, request, **kwargs):
-        queryset = EmailRecipient.objects.only("email").values_list()
+        queryset = EmailRecipient.objects.only("email").values_list("email", flat=True)
         emails = [email for email in queryset]
+        logger.debug(queryset)
+        logger.debug(emails)
 
         try:
             connection = get_connection(
                 backend=settings.EMAIL_BACKEND,
                 host=settings.EMAIL_HOST,
                 port=settings.EMAIL_PORT,
-                username=settings.EMAIL_HOST_SENDER,
+                username=settings.EMAIL_HOST_USER,
                 password=settings.EMAIL_HOST_PASSWORD,
                 use_tls=True
             )
@@ -228,8 +230,8 @@ class EmailViewSet(viewsets.ModelViewSet):
                 body="This message is to inform you of high risk levels within the hospital. "
                      "Please be cautious of heightened stress levels as we work to resolve the issue.",
                 bcc=emails,
-                from_email=settings.EMAIL_HOST_SENDER,
-                to=[settings.EMAIL_HOST_SENDER],
+                from_email=settings.EMAIL_HOST_USER,
+                to=[settings.EMAIL_HOST_USER],
                 connection=connection,
             )
 
