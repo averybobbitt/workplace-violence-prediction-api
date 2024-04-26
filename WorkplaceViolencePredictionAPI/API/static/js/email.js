@@ -34,12 +34,15 @@ function addEmail() {
 }
 
 function rmEmail() {
+    const csrftoken = Cookies.get("csrftoken");
     let input = document.getElementById("inputBox").value;
 
     fetch("http://localhost:8000/api/email/", {
         method: "DELETE",
+        credentials: "same-origin",
         headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrftoken
         },
         body: JSON.stringify({
             "email": input
