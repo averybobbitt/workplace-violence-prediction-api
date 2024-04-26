@@ -44,67 +44,6 @@ https://medium.com/@p0zn/django-apiview-vs-viewsets-which-one-to-choose-c8945e53
 logger = logging.getLogger("wpv")
 
 
-class EmailView(generics.GenericAPIView):
-    authentication_classes = [BearerAuthentication, SessionAuthentication]
-    permission_classes = [IsAuthenticated]
-
-    # get all current recipients
-    def get(self, request):
-        emails = settings.EMAIL_RECIPIENTS
-
-        return JsonResponse(emails, safe=False)
-
-    # send emails to recipients
-    def post(self, request):
-        try:
-            connection = get_connection(
-                backend=settings.EMAIL_BACKEND,
-                host=settings.EMAIL_HOST,
-                port=settings.EMAIL_PORT,
-                username=settings.EMAIL_HOST_SENDER,
-                password=settings.EMAIL_HOST_PASSWORD,
-                use_tls=True
-            )
-
-            # Email sends message to itself and BCCs a list of recipients
-            email = EmailMessage(
-                subject="Warning: Risk levels in the hospital!",
-                body="This message is to inform you of high risk levels within the hospital. "
-                     "Please be cautious of heightened stress levels as we work to resolve the issue.",
-                bcc=settings.EMAIL_RECIPIENTS,
-                from_email=settings.EMAIL_HOST_SENDER,
-                to=[settings.EMAIL_HOST_SENDER],
-                connection=connection,
-            )
-
-            email.send()
-            return JsonResponse({'message': 'Emails sent successfully'}, status=200)
-        except Exception as e:
-            logging.error(f"Error sending email: {e}")
-
-    # add an email to the recipients list
-    def put(self, request):
-        email = request.data.get('email')
-
-        if email is None:
-            return JsonResponse({'error': 'Invalid or empty email input'}, status=400)
-
-        settings.EMAIL_RECIPIENTS.append(email)
-
-        return JsonResponse({'message': 'Email appended successfully'}, status=200)
-
-    # remove an email from the recipients list
-    def delete(self, request):
-        email = request.data.get('email')
-
-        if email is None:
-            return JsonResponse({'error': 'Invalid or empty email input'}, status=400)
-
-        settings.EMAIL_RECIPIENTS = [r for r in settings.EMAIL_RECIPIENTS if r != email]
-
-        return JsonResponse({'message': 'Email removed successfully'}, status=200)
-
-
 class DocumentationView(generics.GenericAPIView):
     permission_classes = [AllowAny]
 
@@ -260,6 +199,39 @@ class IncidentLogViewSet(viewsets.ModelViewSet):
         else:
             IncidentLog.objects.get(id=row).delete()
             return JsonResponse({"Error": "Missing required id header"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class EmailView(viewsets.ModelViewSet):
+    authentication_classes = [BearerAuthentication, SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    @action(detail=True, methods=['POST'])
+    def send(self, request):
+        try:
+            connection = get_connection(
+                backend=settings.EMAIL_BACKEND,
+                host=settings.EMAIL_HOST,
+                port=settings.EMAIL_PORT,
+                username=settings.EMAIL_HOST_SENDER,
+                password=settings.EMAIL_HOST_PASSWORD,
+                use_tls=True
+            )
+
+            # Email sends message to itself and BCCs a list of recipients
+            email = EmailMessage(
+                subject="Warning: Risk levels in the hospital!",
+                body="This message is to inform you of high risk levels within the hospital. "
+                     "Please be cautious of heightened stress levels as we work to resolve the issue.",
+                bcc=settings.EMAIL_RECIPIENTS,
+                from_email=settings.EMAIL_HOST_SENDER,
+                to=[settings.EMAIL_HOST_SENDER],
+                connection=connection,
+            )
+
+            email.send()
+            return JsonResponse({'message': 'Emails sent successfully'}, status=200)
+        except Exception as e:
+            logging.error(f"Error sending email: {e}")
 
 
 ##########################################################
