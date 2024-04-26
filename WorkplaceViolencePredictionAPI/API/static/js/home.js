@@ -51,6 +51,12 @@ function updateGauge(gauge, data) {
 
 
     gauge.querySelector(".gauge_fill").style.transform = `rotate(${probability / 2}turn)`;
+    if (probability > .6) {
+        gauge.querySelector(".gauge_fill").style.background = "red";
+    }
+    else {
+        gauge.querySelector(".gauge_fill").style.background = "rgb(44, 241, 44)";
+    }
     gauge.querySelector(".gauge_percentage").innerText = Math.round(probability * 100);
     updateRisk(risk, probability);
 
