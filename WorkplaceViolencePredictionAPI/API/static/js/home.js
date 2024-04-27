@@ -1,15 +1,21 @@
+/**
+ * This function runs when the document is ready.
+ * It sets up intervals for fetching data and updating UI elements.
+ */
 $(function () {
+    // Get gauge and table elements
     const gaugeElement = document.getElementById("demoGauge");
     const tableElement = new DataTable("#recentData", {
         responsive: true,
         order: [[0, "desc"]]
     });
 
-    // Add title to table
+    // Add title to the table
     const firstTableHeaderElement = $("#recentData_wrapper .dt-layout-row:first > .dt-start");
     const titleHTML = "<div class='dt-layout-cell dt-mid' id='tableTitle'><div class='dt-length'><h2>Recent Data</h2></div></div>";
     firstTableHeaderElement.after(titleHTML);
 
+    // Fetch data and update gauge every second
     setInterval(() => {
         fetch("http://localhost:8000/api/model/latest").then((response) => {
             response.json().then((data) => {
@@ -18,6 +24,7 @@ $(function () {
         });
     }, 1000);
 
+    // Fetch data and update table every second
     setInterval(() => {
         fetch("http://localhost:8000/api/data/latest").then((response) => {
             response.json().then((data) => {
@@ -27,6 +34,11 @@ $(function () {
     }, 1000);
 });
 
+/**
+ * Updates the risk element based on risk and probability values.
+ * @param {boolean} risk - The risk status.
+ * @param {number} probability - The probability value.
+ */
 function updateRisk(risk, probability) {
     const element = document.getElementById("riskYN");
 
@@ -42,19 +54,21 @@ function updateRisk(risk, probability) {
     }
 }
 
+/**
+ * Updates the gauge UI element with new data.
+ * @param {HTMLElement} gauge - The gauge element.
+ * @param {object} data - The data object containing risk and probability values.
+ */
 function updateGauge(gauge, data) {
     let risk = data["wpvRisk"];
-
     let probability = (parseFloat(data["wpvProbability"]) + Math.random()).toFixed(2);
 
     if (probability < 0 || probability > 1) return;
 
-
     gauge.querySelector(".gauge_fill").style.transform = `rotate(${probability / 2}turn)`;
     if (probability > .6) {
         gauge.querySelector(".gauge_fill").style.background = "red";
-    }
-    else {
+    } else {
         gauge.querySelector(".gauge_fill").style.background = "rgb(44, 241, 44)";
     }
     gauge.querySelector(".gauge_percentage").innerText = Math.round(probability * 100);
@@ -63,8 +77,13 @@ function updateGauge(gauge, data) {
     console.log(`Prediction ${data["id"]}: ${probability}`);
 }
 
+/**
+ * Updates the table with new data if the data is not already present in the table.
+ * @param {object} table - The DataTable instance.
+ * @param {object} data - The formatted data object.
+ */
 function updateTable(table, data) {
-    // assuming "id" is first column and latest data is first row
+    // Get the top ID from the table
     let top_id;
     try {
         top_id = Number(table.rows(0).data()[0][0]);
@@ -86,6 +105,7 @@ function updateTable(table, data) {
 
     console.log(data);
 
+    // Add new data to the table if it doesn't already exist and if it has a greater ID than the current top ID
     if (!exists && new_id > top_id) {
         table.row.add(Object.values(data)).draw();
         table.columns.adjust().draw();
@@ -95,10 +115,16 @@ function updateTable(table, data) {
     }
 }
 
+/**
+ * Formats hospital data for display in the table.
+ * @param {object} data - The raw data object.
+ * @returns {object} - The formatted data object.
+ */
 function formatHospitalData(data) {
     let formatted;
 
     if (Array.isArray(data)) {
+        // Format array data
         formatted = {
             "id": data[0],
             "createdTime": dayjs(data[1].replaceAll(".", ""), ["MMMM D, YYYY, h a", "MMMM D, YYYY, h:mm a"]).format("MM/DD/YYYY HH:mm:ss"),
@@ -108,6 +134,7 @@ function formatHospitalData(data) {
             "timeOfDay": dayjs(data[5].replaceAll(".", ""), ["h a", "h:mm a"]).format("HH:mm:ss")
         };
     } else {
+        // Format object data
         formatted = {
             "id": data.id,
             "createdTime": dayjs(data.createdTime).format("MM/DD/YYYY HH:mm:ss"),

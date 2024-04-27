@@ -10,45 +10,38 @@
     <title>Document</title>
 </head>
 <body>
-
-  <div class="header">
+<div class="header">
     <h1>Submit an Incident</h1>
-  </div>
+</div>
 
-  <div class="body_container">
-
+<div class="body_container">
     <div class="inputForm">
-      <form>
-          <label for="incidentType">Describe the type of WPV Incident</label>
-          <input type="text" id="incidentType">
-          <br> <br>
-          <label for="incidentDate">List the date and time of the WPV Incident</label>
-          <input type="datetime-local" id="incidentDate">
-          <br> <br>
-          <label for="affectedPeople">List the affected people</label>
-          <input type="text" id="affectedPeople">
-          <br> <br>
-          <label for="incidentDescription">Describe the incident</label>
-          <input type="text" id="incidentDescription">
-      </form>
+        <form id="logForm">
+            <label for="incidentType">Describe the type of WPV Incident</label>
+            <input type="text" id="incidentType">
+            <br> <br>
+            <label for="incidentDate">List the date and time of the WPV Incident</label>
+            <input type="datetime-local" id="incidentDate">
+            <br> <br>
+            <label for="affectedPeople">List the affected people</label>
+            <input type="text" id="affectedPeople">
+            <br> <br>
+            <label for="incidentDescription">Describe the incident</label>
+            <input type="text" id="incidentDescription">
+        </form>
     </div>
 
     <div class="button_container">
         <div class="m_button">
-            <button class="but" onclick="submitIncident(); resetForms()">Submit Incident</button>
+            <button class="but" onclick="submitIncident()">Submit Incident</button>
         </div>
 
         <div class="m_button">
-          <a href="../">
-            <button class="but">Go back</button>
-          </a>
-      </div>
-
+            <a href="../">
+                <button class="but">Go back</button>
+            </a>
+        </div>
     </div>
-
-
-
-  </div>
-
+</div>
 </body>
 </html>
