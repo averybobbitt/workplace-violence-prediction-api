@@ -1,10 +1,17 @@
+/**
+ * Submits an incident report to the server.
+ */
 function submitIncident() {
+    // Get CSRF token from cookies
     const csrftoken = Cookies.get("csrftoken");
+
+    // Get values from form inputs
     let incidentType = document.getElementById("incidentType").value;
     let incidentDate = document.getElementById("incidentDate").value;
     let affectedPeople = document.getElementById("affectedPeople").value;
     let incidentDescription = document.getElementById("incidentDescription").value;
 
+    // Create request body as JSON string
     let requestBody = JSON.stringify({
         "incidentType": incidentType,
         "incidentDate": incidentDate,
@@ -12,8 +19,10 @@ function submitIncident() {
         "incidentDescription": incidentDescription
     });
 
+    // Log request body
     console.log(requestBody);
 
+    // Send POST request to server
     fetch("http://localhost:8000/api/log/", {
         method: "POST",
         credentials: "same-origin",
@@ -29,12 +38,14 @@ function submitIncident() {
             console.error(response);
         }
     });
-
 }
 
-function resetForms(){
-    document.getElementById("incidentType").value = '';
-    document.getElementById("incidentDate").value = '';
-    document.getElementById("affectedPeople").value = '';
-    document.getElementById("incidentDescription").value = '';
+/**
+ * Resets all form inputs to empty strings.
+ */
+function resetForms() {
+    document.getElementById("incidentType").value = "";
+    document.getElementById("incidentDate").value = "";
+    document.getElementById("affectedPeople").value = "";
+    document.getElementById("incidentDescription").value = "";
 }

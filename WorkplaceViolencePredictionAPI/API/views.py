@@ -22,35 +22,21 @@ from WorkplaceViolencePredictionAPI.API.serializers import HospitalDataSerialize
     IncidentDataSerializer, RiskDataSerializer, EmailRecipientSerializer
 from WorkplaceViolencePredictionAPI.helpers import risk_to_dict
 
-"""
-Django REST framework allows you to combine the logic for a set of related views in a single class, called a ViewSet.
-In other frameworks you may also find conceptually similar implementations named something like 'Resources' or
-'Controllers'. A ViewSet class is simply a type of class-based View, that does not provide any method handlers such as
-.get() or .post(), and instead provides actions such as .list() and .create(). The method handlers for a ViewSet are
-only bound to the corresponding actions at the point of finalizing the view, using the .as_view() method. Typically,
-rather than explicitly registering the views in a viewset in the urlconf, you'll register the viewset with a router
-class, that automatically determines the urlconf for you.
-
-In this project, we will mainly use ViewSets. The primary difference between ViewSet and ViewAPI is the intended use of
-the functionality. If the application is performing CRUD actions directly on the model (CREATE, READ, UPDATE, DELETE), 
-then ViewSets are better to use. Alternatively, if the application needs finer customization for the requests 
-functionality, we can use ViewAPI, as it's a more barebones class which inherits from a Django base View class. For more
-information, refer to the following links:
-
-https://www.reddit.com/r/django/comments/sm07s2/drf_when_to_use_viewsets_vs_generic_views_vs/
-https://stackoverflow.com/questions/41379654/difference-between-apiview-class-and-viewsets-class
-https://medium.com/@p0zn/django-apiview-vs-viewsets-which-one-to-choose-c8945e538af4
-"""
-
 logger = logging.getLogger("wpv")
 
 
 # specify no serializer for schema generator
 @extend_schema(request=None, responses=None)
 class DocumentationView(views.APIView):
+    """
+    A view to serve the OpenAPI schema for API documentation.
+    """
     permission_classes = [AllowAny]
 
     def get(self, request):
+        """
+        Retrieve and return the OpenAPI schema.
+        """
         path = os.path.join(settings.DOCUMENTATION_PATH, "openapi.json")
 
         try:
@@ -63,8 +49,10 @@ class DocumentationView(views.APIView):
         return JsonResponse(schema)
 
 
-# Hospital data ViewSet
 class HospitalDataViewSet(viewsets.ModelViewSet):
+    """
+    A ViewSet for CRUD operations on HospitalData objects.
+    """
     queryset = HospitalData.objects.all()
     serializer_class = HospitalDataSerializer
     authentication_classes = [BearerAuthentication, SessionAuthentication]
@@ -72,17 +60,17 @@ class HospitalDataViewSet(viewsets.ModelViewSet):
 
     @action(methods=["GET"], detail=False)
     def latest(self, request, **kwargs):
+        """
+        Retrieve the latest HospitalData entry.
+        """
         latest_entry = HospitalData.objects.latest()
         serializer = HospitalDataSerializer(latest_entry, many=False)
         return JsonResponse(serializer.data, status=status.HTTP_200_OK)
 
     def create(self, request, **kwargs):
         """
-        This https request is an example for if a hospital uses their own api route to gather their own data
-        in a dictionary and want to put it into a database. If a hospital already has a database with
-        live information to use, this function is obsolete.
+        Create a new HospitalData entry.
         """
-
         # walrus operator ( := ) evaluates the expression then assigns the value to the variable
         # (see https://stackoverflow.com/questions/50297704)
         if num_samples := request.headers.get("Samples"):
@@ -114,6 +102,9 @@ class HospitalDataViewSet(viewsets.ModelViewSet):
 
 
 class TrainingDataViewSet(viewsets.ModelViewSet):
+    """
+    A ViewSet for CRUD operations on TrainingData objects.
+    """
     queryset = TrainingData.objects.all()
     serializer_class = TrainingDataSerializer
     authentication_classes = [BearerAuthentication, SessionAuthentication]
@@ -121,6 +112,9 @@ class TrainingDataViewSet(viewsets.ModelViewSet):
 
 
 class PredictionModelViewSet(viewsets.ModelViewSet):
+    """
+    A ViewSet for CRUD operations on PredictionModel objects.
+    """
     authentication_classes = [BearerAuthentication, SessionAuthentication]
     permission_classes = [IsAuthenticated]
     queryset = RiskData.objects.all()
@@ -128,11 +122,17 @@ class PredictionModelViewSet(viewsets.ModelViewSet):
 
     @action(methods=["GET"], detail=False, permission_classes=[IsAuthenticatedOrReadOnly])
     def latest(self, request, **kwargs):
+        """
+        Retrieve the latest RiskData entry.
+        """
         queryset = RiskData.objects.latest()
         serializer = RiskDataSerializer(queryset, many=False)
         return JsonResponse(serializer.data, status=status.HTTP_200_OK)
 
     def create(self, request, **kwargs):
+        """
+        Create a new RiskData entry.
+        """
         if row := request.headers.get("id"):
             hData = HospitalData.objects.get(id=row)
         else:
@@ -152,12 +152,18 @@ class PredictionModelViewSet(viewsets.ModelViewSet):
 
 
 class IncidentLogViewSet(viewsets.ModelViewSet):
+    """
+    A ViewSet for CRUD operations on IncidentLog objects.
+    """
     authentication_classes = [BearerAuthentication, SessionAuthentication]
     permission_classes = [IsAuthenticated]
     queryset = IncidentLog.objects.all()
     serializer_class = IncidentDataSerializer
 
     def create(self, request, **kwargs):
+        """
+        Create a new IncidentLog entry.
+        """
         data = request.data
         required_fields = ["incidentType", "incidentDate", "affectedPeople", "incidentDescription"]
 
@@ -196,6 +202,9 @@ class IncidentLogViewSet(viewsets.ModelViewSet):
             return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def destroy(self, request, **kwargs):
+        """
+        Delete an IncidentLog entry.
+        """
         if row := request.headers.get("id"):
             IncidentLog.objects.get(id=row).delete()
             return JsonResponse({"Success": f"Incident {row} deleted"}, status=status.HTTP_204_NO_CONTENT)
@@ -205,6 +214,9 @@ class IncidentLogViewSet(viewsets.ModelViewSet):
 
 
 class EmailViewSet(viewsets.ModelViewSet):
+    """
+    A ViewSet for CRUD operations on EmailRecipient objects.
+    """
     queryset = EmailRecipient.objects.all()
     serializer_class = EmailRecipientSerializer
     authentication_classes = [BearerAuthentication, SessionAuthentication]
@@ -212,6 +224,9 @@ class EmailViewSet(viewsets.ModelViewSet):
 
     @action(methods=['GET'], detail=False)
     def send(self, request, **kwargs):
+        """
+        Send an email to all recipients.
+        """
         queryset = EmailRecipient.objects.only("email").values_list("email", flat=True)
         emails = [email for email in queryset]
         logger.debug(queryset)
@@ -235,6 +250,9 @@ class EmailViewSet(viewsets.ModelViewSet):
             return JsonResponse({"error": e}, status=status.HTTP_400_BAD_REQUEST)
 
     def list(self, request, *args, **kwargs):
+        """
+        List all EmailRecipient objects or retrieve a single object by email.
+        """
         # Get query parameter from URL
         email = request.query_params.get('email')
 
@@ -260,21 +278,33 @@ class EmailViewSet(viewsets.ModelViewSet):
 # Home view
 @login_required
 def home(request):
+    """
+    Render the home page.
+    """
     return render(request, "home.html")
 
 
 # Log View
 @login_required
 def log(request):
+    """
+    Render the log page.
+    """
     return render(request, "log.html")
 
 
 # Manage email View
 @login_required
 def email(request):
+    """
+    Render the email management page.
+    """
     return render(request, "email.html")
 
 
 # API documentation View (public)
 def docs(request):
+    """
+    Render the public API documentation page.
+    """
     return render(request, "docs.html")
