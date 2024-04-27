@@ -9,7 +9,8 @@ from django.contrib.auth.decorators import login_required
 from django.core.mail import EmailMessage
 from django.http import JsonResponse
 from django.shortcuts import render
-from rest_framework import viewsets, status, generics
+from drf_spectacular.utils import extend_schema
+from rest_framework import viewsets, status, views
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
@@ -44,7 +45,9 @@ https://medium.com/@p0zn/django-apiview-vs-viewsets-which-one-to-choose-c8945e53
 logger = logging.getLogger("wpv")
 
 
-class DocumentationView(generics.GenericAPIView):
+# specify no serializer for schema generator
+@extend_schema(request=None, responses=None)
+class DocumentationView(views.APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):

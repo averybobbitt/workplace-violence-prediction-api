@@ -5,13 +5,14 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="SwaggerUI" />
-    <script src="https://unpkg.com/swagger-ui-dist@5.11.0/swagger-ui-bundle.js" crossorigin></script>
     <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5.11.0/swagger-ui.css" />
     {% load static %}
-    <script src="{% static 'js/docs.js' %}"></script>
     <title>SwaggerUI</title>
 </head>
 <body>
 <div id="swagger-ui"></div>
+<!-- swagger-ui and page js have to be loaded after dom element -->
+<script src="https://unpkg.com/swagger-ui-dist@5.11.0/swagger-ui-bundle.js" crossorigin></script>
+<script src="{% static 'js/docs.js' %}"></script>
 </body>
 </html>
