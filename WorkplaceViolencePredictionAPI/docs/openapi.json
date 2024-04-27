@@ -3,7 +3,7 @@ info:
   title: Workplace Violence Prediction API
   version: 1.0.0
   description: An automated system to predict potential incidents of workplace violence
-    in a hospital
+    in a hospital. **THIS IS CURRENTLY INCOMPLETE, ENDPOINT RESPONSES NEED TO BE FILLED OUT CORRECTLY**
 paths:
   /api/data/:
     get:
