@@ -1,0 +1,1091 @@
+openapi: 3.0.3
+info:
+  title: Workplace Violence Prediction API
+  version: 1.0.0
+  description: An automated system to predict potential incidents of workplace violence
+    in a hospital. **THIS IS CURRENTLY INCOMPLETE, ENDPOINT RESPONSES NEED TO BE FILLED OUT CORRECTLY**
+paths:
+  /api/data/:
+    get:
+      operationId: data_list
+      tags:
+      - data
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HospitalData'
+          description: ''
+    post:
+      operationId: data_create
+      description: |-
+        This https request is an example for if a hospital uses their own api route to gather their own data
+        in a dictionary and want to put it into a database. If a hospital already has a database with
+        live information to use, this function is obsolete.
+      tags:
+      - data
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HospitalData'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/HospitalData'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/HospitalData'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HospitalData'
+          description: ''
+  /api/data/{id}/:
+    get:
+      operationId: data_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this hospital data.
+        required: true
+      tags:
+      - data
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HospitalData'
+          description: ''
+    put:
+      operationId: data_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this hospital data.
+        required: true
+      tags:
+      - data
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HospitalData'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/HospitalData'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/HospitalData'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HospitalData'
+          description: ''
+    patch:
+      operationId: data_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this hospital data.
+        required: true
+      tags:
+      - data
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedHospitalData'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedHospitalData'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedHospitalData'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HospitalData'
+          description: ''
+    delete:
+      operationId: data_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this hospital data.
+        required: true
+      tags:
+      - data
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/data/latest/:
+    get:
+      operationId: data_latest_retrieve
+      tags:
+      - data
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HospitalData'
+          description: ''
+  /api/docs/json:
+    get:
+      operationId: docs_json_retrieve
+      tags:
+      - docs
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/email/:
+    get:
+      operationId: email_list
+      tags:
+      - email
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EmailRecipient'
+          description: ''
+    post:
+      operationId: email_create
+      tags:
+      - email
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailRecipient'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/EmailRecipient'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/EmailRecipient'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmailRecipient'
+          description: ''
+  /api/email/{id}/:
+    get:
+      operationId: email_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this email recipient.
+        required: true
+      tags:
+      - email
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmailRecipient'
+          description: ''
+    put:
+      operationId: email_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this email recipient.
+        required: true
+      tags:
+      - email
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailRecipient'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/EmailRecipient'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/EmailRecipient'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmailRecipient'
+          description: ''
+    patch:
+      operationId: email_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this email recipient.
+        required: true
+      tags:
+      - email
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedEmailRecipient'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedEmailRecipient'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedEmailRecipient'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmailRecipient'
+          description: ''
+    delete:
+      operationId: email_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this email recipient.
+        required: true
+      tags:
+      - email
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/email/send/:
+    get:
+      operationId: email_send_retrieve
+      tags:
+      - email
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmailRecipient'
+          description: ''
+  /api/log/:
+    get:
+      operationId: log_list
+      tags:
+      - log
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IncidentData'
+          description: ''
+    post:
+      operationId: log_create
+      tags:
+      - log
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IncidentData'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/IncidentData'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/IncidentData'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IncidentData'
+          description: ''
+  /api/log/{id}/:
+    get:
+      operationId: log_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this incident log.
+        required: true
+      tags:
+      - log
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IncidentData'
+          description: ''
+    put:
+      operationId: log_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this incident log.
+        required: true
+      tags:
+      - log
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IncidentData'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/IncidentData'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/IncidentData'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IncidentData'
+          description: ''
+    patch:
+      operationId: log_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this incident log.
+        required: true
+      tags:
+      - log
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedIncidentData'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedIncidentData'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedIncidentData'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IncidentData'
+          description: ''
+    delete:
+      operationId: log_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this incident log.
+        required: true
+      tags:
+      - log
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/model/:
+    get:
+      operationId: model_list
+      tags:
+      - model
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RiskData'
+          description: ''
+    post:
+      operationId: model_create
+      tags:
+      - model
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RiskData'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RiskData'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RiskData'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RiskData'
+          description: ''
+  /api/model/{id}/:
+    get:
+      operationId: model_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this risk data.
+        required: true
+      tags:
+      - model
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RiskData'
+          description: ''
+    put:
+      operationId: model_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this risk data.
+        required: true
+      tags:
+      - model
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RiskData'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RiskData'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RiskData'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RiskData'
+          description: ''
+    patch:
+      operationId: model_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this risk data.
+        required: true
+      tags:
+      - model
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedRiskData'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedRiskData'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedRiskData'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RiskData'
+          description: ''
+    delete:
+      operationId: model_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this risk data.
+        required: true
+      tags:
+      - model
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/model/latest/:
+    get:
+      operationId: model_latest_retrieve
+      tags:
+      - model
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RiskData'
+          description: ''
+  /api/token/:
+    post:
+      operationId: token_create
+      tags:
+      - token
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AuthToken'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AuthToken'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthToken'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthToken'
+          description: ''
+  /api/train/:
+    get:
+      operationId: train_list
+      tags:
+      - train
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TrainingData'
+          description: ''
+    post:
+      operationId: train_create
+      tags:
+      - train
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrainingData'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TrainingData'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TrainingData'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingData'
+          description: ''
+  /api/train/{id}/:
+    get:
+      operationId: train_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this training data.
+        required: true
+      tags:
+      - train
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingData'
+          description: ''
+    put:
+      operationId: train_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this training data.
+        required: true
+      tags:
+      - train
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrainingData'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TrainingData'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TrainingData'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingData'
+          description: ''
+    patch:
+      operationId: train_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this training data.
+        required: true
+      tags:
+      - train
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedTrainingData'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedTrainingData'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedTrainingData'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingData'
+          description: ''
+    delete:
+      operationId: train_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this training data.
+        required: true
+      tags:
+      - train
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+components:
+  schemas:
+    AuthToken:
+      type: object
+      properties:
+        username:
+          type: string
+          writeOnly: true
+        password:
+          type: string
+          writeOnly: true
+        token:
+          type: string
+          readOnly: true
+      required:
+      - password
+      - token
+      - username
+    EmailRecipient:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          nullable: true
+          maxLength: 255
+        email:
+          type: string
+          format: email
+          maxLength: 254
+      required:
+      - email
+      - id
+    HospitalData:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        createdTime:
+          type: string
+          format: date-time
+          readOnly: true
+        avgNurses:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,10})?$
+        avgPatients:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,10})?$
+        percentBedsFull:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,10})?$
+        timeOfDay:
+          type: string
+          format: time
+      required:
+      - avgNurses
+      - avgPatients
+      - createdTime
+      - id
+      - percentBedsFull
+      - timeOfDay
+    IncidentData:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        incidentType:
+          type: string
+          maxLength: 255
+        incidentDate:
+          type: string
+          format: date-time
+        affectedPeople:
+          type: string
+          maxLength: 255
+        incidentDescription:
+          type: string
+          maxLength: 255
+        hData:
+          type: integer
+          nullable: true
+      required:
+      - affectedPeople
+      - id
+      - incidentDate
+      - incidentDescription
+      - incidentType
+    PatchedEmailRecipient:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          nullable: true
+          maxLength: 255
+        email:
+          type: string
+          format: email
+          maxLength: 254
+    PatchedHospitalData:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        createdTime:
+          type: string
+          format: date-time
+          readOnly: true
+        avgNurses:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,10})?$
+        avgPatients:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,10})?$
+        percentBedsFull:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,10})?$
+        timeOfDay:
+          type: string
+          format: time
+    PatchedIncidentData:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        incidentType:
+          type: string
+          maxLength: 255
+        incidentDate:
+          type: string
+          format: date-time
+        affectedPeople:
+          type: string
+          maxLength: 255
+        incidentDescription:
+          type: string
+          maxLength: 255
+        hData:
+          type: integer
+          nullable: true
+    PatchedRiskData:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        wpvRisk:
+          type: boolean
+        wpvProbability:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,1}(?:\.\d{0,2})?$
+        hData:
+          type: integer
+          nullable: true
+    PatchedTrainingData:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        createdTime:
+          type: string
+          format: date-time
+          readOnly: true
+        avgNurses:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,10})?$
+        avgPatients:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,10})?$
+        percentBedsFull:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,10})?$
+        timeOfDay:
+          type: string
+          format: time
+        wpvRisk:
+          type: boolean
+    RiskData:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        wpvRisk:
+          type: boolean
+        wpvProbability:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,1}(?:\.\d{0,2})?$
+        hData:
+          type: integer
+          nullable: true
+      required:
+      - id
+      - wpvProbability
+      - wpvRisk
+    TrainingData:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        createdTime:
+          type: string
+          format: date-time
+          readOnly: true
+        avgNurses:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,10})?$
+        avgPatients:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,10})?$
+        percentBedsFull:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,10})?$
+        timeOfDay:
+          type: string
+          format: time
+        wpvRisk:
+          type: boolean
+      required:
+      - avgNurses
+      - avgPatients
+      - createdTime
+      - id
+      - percentBedsFull
+      - timeOfDay
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
+    tokenAuth:
+      type: http
+      scheme: bearer

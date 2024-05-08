@@ -1,127 +1,76 @@
+import json
 import logging
+import os.path
 from datetime import datetime
 
 import requests
 from django.conf import settings
-from django.core.mail import get_connection, EmailMessage
-from django.db.models import F, Func
+from django.contrib.auth.decorators import login_required
+from django.core.mail import EmailMessage
 from django.http import JsonResponse
 from django.shortcuts import render
-from rest_framework import viewsets, status, generics
+from drf_spectacular.utils import extend_schema
+from rest_framework import viewsets, status, views
+from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 
 from WorkplaceViolencePredictionAPI.API.authentication import BearerAuthentication
-from WorkplaceViolencePredictionAPI.API.models import HospitalData, TrainingData, IncidentLog, RiskData
+from WorkplaceViolencePredictionAPI.API.models import HospitalData, TrainingData, IncidentLog, RiskData, EmailRecipient
 from WorkplaceViolencePredictionAPI.API.serializers import HospitalDataSerializer, TrainingDataSerializer, \
-    IncidentDataSerializer, RiskDataSerializer
+    IncidentDataSerializer, RiskDataSerializer, EmailRecipientSerializer
 from WorkplaceViolencePredictionAPI.helpers import risk_to_dict
-
-"""
-Django REST framework allows you to combine the logic for a set of related views in a single class, called a ViewSet.
-In other frameworks you may also find conceptually similar implementations named something like 'Resources' or
-'Controllers'. A ViewSet class is simply a type of class-based View, that does not provide any method handlers such as
-.get() or .post(), and instead provides actions such as .list() and .create(). The method handlers for a ViewSet are
-only bound to the corresponding actions at the point of finalizing the view, using the .as_view() method. Typically,
-rather than explicitly registering the views in a viewset in the urlconf, you'll register the viewset with a router
-class, that automatically determines the urlconf for you.
-
-In this project, we will mainly use ViewSets. The primary difference between ViewSet and ViewAPI is the intended use of
-the functionality. If the application is performing CRUD actions directly on the model (CREATE, READ, UPDATE, DELETE), 
-then ViewSets are better to use. Alternatively, if the application needs finer customization for the requests 
-functionality, we can use ViewAPI, as it's a more barebones class which inherits from a Django base View class. For more
-information, refer to the following links:
-
-https://www.reddit.com/r/django/comments/sm07s2/drf_when_to_use_viewsets_vs_generic_views_vs/
-https://stackoverflow.com/questions/41379654/difference-between-apiview-class-and-viewsets-class
-https://medium.com/@p0zn/django-apiview-vs-viewsets-which-one-to-choose-c8945e538af4
-"""
 
 logger = logging.getLogger("wpv")
 
 
-class EmailView(generics.GenericAPIView):
-    authentication_classes = [BearerAuthentication]
+# specify no serializer for schema generator
+@extend_schema(request=None, responses=None)
+class DocumentationView(views.APIView):
+    """
+    A view to serve the OpenAPI schema for API documentation.
+    """
     permission_classes = [AllowAny]
 
-    # get all current recipients
     def get(self, request):
-        emails = settings.EMAIL_RECIPIENTS
+        """
+        Retrieve and return the OpenAPI schema.
+        """
+        path = os.path.join(settings.DOCUMENTATION_PATH, "openapi.json")
 
-        return JsonResponse(emails, safe=False)
-
-    # send emails to recipients
-    def post(self, request):
         try:
-            connection = get_connection(
-                backend=settings.EMAIL_BACKEND,
-                host=settings.EMAIL_HOST,
-                port=settings.EMAIL_PORT,
-                username=settings.EMAIL_HOST_SENDER,
-                password=settings.EMAIL_HOST_PASSWORD,
-                use_tls=True
-            )
-
-            # Email sends message to itself and BCCs a list of recipients
-            email = EmailMessage(
-                subject="Warning: Risk levels in the hospital!",
-                body="This message is to inform you of high risk levels within the hospital. "
-                     "Please be cautious of heightened stress levels as we work to resolve the issue.",
-                bcc=settings.EMAIL_RECIPIENTS,
-                from_email=settings.EMAIL_HOST_SENDER,
-                to=[settings.EMAIL_HOST_SENDER],
-                connection=connection,
-            )
-
-            email.send()
-            return JsonResponse({'message': 'Emails sent successfully'}, status=200)
+            with open(path) as f:
+                schema = json.load(f)
         except Exception as e:
-            logging.error(f"Error sending email: {e}")
+            logger.error(f"Error reading OpenAPI schema: {e}")
+            return JsonResponse({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-    # add an email to the recipients list
-    def put(self, request):
-        email = request.data.get('email')
-
-        if email is None:
-            return JsonResponse({'error': 'Invalid or empty email input'}, status=400)
-
-        settings.EMAIL_RECIPIENTS.append(email)
-
-        return JsonResponse({'message': 'Email appended successfully'}, status=200)
-
-    # remove an email from the recipients list
-    def delete(self, request):
-        email = request.data.get('email')
-
-        if email is None:
-            return JsonResponse({'error': 'Invalid or empty email input'}, status=400)
-
-        settings.EMAIL_RECIPIENTS = [r for r in settings.EMAIL_RECIPIENTS if r != email]
-
-        return JsonResponse({'message': 'Email removed successfully'}, status=200)
+        return JsonResponse(schema)
 
 
-# Hospital data ViewSet
 class HospitalDataViewSet(viewsets.ModelViewSet):
+    """
+    A ViewSet for CRUD operations on HospitalData objects.
+    """
     queryset = HospitalData.objects.all()
     serializer_class = HospitalDataSerializer
-    authentication_classes = [BearerAuthentication]
+    authentication_classes = [BearerAuthentication, SessionAuthentication]
     permission_classes = [IsAuthenticated]
 
     @action(methods=["GET"], detail=False)
     def latest(self, request, **kwargs):
+        """
+        Retrieve the latest HospitalData entry.
+        """
         latest_entry = HospitalData.objects.latest()
         serializer = HospitalDataSerializer(latest_entry, many=False)
         return JsonResponse(serializer.data, status=status.HTTP_200_OK)
 
     def create(self, request, **kwargs):
         """
-        This https request is an example for if a hospital uses their own api route to gather their own data
-        in a dictionary and want to put it into a database. If a hospital already has a database with
-        live information to use, this function is obsolete.
+        Create a new HospitalData entry.
         """
-
         # walrus operator ( := ) evaluates the expression then assigns the value to the variable
         # (see https://stackoverflow.com/questions/50297704)
         if num_samples := request.headers.get("Samples"):
@@ -153,25 +102,37 @@ class HospitalDataViewSet(viewsets.ModelViewSet):
 
 
 class TrainingDataViewSet(viewsets.ModelViewSet):
+    """
+    A ViewSet for CRUD operations on TrainingData objects.
+    """
     queryset = TrainingData.objects.all()
     serializer_class = TrainingDataSerializer
-    authentication_classes = [BearerAuthentication]
+    authentication_classes = [BearerAuthentication, SessionAuthentication]
     permission_classes = [IsAuthenticated]
 
 
 class PredictionModelViewSet(viewsets.ModelViewSet):
-    authentication_classes = [BearerAuthentication]
+    """
+    A ViewSet for CRUD operations on PredictionModel objects.
+    """
+    authentication_classes = [BearerAuthentication, SessionAuthentication]
     permission_classes = [IsAuthenticated]
     queryset = RiskData.objects.all()
     serializer_class = RiskDataSerializer
 
     @action(methods=["GET"], detail=False, permission_classes=[IsAuthenticatedOrReadOnly])
     def latest(self, request, **kwargs):
+        """
+        Retrieve the latest RiskData entry.
+        """
         queryset = RiskData.objects.latest()
         serializer = RiskDataSerializer(queryset, many=False)
         return JsonResponse(serializer.data, status=status.HTTP_200_OK)
 
     def create(self, request, **kwargs):
+        """
+        Create a new RiskData entry.
+        """
         if row := request.headers.get("id"):
             hData = HospitalData.objects.get(id=row)
         else:
@@ -191,38 +152,59 @@ class PredictionModelViewSet(viewsets.ModelViewSet):
 
 
 class IncidentLogViewSet(viewsets.ModelViewSet):
-    authentication_classes = [BearerAuthentication]
+    """
+    A ViewSet for CRUD operations on IncidentLog objects.
+    """
+    authentication_classes = [BearerAuthentication, SessionAuthentication]
     permission_classes = [IsAuthenticated]
     queryset = IncidentLog.objects.all()
     serializer_class = IncidentDataSerializer
 
     def create(self, request, **kwargs):
-        headers = request.headers
-        req_headers = ["incidentType", "incidentDate", "affectedPeople", "incidentDescription"]
-        for header in req_headers:
-            if headers.get(header) is None:
-                return JsonResponse({"error": f"Missing header {header}"}, status=status.HTTP_400_BAD_REQUEST)
-        closest_hdata = (HospitalData.objects.annotate(
-            time_difference=Func(F("createdTime") - datetime.strptime(headers.get("incidentDate"), "%Y-%m-%d %H:%M:%S"),
-                                 function="ABS"))
-                         .order_by("time_difference").first().id)
+        """
+        Create a new IncidentLog entry.
+        """
+        data = request.data
+        required_fields = ["incidentType", "incidentDate", "affectedPeople", "incidentDescription"]
+
+        for field in required_fields:
+            if data.get(field) is None:
+                return JsonResponse({"error": f"Missing key in body {field}"}, status=status.HTTP_400_BAD_REQUEST)
+
+        incidentType = data.get("incidentType")
+        incidentDate = data.get("incidentDate")
+        affectedPeople = data.get("affectedPeople")
+        incidentDescription = data.get("incidentDescription")
+
+        # find closest HospitalData to incidentDate
+        incidentDateTime = datetime.strptime(incidentDate, "%Y-%m-%dT%H:%M")
+        closest_hdata = HospitalData.objects.filter(createdTime__lte=incidentDateTime).order_by('-createdTime').first()
+
+        if closest_hdata is None:
+            return JsonResponse({"error": f"Couldn't find data prior to given date"}, status=status.HTTP_404_NOT_FOUND)
+
         new_log = {
-            "incidentType": headers.get("incidentType"),
-            "incidentDate": headers.get("incidentDate"),
-            "affectedPeople": headers.get("affectedPeople"),
-            "incidentDescription": headers.get("incidentDescription"),
-            "hData": closest_hdata
+            "incidentType": incidentType,
+            "incidentDate": incidentDate,
+            "affectedPeople": affectedPeople,
+            "incidentDescription": incidentDescription,
+            "hData": closest_hdata.pk
         }
+
         serializer = self.serializer_class(data=new_log, many=False)
         try:
             serializer.is_valid(raise_exception=True)
             serializer.save()
+
             return JsonResponse({"Status": f"Incident {serializer.data.get('id')} logged"},
                                 status=status.HTTP_201_CREATED)
         except ValidationError:
             return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def destroy(self, request, **kwargs):
+        """
+        Delete an IncidentLog entry.
+        """
         if row := request.headers.get("id"):
             IncidentLog.objects.get(id=row).delete()
             return JsonResponse({"Success": f"Incident {row} deleted"}, status=status.HTTP_204_NO_CONTENT)
@@ -231,24 +213,98 @@ class IncidentLogViewSet(viewsets.ModelViewSet):
             return JsonResponse({"Error": "Missing required id header"}, status=status.HTTP_400_BAD_REQUEST)
 
 
+class EmailViewSet(viewsets.ModelViewSet):
+    """
+    A ViewSet for CRUD operations on EmailRecipient objects.
+    """
+    queryset = EmailRecipient.objects.all()
+    serializer_class = EmailRecipientSerializer
+    authentication_classes = [BearerAuthentication, SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    @action(methods=['GET'], detail=False)
+    def send(self, request, **kwargs):
+        """
+        Send an email to all recipients.
+        """
+        queryset = EmailRecipient.objects.only("email").values_list("email", flat=True)
+        emails = [email for email in queryset]
+        logger.debug(queryset)
+        logger.debug(emails)
+
+        try:
+            # Email sends message to itself and BCCs a list of recipients
+            email = EmailMessage(
+                subject="Warning: Risk levels in the hospital!",
+                body="This message is to inform you of high risk levels within the hospital. "
+                     "Please be cautious of heightened stress levels as we work to resolve the issue.",
+                bcc=emails,
+                from_email=settings.EMAIL_HOST_USER,
+                to=[settings.EMAIL_HOST_USER]
+            )
+
+            email.send()
+            return JsonResponse({'message': 'Emails sent successfully'}, status=200)
+        except Exception as e:
+            logging.error(f"Error sending email: {e}")
+            return JsonResponse({"error": e}, status=status.HTTP_400_BAD_REQUEST)
+
+    def list(self, request, *args, **kwargs):
+        """
+        List all EmailRecipient objects or retrieve a single object by email.
+        """
+        # Get query parameter from URL
+        email = request.query_params.get('email')
+
+        # If unique_field parameter is present, retrieve single object
+        if not email:
+            return super().list(request, *args, **kwargs)
+
+        if not isinstance(email, str):
+            return JsonResponse({"error": "Email must be a string."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            obj = EmailRecipient.objects.get(email__iexact=email)
+            serializer = self.get_serializer(obj)
+
+            return JsonResponse(serializer.data)
+        except EmailRecipient.DoesNotExist:
+            return JsonResponse({'error': 'Object not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+
 ##########################################################
 
 
 # Home view
+@login_required
 def home(request):
+    """
+    Render the home page.
+    """
     return render(request, "home.html")
 
 
 # Log View
+@login_required
 def log(request):
-    return render(request, "incidentlog.html")
+    """
+    Render the log page.
+    """
+    return render(request, "log.html")
 
 
 # Manage email View
+@login_required
 def email(request):
+    """
+    Render the email management page.
+    """
     return render(request, "email.html")
 
 
-# API documentation View
+# API documentation View (public)
 def docs(request):
+    """
+    Render the public API documentation page.
+    """
     return render(request, "docs.html")

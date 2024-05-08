@@ -1,50 +1,59 @@
+/* disable scrolling on body */
+html, body {
+    height: 100%;
+    overflow: hidden
+}
+
 body {
     height: 100vh;
-    background-color: lightgray;
+    font-family: Arial, Helvetica, sans-serif;
 }
 
 .body_container {
-    background-color: lightgray;
     display: flex;
     width: auto;
     height: 100%;
+    padding-top: 3%;
 }
 
 .body_left {
-    padding-top: 3%;
-    display:flex;
+    display: flex;
     flex-direction: column;
     align-items: center;
-    width: 50%;
+    width: 40%;
     gap: 40px;
+    padding-right: 1em;
 }
 
 .body_right {
-    width: 50%;
+    width: 60%;
     background-color: white;
+}
+
+.body_right > h2 {
+    text-align: center;
 }
 
 :root {
     --rotation: 0deg
 }
 
-
 .gauge_container {
     border-radius: 30px;
-    width: 75%;
+    width: 100%;
     height: 40%;
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #d26161;
+    background-color: #4F8FC0;
     grid-row: 1;
 }
 
 .risk_container {
     grid-row: 2;
     display: flex;
-    background-color: #d26161;
-    width: 75%;
+    background-color: #4F8FC0;
+    width: 100%;
     height: 15%;
     border-radius: 30px;
     align-items: center;
@@ -64,7 +73,7 @@ body {
     width: 100%;
     height: 0;
     padding-bottom: 50%;
-    background: #b4c0be;
+    background-color: white;
     position: relative;
     border-top-left-radius: 100% 200%;
     border-top-right-radius: 100% 200%;
@@ -73,6 +82,7 @@ body {
 
 .gauge_fill {
     position: absolute;
+    z-index: 0;
     top: 100%;
     left: 0;
     width: inherit;
@@ -85,9 +95,10 @@ body {
 .gauge_cover {
     width: 75%;
     height: 150%;
-    background: rgba(224, 54, 54, 0.685);
+    background-color: #4F8FC0;
     border-radius: 50%;
     position: absolute;
+    z-index: 1000;
     top: 25%;
     left: 50%;
     transform: translateX(-50%);
@@ -101,21 +112,19 @@ body {
 
     /* Font */
     font-size: 70px;
-    font-family: Arial, Helvetica, sans-serif;
     font-weight: bold;
     color: white;
 }
 
+
 .button_container {
     display: flex;
     height: 15%;
-    width: 75%;
-    justify-content: space-evenly;
-    align-items: center;
+    width: 100%;
 }
 
 .m_button {
-    width: 50%;
+    width: 100%;
     height: 100%;
 }
 
@@ -124,12 +133,10 @@ body {
     font-size: 100%;
     align-items: center;
     width: 80%;
-    font-size: 150%;
-    font-family: Arial, Helvetica, sans-serif;
     font-weight: bold;
     vertical-align: center;
     border: none;
-    background-color: #6d9ecb;
+    background-color: #4F8FC0;
     color: white;
     border-radius: 10px;
 }
@@ -144,12 +151,29 @@ body {
 }
 
 .header {
-    background-color: #4d4c4c;
+    background-color: #114060;
     color: white;
     width: 100%;
     top: 0;
     left: 0;
     display: flex;
-    font-family: Arial, Helvetica, sans-serif;
     justify-content: center;
+}
+
+.table_container {
+    color: white;
+    background-color: #4F8FC0;
+    border-radius: 30px;
+    align-items: center;
+    justify-content: center;
+    max-height: 75vh;
+    overflow: auto;
+}
+
+#recentData_wrapper {
+    padding: 1em;
+}
+
+#tableTitle {
+    text-align: right;
 }

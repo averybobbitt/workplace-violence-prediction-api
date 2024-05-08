@@ -3,9 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
+            integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src=" https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js "></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/customParseFormat.js"></script>
+
+    <script src="https://cdn.datatables.net/v/dt/dt-2.0.4/r-3.0.2/datatables.min.js"></script>
+    <link href="https://cdn.datatables.net/v/dt/dt-2.0.4/r-3.0.2/datatables.min.css" rel="stylesheet">
+
     {% load static %}
-    <link rel="stylesheet" href="{% static 'css/home.css' %}">
     <script src="{% static 'js/home.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+
     <title>Dial</title>
 </head>
 <body>
@@ -14,9 +27,13 @@
 
 <div class="header">
     <h1>Workplace Violence Prediction System</h1>
+    <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit">logout</button>
+    </form>
+
 </div>
 <div class="body_container">
-
     <div class="body_left">
 
         <div class="gauge_container">
@@ -30,21 +47,18 @@
             </div>
         </div>
 
-
         <div class="risk_container">
             <h2>Current Risk: <span id="riskYN">loading...</span></h2>
         </div>
 
         <div class="button_container">
             <div class="m_button">
-                <!-- Need an absolute path to the incident log page because it is not in the
-                        same directory. -->
-                <a href="/log">
+                <a href="{% url 'log' %}">
                     <button class="but">Log Incident</button>
                 </a>
             </div>
             <div class="m_button">
-                <a href="/email">
+                <a href="{% url 'email' %}">
                     <button class="but">Manage Emails</button>
                 </a>
             </div>
@@ -53,9 +67,34 @@
     </div>
 
     <div class="body_right">
-        RIGHT SIDE WHERE TABLE WILL BE
-    </div>
+        <div class="table_container">
+            <!-- it could be worth checking out https://django-tables2.readthedocs.io/en/latest/ -->
+            <table id="recentData" class="display" style="width:100%">
+                <thead>
+                <tr>
+                    <!-- Create table headers -->
+                    <th>ID</th>
+                    <th>Created Time</th>
+                    <th>Average Nurses</th>
+                    <th>Average Patients</th>
+                    <th>% Beds Full</th>
+                    <th>Time of Day</th>
+                </tr>
+                </thead>
+                <tbody>
+                {# {% for item in data %} #}
+                {# <tr> #}
+                {# <!-- Populate table rows with data from each dictionary --> #}
+                {# {% for value in item.values %} #}
+                {# <td>{{ value }}</td> #}
+                {# {% endfor %} #}
+                {# </tr> #}
+                {# {% endfor %} #}
+                </tbody>
+            </table>
 
+        </div>
+    </div>
 
 </div>
 
