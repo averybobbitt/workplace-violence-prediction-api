@@ -22,6 +22,9 @@ To set up the development environment for this application, you must do a couple
 > `git clone https://github.com/averybobbitt/workplace-violence-prediction-api.git`
 
 **2. Copy Run Configurations**
+> [!WARNING]
+> The following only applies if you are using PyCharm or any JetBrains IDE.
+> If you use any other IDE, skip to step 3.
 
 Copy the run configurations provided in `./run_configs` into `./.idea/runConfigurations/` \
 Note: The `Run Django` run configuration is deprecated. Always use the `Docker` run configuration.
