@@ -8,6 +8,9 @@
 
 This repository contains the source code for Team Orangutan's Software Engineering project for Impact Intelligence.
 
+> [!IMPORTANT]
+> **Any questions regarding the codebase/functionality during phase 2 of this project can be directed to Avery (see contact info).**
+
 ---
 
 ## Development
